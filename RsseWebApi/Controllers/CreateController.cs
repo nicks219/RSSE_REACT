@@ -16,12 +16,12 @@ namespace RandomSongSearchEngine.Controllers
     public class CreateController : ControllerBase
     {
         private readonly ILogger<SongModel> _logger;
-        private readonly SongModel _model;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public CreateController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
         {
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            _model = new SongModel(serviceScopeFactory);
         }
 
         [HttpGet]
@@ -29,8 +29,9 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                await _model.OnGetCreateAsync();
-                return _model.ModelToDto();
+                var model = new SongModel(_serviceScopeFactory);
+                await model.OnGetCreateAsync();
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {
@@ -44,14 +45,15 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                _model.DtoToModel(dto);
-                await _model.OnPostCreateAsync();
-                if (_model.SavedTextId == 0)
+                var model = new SongModel(_serviceScopeFactory);
+                model.DtoToModel(dto);
+                await model.OnPostCreateAsync();
+                if (model.SavedTextId == 0)
                 {
                     //не критическая ошибка: например, песня с таким названием уже есть, или поля пустые
-                    return _model.ModelToDto();
+                    return model.ModelToDto();
                 }
-                return _model.ModelToDto();
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {

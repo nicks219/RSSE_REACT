@@ -16,12 +16,12 @@ namespace RandomSongSearchEngine.Controllers
     public class UpdateController : ControllerBase
     {
         private readonly ILogger<SongModel> _logger;
-        private readonly SongModel _model;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
         {
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            _model = new SongModel(serviceScopeFactory);
         }
 
         [HttpGet]
@@ -31,8 +31,9 @@ namespace RandomSongSearchEngine.Controllers
             {
                 //при id = 0 контроллер отдаст пустой список
                 //if (id == 0) id = 1;
-                await _model.OnGetUpdateAsync(id);
-                return _model.ModelToDto();
+                var model = new SongModel(_serviceScopeFactory);
+                await model.OnGetUpdateAsync(id);
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {
@@ -47,9 +48,10 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 //в полученной model будет пустое поле SongCount
-                _model.DtoToModel(dto);
-                await _model.OnPostUpdateAsync();
-                return _model.ModelToDto();
+                var model = new SongModel(_serviceScopeFactory);
+                model.DtoToModel(dto);
+                await model.OnPostUpdateAsync();
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {

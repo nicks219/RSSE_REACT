@@ -16,12 +16,12 @@ namespace RandomSongSearchEngine.Controllers
     public class CatalogController : ControllerBase
     {
         private readonly ILogger<CatalogModel> _logger;
-        private readonly CatalogModel _model;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
         public CatalogController(IServiceScopeFactory serviceScopeFactory, ILogger<CatalogModel> logger)
         {
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            _model = new CatalogModel(serviceScopeFactory);
         }
 
         [HttpGet]
@@ -29,8 +29,9 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                await _model.OnGetCatalogAsync(id);
-                return _model.CatalogToDto();
+                var model = new CatalogModel(_serviceScopeFactory);
+                await model.OnGetCatalogAsync(id);
+                return model.CatalogToDto();
             }
             catch (Exception ex)
             {
@@ -44,9 +45,10 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                _model.DtoToCatalog(dto);
-                await _model.OnPostCatalogAsync();
-                return _model.CatalogToDto();
+                var model = new CatalogModel(_serviceScopeFactory);
+                model.DtoToCatalog(dto);
+                await model.OnPostCatalogAsync();
+                return model.CatalogToDto();
             }
             catch (Exception ex)
             {

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
@@ -59,13 +61,14 @@ namespace RandomSongSearchEngine.Models
         /// </summary>
         public readonly int PageSize = 10;
 
-        private void GetSongCount ()
+        private void GetSongCount()
         {
             try
             {
                 using var scope = ServiceScopeFactory.CreateScope();//
-                var database = scope.ServiceProvider.GetRequiredService<RsseContext>();//
-                SongsCount = database.Text.Count();
+                var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
+                //var r = database.Text.CountAsync();//
+                SongsCount = database.Text.CountAsync().Result;
             }
             catch (Exception e)
             {

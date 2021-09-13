@@ -18,12 +18,12 @@ namespace RandomSongSearchEngine.Controllers
     public class ReadController : ControllerBase
     {
         private readonly ILogger<SongModel> _logger;
-        private readonly SongModel _model;
-
+        private readonly IServiceScopeFactory _serviceScopeFactory;
+ 
         public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
         {
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            _model = new SongModel(serviceScopeFactory);
         }
 
         [HttpGet]
@@ -31,8 +31,9 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                await _model.OnGetReadAsync();
-                return _model.ModelToDto();
+                var model = new SongModel(_serviceScopeFactory);
+                await model.OnGetReadAsync();
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {
@@ -46,9 +47,10 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                _model.DtoToModel(dto);
-                await _model.OnPostReadAsync();
-                return _model.ModelToDto();
+                var model = new SongModel(_serviceScopeFactory);
+                model.DtoToModel(dto);
+                await model.OnPostReadAsync();
+                return model.ModelToDto();
             }
             catch (Exception ex)
             {
