@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,55 +11,60 @@ using RandomSongSearchEngine.DTO;
 namespace RandomSongSearchEngine.Models
 {
     /// <summary>
-    /// Каталог песен
+    /// РљР°С‚Р°Р»РѕРі РїРµСЃРµРЅ
     /// </summary>
     public class CatalogModel : ICatalogModel
     {
         public IServiceScopeFactory ServiceScopeFactory { get; }
         public ILogger<CatalogModel> Logger { get; }
 
-        //конструктор без параметров нужен для работы десериализации
+        //РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ Р±РµР· РїР°СЂР°РјРµС‚СЂРѕРІ РЅСѓР¶РµРЅ РґР»СЏ СЂР°Р±РѕС‚С‹ РґРµСЃРµСЂРёР°Р»РёР·Р°С†РёРё
         public CatalogModel(){}
 
         public CatalogModel(IServiceScopeFactory serviceScopeFactory)
         {
             ServiceScopeFactory = serviceScopeFactory;
             Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
-            //модель должна знать songscount - иначе придется брать из фронта или считать каждый раз
-            //количество песен меняется!
-            _ = GetSongCountAsync();
+            //РјРѕРґРµР»СЊ РґРѕР»Р¶РЅР° Р·РЅР°С‚СЊ songscount - РёРЅР°С‡Рµ РїСЂРёРґРµС‚СЃСЏ Р±СЂР°С‚СЊ РёР· С„СЂРѕРЅС‚Р° РёР»Рё СЃС‡РёС‚Р°С‚СЊ РєР°Р¶РґС‹Р№ СЂР°Р·
+            //РєРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЃРµРЅ РјРµРЅСЏРµС‚СЃСЏ!
+            _ = GetSongCount();
         }
 
-        //у ParentModel тоже есть
+        //Сѓ ParentModel С‚РѕР¶Рµ РµСЃС‚СЊ
         /// <summary>
-        /// Сохраненный ID текста для перехода между вьюхами
+        /// РЎРѕС…СЂР°РЅРµРЅРЅС‹Р№ ID С‚РµРєСЃС‚Р° РґР»СЏ РїРµСЂРµС…РѕРґР° РјРµР¶РґСѓ РІСЊСЋС…Р°РјРё
         /// </summary>
         public int SavedTextId { get; set; }
 
         /// <summary>
-        /// Список из названий песен и соответствующим им ID для CatalogView
+        /// РЎРїРёСЃРѕРє РёР· РЅР°Р·РІР°РЅРёР№ РїРµСЃРµРЅ Рё СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёРј РёРј ID РґР»СЏ CatalogView
         /// </summary>
         public List<Tuple<string, int>> TitlesAndIds { get; set; }
 
         /// <summary>
-        /// Используется для определения какая кнопка была нажата во вьюхе
+        /// РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїСЂРµРґРµР»РµРЅРёСЏ РєР°РєР°СЏ РєРЅРѕРїРєР° Р±С‹Р»Р° РЅР°Р¶Р°С‚Р° РІРѕ РІСЊСЋС…Рµ
         /// </summary>
         public List<int> NavigationButtons { get; set; }
 
         /// <summary>
-        /// Количество песен в базе данных
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЃРµРЅ РІ Р±Р°Р·Рµ РґР°РЅРЅС‹С…
         /// </summary>
         public int SongsCount { get; set; }
 
         /// <summary>
-        /// Номер последней просмотренной страницы
+        /// РќРѕРјРµСЂ РїРѕСЃР»РµРґРЅРµР№ РїСЂРѕСЃРјРѕС‚СЂРµРЅРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹
         /// </summary>
         public int PageNumber { get; set; }
 
         /// <summary>
-        /// Количество песен на одной странице
+        /// РљРѕР»РёС‡РµСЃС‚РІРѕ РїРµСЃРµРЅ РЅР° РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†Рµ
         /// </summary>
         public readonly int PageSize = 10;
+
+        public async Task GetSongCount()
+        {
+            await GetSongCountAsync();
+        }
 
         private async Task GetSongCountAsync()
         {
@@ -72,7 +77,7 @@ namespace RandomSongSearchEngine.Models
             catch (Exception e)
             {
                 Logger.LogError(e, "[CatalogModel]: no database");
-                //в случае отсутствия бд мы не придём к null referenece exception из-за TitleAndTextID
+                //РІ СЃР»СѓС‡Р°Рµ РѕС‚СЃСѓС‚СЃС‚РІРёСЏ Р±Рґ РјС‹ РЅРµ РїСЂРёРґС‘Рј Рє null referenece exception РёР·-Р·Р° TitleAndTextID
                 TitlesAndIds = new List<Tuple<string, int>>();
             }
         }
