@@ -12,6 +12,7 @@ namespace RandomSongSearchEngine.Extensions
     {
         public static async Task OnGetCatalogAsync(this CatalogModel model, int id)
         {
+            await model.GetSongCountAsync();//
             model.PageNumber = id;
             try
             {
@@ -27,6 +28,7 @@ namespace RandomSongSearchEngine.Extensions
 
         public static async Task OnPostCatalogAsync(this CatalogModel model)
         {
+            await model.GetSongCountAsync();//
             //Предполагается, что браузер прислал неиспорченные данные
             if (model.NavigationButtons != null && model.NavigationButtons[0] == 2)
             {
