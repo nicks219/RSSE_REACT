@@ -27,7 +27,7 @@ namespace RandomSongSearchEngine.Models
             Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
             //модель должна знать songscount - иначе придется брать из фронта или считать каждый раз
             //количество песен меняется!
-            GetSongCount();
+            _ = GetSongCountAsync();
         }
 
         //у ParentModel тоже есть
@@ -61,14 +61,13 @@ namespace RandomSongSearchEngine.Models
         /// </summary>
         public readonly int PageSize = 10;
 
-        private void GetSongCount()
+        private async Task GetSongCountAsync()
         {
             try
             {
                 using var scope = ServiceScopeFactory.CreateScope();//
                 var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-                //var r = database.Text.CountAsync();//
-                SongsCount = database.Text.CountAsync().Result;
+                SongsCount = await database.Text.CountAsync();//
             }
             catch (Exception e)
             {
