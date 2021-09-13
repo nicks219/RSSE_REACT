@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RandomSongSearchEngine.Data;
+using RandomSongSearchEngine.DTO;
+
+namespace RandomSongSearchEngine.Models
+{
+    /// <summary>
+    /// Каталог песен
+    /// </summary>
+    public class CatalogModel : ICatalogModel
+    {
+        public IServiceScopeFactory ServiceScopeFactory { get; set; }
+        public ILogger<SongModel> Logger { get; set; }
+
+        //конструктор без параметров нужен для работы десериализации
+
+        public CatalogModel(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        {
+            ServiceScopeFactory = serviceScopeFactory;
+            Logger = logger;
+            //модель должна знать songscount - иначе придется брать из фронта или считать каждый раз
+            //количество песен меняется!
+            GetSongCount();
+        }
+
+        //у ParentModel тоже есть
+        /// <summary>
+        /// Сохраненный ID текста для перехода между вьюхами
+        /// </summary>
+        public int SavedTextId { get; set; }
+
+        /// <summary>
+        /// Список из названий песен и соответствующим им ID для CatalogView
+        /// </summary>
+        public List<Tuple<string, int>> TitlesAndIds { get; set; }
+
+        /// <summary>
+        /// Используется для определения какая кнопка была нажата во вьюхе
+        /// </summary>
+        public List<int> NavigationButtons { get; set; }
+
+        /// <summary>
+        /// Количество песен в базе данных
+        /// </summary>
+        public int SongsCount { get; set; }
+
+        /// <summary>
+        /// Номер последней просмотренной страницы
+        /// </summary>
+        public int PageNumber { get; set; }
+
+        /// <summary>
+        /// Количество песен на одной странице
+        /// </summary>
+        public readonly int PageSize = 10;
+
+        private void GetSongCount ()
+        {
+            try
+            {
+                using var scope = ServiceScopeFactory.CreateScope();//
+                var database = scope.ServiceProvider.GetRequiredService<RsseContext>();//
+                SongsCount = database.Text.Count();
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "[CatalogModel]: no database");
+                //в случае отсутствия бд мы не придём к null referenece exception из-за TitleAndTextID
+                TitlesAndIds = new List<Tuple<string, int>>();
+            }
+        }
+    }
+}
