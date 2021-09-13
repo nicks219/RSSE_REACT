@@ -5,6 +5,7 @@ using RandomSongSearchEngine.DTO;
 using RandomSongSearchEngine.Models;
 using System.Threading.Tasks;
 using RandomSongSearchEngine.Extensions;
+using System;
 
 namespace RandomSongSearchEngine.Controllers
 {
@@ -14,33 +15,44 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class CatalogController : ControllerBase
     {
-        private readonly ILogger<SongModel> _logger;
-        private readonly IServiceScopeFactory _scope;
+        private readonly ILogger<CatalogModel> _logger;
         private readonly CatalogModel _model;
 
-        public CatalogController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public CatalogController(IServiceScopeFactory serviceScopeFactory, ILogger<CatalogModel> logger)
         {
             _logger = logger;
-            _scope = serviceScopeFactory;
-            _model = new CatalogModel(_scope, _logger);
+            _model = new CatalogModel(serviceScopeFactory);
         }
 
         [HttpGet]
         public async Task<ActionResult<CatalogDto>> Catalog(int id)
         {
-            await _model.OnGetCatalogAsync(id);
-            return _model.CatalogToDto();
+            try
+            {
+                await _model.OnGetCatalogAsync(id);
+                return _model.CatalogToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[CatalogController: OnGet Error]");
+                return new CatalogModel().CatalogToDto();
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult<CatalogModel>> Catalog([FromBody] CatalogDto dto)
+        public async Task<ActionResult<CatalogDto>> Catalog([FromBody] CatalogDto dto)
         {
-            _model.ServiceScopeFactory = _scope;
-            _model.Logger = _logger;
-            _model.DtoToCatalog(dto);
-
-            await _model.OnPostCatalogAsync();
-            return _model;
+            try
+            {
+                _model.DtoToCatalog(dto);
+                await _model.OnPostCatalogAsync();
+                return _model.CatalogToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[CatalogController: OnPost Error]");
+                return new CatalogModel().CatalogToDto();
+            }
         }
     }
 }

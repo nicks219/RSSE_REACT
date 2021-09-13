@@ -15,26 +15,17 @@ using JavaScriptEngineSwitcher.ChakraCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RandomSongSearchEngine.Services.Logger;
 
-//using System.Net.Http;
-
 // TODO: ПЕРЕД ПУБЛИКАЦИЕЙ НЕ ЗАБУДЬ УБРАТЬ ПОДКЛЮЧЕНИЯ К БД
 // TODO: сделай меню бутстраповское
-// +TODO: на данный момент 4 контроллера практически идентичны
-// +TODO: сделай шаг RESTfull, избавься от состояния (MySingleton) в бэке
+//+ TODO: на данный момент 4 контроллера практически идентичны
+//+ TODO: сделай шаг RESTfull, избавься от состояния (MySingleton) в бэке
 //  TODO: сделай второй шаг - избавься от состояния во фронте)
 // TODO: кнопку "все песни" попробуй как в site.js
 // TODO: уменьши мастшаб экрана на сотовом в 2 раза при загрузке
-
-//V1.1.3 (коммит перед рефакторингом)
-//V1.1.4 (убрал синглтон, 3 модели, лишние нэймспейсы и папки)
-//V1.1.5 (частично сделаны css и верстка)
-//V1.1.6 (деплой - доделан css для 1й страницы, jsx переведены в js)
-
-// НАЛАДИЛ чтение jsx на хосте: nuGet chakra для x86 (+еще 2) - ушло два дня на эксперименты
-// бандл static собран на ноде
-// в cshml есть пример навороченного css
-//V1.1.7 (решена проблема с хостингом, собран js в бандл)
-
+//+ TODO: добавь логгер в контроллер
+//+ V0.0.1 TODO: избавься от модели в контроллере (только dto)
+// TODO: прикрути secret json))
+// TODO: LoginController оформи по-человечески
 
 namespace RandomSongSearchEngine
 {
@@ -69,7 +60,6 @@ namespace RandomSongSearchEngine
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            //
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -100,15 +90,24 @@ namespace RandomSongSearchEngine
             //        name: "default",
             //        pattern: "{controller=Home}/{action=Index}/{id?}");
             //});
-
             loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"));
             var logger = loggerFactory.CreateLogger("FileLogger");
-
             logger.LogInformation("Application started at {0}, is 64-bit process: {1}", DateTime.Now, Environment.Is64BitProcess);
         }
     }
 }
 
+//ИСТОРИЯ ИЗМЕНЕНИЙ:
+//V1.1.3 (коммит перед рефакторингом)
+//V1.1.4 (убрал синглтон, 3 модели, лишние нэймспейсы и папки)
+//V1.1.5 (частично сделаны css и верстка)
+//V1.1.6 (деплой - доделан css для 1й страницы, jsx переведены в js)
+// НАЛАДИЛ чтение jsx на хосте: nuGet chakra для x86 (+еще 2) - ушло два дня на эксперименты
+// бандл static собран на ноде
+// в cshml есть пример навороченного css
+//V1.1.7 (решена проблема с хостингом, собран js в бандл)
+//V1.1.9 слил connection string на git
+//
 //эти примеры кода пока не запомнил, пусть полежат
 //
 ////код для CORS с форума

@@ -13,15 +13,16 @@ namespace RandomSongSearchEngine.Models
     /// </summary>
     public class CatalogModel : ICatalogModel
     {
-        public IServiceScopeFactory ServiceScopeFactory { get; set; }
-        public ILogger<SongModel> Logger { get; set; }
+        public IServiceScopeFactory ServiceScopeFactory { get; }
+        public ILogger<CatalogModel> Logger { get; }
 
         //конструктор без параметров нужен для работы десериализации
+        public CatalogModel(){}
 
-        public CatalogModel(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public CatalogModel(IServiceScopeFactory serviceScopeFactory)
         {
             ServiceScopeFactory = serviceScopeFactory;
-            Logger = logger;
+            Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
             //модель должна знать songscount - иначе придется брать из фронта или считать каждый раз
             //количество песен меняется!
             GetSongCount();

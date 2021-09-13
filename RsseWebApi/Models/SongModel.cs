@@ -10,19 +10,18 @@ namespace RandomSongSearchEngine.Models
     /// </summary>
     public partial class SongModel : ISongModel
     {
-        public IServiceScopeFactory ServiceScopeFactory { get; set; }
-        public ILogger<SongModel> Logger { get; set; }
+        public IServiceScopeFactory ServiceScopeFactory { get; }
+        public ILogger<SongModel> Logger { get; }
 
-        //конструктор без параметров нужен для работы десериализации
-        //в базовом классе - чтоб работали конструкторы без параметров у наследников
-        //public ParentModel() { }
+        //конструктор без параметров был нужен для работы десериализации (но в какой ситуации??)
+        public SongModel() { }
 
-        public SongModel(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public SongModel(IServiceScopeFactory serviceScopeFactory)
         {
             IsGenreCheckedCs = new List<string>();
             GenresNamesCs = new List<string>();
             ServiceScopeFactory = serviceScopeFactory;
-            Logger = logger;
+            Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<SongModel>>();
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Models;
@@ -16,35 +17,44 @@ namespace RandomSongSearchEngine.Controllers
 
     public class ReadController : ControllerBase
     {
-        public readonly ILogger<SongModel> Logger;
-        private readonly IServiceScopeFactory _scope;
+        private readonly ILogger<SongModel> _logger;
         private readonly SongModel _model;
 
         public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
         {
-
-            Logger = logger;
-            _scope = serviceScopeFactory;
-            _model = new SongModel(_scope, Logger);
+            _logger = logger;
+            _model = new SongModel(serviceScopeFactory);
         }
 
         [HttpGet]
         public async Task<ActionResult<SongDto>> Index()
         {
-            await _model.OnGetReadAsync();
-            return _model.ModelToDto();
+            try
+            {
+                await _model.OnGetReadAsync();
+                return _model.ModelToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ReadController: OnGet Error]");
+                return new SongModel().ModelToDto();
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<SongDto>> Index([FromBody] SongDto dto)
         {
-            //model.AreChecked = _model.AreChecked;
-            _model.ServiceScopeFactory = _scope;
-            _model.Logger = Logger;
-            _model.DtoToModel(dto);
-
-            await _model.OnPostReadAsync();
-            return _model.ModelToDto();
+            try
+            {
+                _model.DtoToModel(dto);
+                await _model.OnPostReadAsync();
+                return _model.ModelToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[ReadController: OnPost Error]");
+                return new SongModel().ModelToDto();
+            }
         }
     }
 }

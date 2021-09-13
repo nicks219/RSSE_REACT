@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Extensions
 {
-    public static class ChangeTextExtensinos
+    public static class UpdateSongExtensinos
     {
         public static async Task OnGetUpdateAsync(this SongModel model, int id)
         {

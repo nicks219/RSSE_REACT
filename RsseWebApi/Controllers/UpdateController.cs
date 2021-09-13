@@ -6,6 +6,7 @@ using RandomSongSearchEngine.DTO;
 using RandomSongSearchEngine.Models;
 using System.Threading.Tasks;
 using RandomSongSearchEngine.Extensions;
+using System;
 
 namespace RandomSongSearchEngine.Controllers
 {
@@ -15,35 +16,46 @@ namespace RandomSongSearchEngine.Controllers
     public class UpdateController : ControllerBase
     {
         private readonly ILogger<SongModel> _logger;
-        private readonly IServiceScopeFactory _scope;
         private readonly SongModel _model;
 
         public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
         {
             _logger = logger;
-            _scope = serviceScopeFactory;
-            _model = new SongModel(_scope, _logger);
+            _model = new SongModel(serviceScopeFactory);
         }
 
         [HttpGet]
         public async Task<ActionResult<SongDto>> ChangeText(int id)
         {
-            //при id = 0 контроллер отдаст пустой список
-            //if (id == 0) id = 1;
-            await _model.OnGetUpdateAsync(id);
-            return _model.ModelToDto();
+            try
+            {
+                //при id = 0 контроллер отдаст пустой список
+                //if (id == 0) id = 1;
+                await _model.OnGetUpdateAsync(id);
+                return _model.ModelToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UpdateController: OnGet Error]");
+                return new SongModel().ModelToDto();
+            }
         }
 
         [HttpPost]
         public async Task<ActionResult<SongDto>> ChangeText([FromBody] SongDto dto)
         {
-            //в полученной model будет пустое поле SongCount
-            _model.ServiceScopeFactory = _scope;
-            _model.Logger = _logger;
-            _model.DtoToModel(dto);
-
-            await _model.OnPostUpdateAsync();
-            return _model.ModelToDto();
+            try
+            {
+                //в полученной model будет пустое поле SongCount
+                _model.DtoToModel(dto);
+                await _model.OnPostUpdateAsync();
+                return _model.ModelToDto();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[UpdateController: OnPost Error]");
+                return new SongModel().ModelToDto();
+            }
         }
     }
 }

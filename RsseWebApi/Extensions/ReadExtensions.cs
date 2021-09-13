@@ -8,7 +8,7 @@ using RandomSongSearchEngine.Services.Services;
 
 namespace RandomSongSearchEngine.Extensions
 {
-    public static class IndexModelExtensions
+    public static class ReadSongExtensions
     {
         public static async Task OnGetReadAsync(this SongModel model)
         {

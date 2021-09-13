@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Extensions
 {
-    public static class CreateExtensions
+    public static class CreateSongExtensions
     {
         public static async Task OnGetCreateAsync(this SongModel model)//CreateModel
         {

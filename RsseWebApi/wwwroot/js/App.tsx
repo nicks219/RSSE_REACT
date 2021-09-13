@@ -1,4 +1,5 @@
-﻿//0 не существующий id в бд
+﻿/*
+//0 не существующий id в бд
 window.textId = 0;
 window.temp;
 
@@ -8,21 +9,44 @@ window.temp;
 //import CatalogView from "/jst/catalog.js";
 //import { Login } from "/jst/login.js";
 
+import * as React from 'react';
+import * as ReactDOM from "react-dom";
+
 import { HomeView } from "./read.jsx";
 import UpdateView from "./update.jsx";
 import CreateView from "./create.jsx";
 import CatalogView from "./catalog.jsx";
 import { Login } from "./login.jsx";
 
-class Menu extends React.Component {
+interface IProps {
+    countBy?: number;
+}
+
+interface IState {
+    count: number;
+}
+
+class Menu extends React.Component<IProps, IState> {
+    visibilityCss: string[];
+    visibilityFlag: boolean[];
+    menu: string[];
+    sstate: { id: any; };
+
     constructor(props) {
         super(props);
         this.select = this.select.bind(this);
         this.visibilityCss = ["act", "pas", "pas", "pas"];
         this.visibilityFlag = [true, false, false, false];
         this.menu = ["Посмотреть", "Поменять", "Создать", "Каталог"];
-        this.state = { id: null };
+        this.sstate = { id: null };
     }
+
+    public state: IState = {
+        count: 0,
+    };
+    public static defaultProps: Partial<IProps> = {
+        countBy: 1,
+    };
 
     select(e) {
         var target = Number(e.target.id.slice(5));
@@ -34,7 +58,7 @@ class Menu extends React.Component {
         this.forceUpdate();//this.setState(this.state)
     }
 
-    componentDidUpdate() {
+    public componentDidUpdate() : void {
         if (this.state.id) this.setState({ id: null });
         if (!this.visibilityFlag[0]) {
             //костыль, убирает кнопку "Поиск"
@@ -46,7 +70,7 @@ class Menu extends React.Component {
         }
     }
 
-    render() {
+    public render() {
         //костыль - переключаемся из catalog на changeText
         if (this.state.id) {
             this.visibilityFlag = [false, true, false, false];
@@ -59,7 +83,7 @@ class Menu extends React.Component {
         for (let i = 0; i < 4; i++) {
             buttons.push(<button key={"menu " + i} onClick={this.select} id={"menu " + String(i)}
                 className={this.visibilityCss[i]}
-                //className="btn btn-info" style={{ margin: 10 + 'px' }}
+            //className="btn btn-info" style={{ margin: 10 + 'px' }}
             >
                 {this.menu[i]}</button>);
         }
@@ -75,28 +99,28 @@ class Menu extends React.Component {
                 <div id="header">
                     {buttons}
                 </div>
-                {/*первый пункт меню*/}
+                {/*первый пункт меню*//*}
                 {this.visibilityFlag[0] === true &&
                     <div id="renderContainer1">
                         <HomeView />
                     </div>
                 }
-                {/*второй пункт меню*/}
+                {/*второй пункт меню*//*}
                 {this.visibilityFlag[1] === true &&
                     <div id="renderContainer">
-                    <UpdateView />
+                        <UpdateView />
                     </div>
                 }
-                {/*третий пункт меню*/}
+                {/*третий пункт меню*//*}
                 {this.visibilityFlag[2] === true &&
                     <div id="renderContainer">
-                    <CreateView />
+                        <CreateView />
                     </div>
                 }
-                {/*четвертый пункт меню*/}
+                {/*четвертый пункт меню*//*}
                 {this.visibilityFlag[3] === true &&
                     <div id="renderContainer">
-                    <CatalogView listener={this}/>
+                        <CatalogView listener={this} />
                     </div>
                 }
             </div>
@@ -115,3 +139,4 @@ ReactDOM.render(
     <Login listener={this} />
     , document.querySelector("#renderLoginForm")
 );
+*/
