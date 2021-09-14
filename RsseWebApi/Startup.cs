@@ -77,7 +77,6 @@ namespace RandomSongSearchEngine
             app.UseDefaultFiles(options);
             app.UseReact(config => { });
             app.UseStaticFiles();
-            //
             //app.UseHttpsRedirection();
             app.UseRouting();
             //

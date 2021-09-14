@@ -4,12 +4,17 @@ namespace RandomSongSearchEngine.Models
 {
     public class LoginModel
     {
-        
         [Required(ErrorMessage = "Не указан Email")]
-        public string Email { get; set; }
+        public string Email { get; }
 
         [Required(ErrorMessage = "Не указан пароль")]
         [DataType(DataType.Password)]
-        public string Password { get; set; }
+        public string Password { get; }
+
+        public LoginModel(string email, string password)
+        {
+            Email = email;
+            Password = password;
+        }
     }
 }

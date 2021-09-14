@@ -17,7 +17,6 @@ namespace RandomSongSearchEngine.Controllers
     [Route("account/{action}")]
     public class LoginController : ControllerBase
     {
-        //private readonly RsseContext db;
         private readonly ILogger<SongModel> _logger;
         private readonly IServiceScopeFactory _scope;
 
@@ -25,17 +24,12 @@ namespace RandomSongSearchEngine.Controllers
         {
             _logger = logger;
             _scope = serviceScopeFactory;
-            //db = context;
         }
 
         [HttpGet]
         public async Task<ActionResult<string>> Login(string returnurl, string email, string password)
         {
-            var loginModel = new LoginModel
-            {
-                Email = email,
-                Password = password
-            };
+            var loginModel = new LoginModel(email, password);
             var a = await Login(loginModel);
             // либо данные
             var b = a.Value;
@@ -94,10 +88,8 @@ namespace RandomSongSearchEngine.Controllers
         {
             // 1.создаем один claim
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, userName) };
-
             // 2.создаем объект ClaimsIdentity
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-
             // 3.установка аутентификационных куки
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
