@@ -87,7 +87,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="database">Контекст базы данных</param>
         /// <param name="savedTextId">ID песни</param>
         /// <returns></returns>
-        public static IQueryable<int> ReadGenresForUpdateSql(this RsseContext database, int savedTextId)
+        public static IQueryable<int> ReadSongGenresSql(this RsseContext database, int savedTextId)
         {
             IQueryable<int> checkedList = database.GenreText
                 .Where(p => p.TextInGenreText.TextId == savedTextId)
@@ -104,8 +104,9 @@ namespace RandomSongSearchEngine.Extensions
         /// <returns></returns>
         public static async Task UpdateSongSqlAsync(this RsseContext db, List<int> initialCheckboxes, InnerDto dt)
         {
-            //если имя заменено на существующее, то залоггируется исключение.
-            //быстрой проверки нет - ресурсоёмко и ошибка редкая.
+            // если имя заменено на существующее, то залоггируется исключение.
+            // быстрой проверки нет - ресурсоёмко и ошибка редкая.
+            // Id жанров из бд и номера кнопок с фронта совпадают
             await using IDbContextTransaction t = await db.Database.BeginTransactionAsync();
             try
             {

@@ -48,7 +48,7 @@ namespace RandomSongSearchEngine.Models
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() {ErrorMessage = "[CatalogModel]"};
+                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
             }
         }
 
@@ -62,31 +62,37 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<int> navigationButtons = dto.NavigationButtons;
+                int navigation = dto.GetNavigation();
                 int pageNumber = dto.PageNumber;
                 int songsCount = await database.Text.CountAsync();
-                pageNumber = Navigate(navigationButtons, pageNumber, songsCount);
-                List<Tuple<string, int>> catalogPage =
-                    await database.ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
+                pageNumber = Navigate(navigation, pageNumber, songsCount);
+                List<Tuple<string, int>> catalogPage = await database
+                    .ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() {ErrorMessage = "[CatalogModel]"};
+                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
             }
         }
 
-        private int Navigate(List<int> navigationButtons, int pageNumber, int songsCount)
+        private int Navigate(int navigation, int pageNumber, int songsCount)
         {
-            if (navigationButtons != null && navigationButtons[0] == 2)
+            if (navigation == 2)
             {
                 int pageCount = Math.DivRem(songsCount, PageSize, out int remainder);
-                if (remainder > 0) pageCount++;
-                if (pageNumber < pageCount) pageNumber++;
+                if (remainder > 0)
+                {
+                    pageCount++;
+                }
+                if (pageNumber < pageCount)
+                {
+                    pageNumber++;
+                }
             }
 
-            if (navigationButtons != null && navigationButtons[0] == 1)
+            if (navigation == 1)
             {
                 if (pageNumber > 1) pageNumber--;
             }

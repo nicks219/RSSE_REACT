@@ -15,10 +15,10 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class UpdateController : ControllerBase
     {
-        private readonly ILogger<SongModel> _logger;
+        private readonly ILogger<UpdateModel> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<UpdateModel> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
@@ -29,16 +29,13 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                //при id = 0 контроллер отдаст пустой список
-                //if (id == 0) id = 1;
-                var model = new SongModel(_serviceScopeFactory);
-                await model.OnGetUpdateAsync(id);
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                return await new UpdateModel(scope).OnGetUpdateAsync(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[UpdateController: OnGet Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageCs = "[UpdateController: OnGet Error]" };
             }
         }
 
@@ -47,16 +44,13 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                //в полученной model будет пустое поле SongCount
-                var model = new SongModel(_serviceScopeFactory);
-                model.DtoToModel(dto);
-                await model.OnPostUpdateAsync();
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                return await new UpdateModel(scope).OnPostUpdateAsync(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[UpdateController: OnPost Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageCs = "[UpdateController: OnPost Error]" };
             }
         }
     }

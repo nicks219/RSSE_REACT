@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using RandomSongSearchEngine.Models;
+using System.Collections.Generic;
 
 namespace RandomSongSearchEngine.DTO
 {
@@ -26,5 +27,13 @@ namespace RandomSongSearchEngine.DTO
         /// ID песни для передачи между страницами приложения
         /// </summary>
         public int SavedTextId { get; set; }
+
+        public InnerDto(SongDto model)
+        {
+            TitleFromHtml = model.TitleJs.Trim();
+            TextFromHtml = model.TextJs.Trim();
+            AreChecked = model.CheckedCheckboxesJs;
+            SavedTextId = model.SavedTextId;
+        }
     }
 }

@@ -30,5 +30,13 @@ namespace RandomSongSearchEngine.DTO
         /// Поле для сообщения об ошибке
         /// </summary>
         public string ErrorMessage { get; internal set; }
+
+        public int GetNavigation()
+        {
+            if (NavigationButtons is null) return 0;
+            if (NavigationButtons[0] == 1) return 1;
+            if (NavigationButtons[0] == 2) return 2;
+            throw new NotImplementedException("[Wrong Navigate]");
+        }
     }
 }

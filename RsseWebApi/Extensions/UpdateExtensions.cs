@@ -51,7 +51,7 @@ namespace RandomSongSearchEngine.Extensions
                 var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
                 //List<int> initialCheckboxes = IGlobalData.InitialCheckboxes;
                 //повторное чтение из бд жанров песни - чтобы избавиться от состояния и передачи этих данных через dto
-                List<int> initialCheckboxes = await database.ReadGenresForUpdateSql(model.SavedTextId).ToListAsync();
+                List<int> initialCheckboxes = await database.ReadSongGenresSql(model.SavedTextId).ToListAsync();
                 await model.UpdateSongAsync(database, initialCheckboxes);
             }
             catch (Exception e)
@@ -70,7 +70,7 @@ namespace RandomSongSearchEngine.Extensions
         private static async Task GetGenresForSongAsync(this SongModel model, RsseContext database)
         {
             //read checked genres for song
-            List<int> checkedList = await database.ReadGenresForUpdateSql(model.SavedTextId).ToListAsync();
+            List<int> checkedList = await database.ReadSongGenresSql(model.SavedTextId).ToListAsync();
             foreach (int i in checkedList)
             {
                 model.CheckedCheckboxesCs[i - 1] = "checked";

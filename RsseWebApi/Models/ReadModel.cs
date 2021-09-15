@@ -26,7 +26,7 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<string> genreListCs = await InitializeCheckboxesAsync(database: database);
+                List<string> genreListCs = await InitializeGenreListAsync(database: database);
                 return new SongDto(genreListCs);
             }
             catch (Exception e)
@@ -50,16 +50,16 @@ namespace RandomSongSearchEngine.Models
                     songId = await database.GetRandomIdAsync(dto.CheckedCheckboxesJs);
                     if (songId != 0)
                     {
-                        var r = await database.ReadSongSql(songId).ToListAsync();
-                        if (r.Count > 0)
+                        var song = await database.ReadSongSql(songId).ToListAsync();
+                        if (song.Count > 0)
                         {
-                            textCs = r[0].Item1;
-                            titleCs = r[0].Item2;
+                            textCs = song[0].Item1;
+                            titleCs = song[0].Item2;
                         }
                     }
                 }
 
-                List<string> genreListCs = await InitializeCheckboxesAsync(database: database);
+                List<string> genreListCs = await InitializeGenreListAsync(database: database);
                 return new SongDto(genreListCs, songId, textCs, titleCs);
             }
             catch (Exception e)
@@ -69,20 +69,13 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        private async Task<List<string>> InitializeCheckboxesAsync(RsseContext database)
+        private async Task<List<string>> InitializeGenreListAsync(RsseContext database)
         {
             List<string> genreListCs = new List<string>();
             List<Tuple<string, int>> genreList = await database.ReadGenreListSql().ToListAsync();
-            foreach (var r in genreList)
+            foreach (var genreAndAmount in genreList)
             {
-                if (r.Item2 > 0)
-                {
-                    genreListCs.Add(r.Item1 + ": " + r.Item2);
-                }
-                else
-                {
-                    genreListCs.Add(r.Item1);
-                }
+                genreListCs.Add(genreAndAmount.Item2 > 0 ? genreAndAmount.Item1 + ": " + genreAndAmount.Item2 : genreAndAmount.Item1);
             }
             return genreListCs;
         }
