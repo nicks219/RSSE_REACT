@@ -16,9 +16,11 @@ namespace RandomSongSearchEngine.Models
     public class CatalogModel
     {
         #region Fields
-        private static readonly int _pageSize = 10;
-        private IServiceScope _scope { get; }
-        private ILogger<CatalogModel> _logger { get; }
+
+        private static readonly int PageSize = 10;
+        private readonly IServiceScope _scope;
+        private readonly ILogger<CatalogModel> _logger;
+
         #endregion
 
         public CatalogModel(IServiceScope serviceScopeFactory)
@@ -34,18 +36,19 @@ namespace RandomSongSearchEngine.Models
         /// <returns></returns>
         public async Task<CatalogDto> OnGetCatalogAsync(int id)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();//
+            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>(); //
             try
             {
                 int pageNumber = id;
                 int songsCount = await database.Text.CountAsync();
-                List<Tuple<string, int>> TitlesAndIds = await database.ReadSongsForCatalogSql(pageNumber, _pageSize).ToListAsync();
-                return CatalogToDto(pageNumber, songsCount, TitlesAndIds);
+                List<Tuple<string, int>> catalogPage =
+                    await database.ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
+                return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
+                return new CatalogDto() {ErrorMessage = "[CatalogModel]"};
             }
         }
 
@@ -63,13 +66,14 @@ namespace RandomSongSearchEngine.Models
                 int pageNumber = dto.PageNumber;
                 int songsCount = await database.Text.CountAsync();
                 pageNumber = Navigate(navigationButtons, pageNumber, songsCount);
-                List<Tuple<string, int>> TitlesAndIds = await database.ReadSongsForCatalogSql(pageNumber, _pageSize).ToListAsync();
-                return CatalogToDto(pageNumber, songsCount, TitlesAndIds);
+                List<Tuple<string, int>> catalogPage =
+                    await database.ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
+                return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
+                return new CatalogDto() {ErrorMessage = "[CatalogModel]"};
             }
         }
 
@@ -77,34 +81,25 @@ namespace RandomSongSearchEngine.Models
         {
             if (navigationButtons != null && navigationButtons[0] == 2)
             {
-                //double r = Math.Ceiling(SongsCount / (double)pageSize);
-                int pageCount = Math.DivRem(songsCount, _pageSize, out int remainder);
-                if (remainder > 0)
-                {
-                    pageCount++;
-                }
-                if (pageNumber < pageCount)
-                {
-                    pageNumber++;
-                }
+                int pageCount = Math.DivRem(songsCount, PageSize, out int remainder);
+                if (remainder > 0) pageCount++;
+                if (pageNumber < pageCount) pageNumber++;
             }
+
             if (navigationButtons != null && navigationButtons[0] == 1)
             {
-                if (pageNumber > 1)
-                {
-                    pageNumber--;
-                }
+                if (pageNumber > 1) pageNumber--;
             }
 
             return pageNumber;
         }
 
-        private CatalogDto CatalogToDto(int pageNumber, int songsCount, List<Tuple<string, int>> titlesAndIds)
+        private CatalogDto CreateCatalogDto(int pageNumber, int songsCount, List<Tuple<string, int>> catalogPage)
         {
             return new CatalogDto
             {
                 PageNumber = pageNumber,
-                TitlesAndIds = titlesAndIds ?? new List<Tuple<string, int>>(),
+                TitlesAndIds = catalogPage ?? new List<Tuple<string, int>>(),
                 SongsCount = songsCount
             };
         }

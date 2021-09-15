@@ -13,16 +13,12 @@ namespace RandomSongSearchEngine.DTO
 
         public int SavedTextId { get; set; }
 
-        [JsonPropertyName("textCS")]
-        public string TextCs { get; set; }
+        [JsonPropertyName("textCS")] public string TextCs { get; set; }
 
-        [JsonPropertyName("titleCS")]
-        public string TitleCs { get; set; }
+        [JsonPropertyName("titleCS")] public string TitleCs { get; set; }
 
-        [JsonPropertyName("isGenreCheckedCS")]
-        public List<string> IsGenreCheckedCs { get; set; }
+        [JsonPropertyName("isGenreCheckedCS")] public List<string> IsGenreCheckedCs { get; set; }
 
-        [JsonPropertyName("genresNamesCS")]
-        public List<string> GenresNamesCs { get; set; }
+        [JsonPropertyName("genresNamesCS")] public List<string> GenresNamesCs { get; set; }
     }
 }

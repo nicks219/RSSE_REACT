@@ -29,13 +29,12 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                var model = new CatalogModel(scope);
-                return await model.OnGetCatalogAsync(id);
+                return await new CatalogModel(scope).OnGetCatalogAsync(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogController: OnGet Error]");
-                return new CatalogDto() { ErrorMessage = "[CatalogController: OnGet Error]" };
+                return new CatalogDto() {ErrorMessage = "[CatalogController: OnGet Error]"};
             }
         }
 
@@ -45,14 +44,12 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                var model = new CatalogModel(scope);
-                return await model.OnPostCatalogAsync(dto);
-
+                return await new CatalogModel(scope).OnPostCatalogAsync(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogController: OnPost Error]");
-                return new CatalogDto() { ErrorMessage = "[CatalogController: OnGet Error]" };
+                return new CatalogDto() {ErrorMessage = "[CatalogController: OnGet Error]"};
             }
         }
     }

@@ -54,7 +54,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="savedLastViewedPage">Текущая страница</param>
         /// <param name="pageSize">Количество песен на странице</param>
         /// <returns></returns>
-        public static IQueryable<Tuple<string, int>> ReadSongsForCatalogSql(this RsseContext database, int savedLastViewedPage, int pageSize)
+        public static IQueryable<Tuple<string, int>> ReadCatalogPageSql(this RsseContext database, int savedLastViewedPage, int pageSize)
         {
             IQueryable<Tuple<string, int>> titleAndTextId = database.Text
                 .OrderBy(s => s.Title)

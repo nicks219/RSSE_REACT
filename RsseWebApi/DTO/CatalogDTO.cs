@@ -3,15 +3,10 @@ using System.Collections.Generic;
 
 namespace RandomSongSearchEngine.DTO
 {
-    public class CatalogDto// : ICatalogModel
+    public class CatalogDto // : ICatalogModel
     {
         /// <summary>
-        /// Сохраненный ID текста для перехода между вьюхами
-        /// </summary>
-        public int SavedTextId { get; set; }
-
-        /// <summary>
-        /// Список из названий песен и соответствующим им ID для CatalogView
+        /// Список из названий песен и соответствующим им Id для бд
         /// </summary>
         public List<Tuple<string, int>> TitlesAndIds { get; set; }
 
