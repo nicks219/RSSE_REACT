@@ -3,9 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.DTO;
 using RandomSongSearchEngine.Models;
-using System.Threading.Tasks;
-using RandomSongSearchEngine.Extensions;
 using System;
+using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Controllers
 {
@@ -29,14 +28,14 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new CatalogModel(_serviceScopeFactory);
-                await model.OnGetCatalogAsync(id);
-                return model.CatalogToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                var model = new CatalogModel(scope);
+                return await model.OnGetCatalogAsync(id);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogController: OnGet Error]");
-                return new CatalogModel().CatalogToDto();
+                return new CatalogDto() { ErrorMessage = "[CatalogController: OnGet Error]" };
             }
         }
 
@@ -45,15 +44,15 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new CatalogModel(_serviceScopeFactory);
-                model.DtoToCatalog(dto);
-                await model.OnPostCatalogAsync();
-                return model.CatalogToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                var model = new CatalogModel(scope);
+                return await model.OnPostCatalogAsync(dto);
+
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CatalogController: OnPost Error]");
-                return new CatalogModel().CatalogToDto();
+                return new CatalogDto() { ErrorMessage = "[CatalogController: OnGet Error]" };
             }
         }
     }

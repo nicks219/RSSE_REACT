@@ -1,79 +1,112 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.DTO;
+using RandomSongSearchEngine.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
     /// <summary>
     /// Каталог песен
     /// </summary>
-    public class CatalogModel : ICatalogModel
+    public class CatalogModel
     {
-        public IServiceScopeFactory ServiceScopeFactory { get; }
-        public ILogger<CatalogModel> Logger { get; }
+        #region Fields
+        private static readonly int _pageSize = 10;
+        private IServiceScope _scope { get; }
+        private ILogger<CatalogModel> _logger { get; }
+        #endregion
 
-        //конструктор без параметров нужен для работы десериализации
-        public CatalogModel(){}
-
-        public CatalogModel(IServiceScopeFactory serviceScopeFactory)
+        public CatalogModel(IServiceScope serviceScopeFactory)
         {
-            ServiceScopeFactory = serviceScopeFactory;
-            Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
-            //модель должна знать songscount - иначе придется брать из фронта или считать каждый раз
-            //количество песен меняется!
+            _scope = serviceScopeFactory;
+            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
         }
 
-        //у ParentModel тоже есть
         /// <summary>
-        /// Сохраненный ID текста для перехода между вьюхами
+        /// Получаем листинг песен с их id по номеру страницы
         /// </summary>
-        public int SavedTextId { get; set; }
-
-        /// <summary>
-        /// Список из названий песен и соответствующим им ID для CatalogView
-        /// </summary>
-        public List<Tuple<string, int>> TitlesAndIds { get; set; }
-
-        /// <summary>
-        /// Используется для определения какая кнопка была нажата во вьюхе
-        /// </summary>
-        public List<int> NavigationButtons { get; set; }
-
-        /// <summary>
-        /// Количество песен в базе данных
-        /// </summary>
-        public int SongsCount { get; set; }
-
-        /// <summary>
-        /// Номер последней просмотренной страницы
-        /// </summary>
-        public int PageNumber { get; set; }
-
-        /// <summary>
-        /// Количество песен на одной странице
-        /// </summary>
-        public readonly int PageSize = 10;
-
-        public async Task GetSongCountAsync()
+        /// <param name="id">номер страницы</param>
+        /// <returns></returns>
+        public async Task<CatalogDto> OnGetCatalogAsync(int id)
         {
+            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();//
             try
             {
-                using var scope = ServiceScopeFactory.CreateScope();//
-                var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-                SongsCount = await database.Text.CountAsync();//
+                int pageNumber = id;
+                int songsCount = await database.Text.CountAsync();
+                List<Tuple<string, int>> TitlesAndIds = await database.ReadSongsForCatalogSql(pageNumber, _pageSize).ToListAsync();
+                return CatalogToDto(pageNumber, songsCount, TitlesAndIds);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Logger.LogError(e, "[CatalogModel]: no database");
-                //в случае отсутствия бд мы не придём к null referenece exception из-за TitleAndTextID
-                TitlesAndIds = new List<Tuple<string, int>>();
+                _logger.LogError(ex, "[CatalogModel]");
+                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
             }
+        }
+
+        /// <summary>
+        /// Навигация по каталогу
+        /// </summary>
+        /// <param name="dto">запрос со стороны фронта</param>
+        /// <returns></returns>
+        public async Task<CatalogDto> OnPostCatalogAsync(CatalogDto dto)
+        {
+            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            try
+            {
+                List<int> navigationButtons = dto.NavigationButtons;
+                int pageNumber = dto.PageNumber;
+                int songsCount = await database.Text.CountAsync();
+                pageNumber = Navigate(navigationButtons, pageNumber, songsCount);
+                List<Tuple<string, int>> TitlesAndIds = await database.ReadSongsForCatalogSql(pageNumber, _pageSize).ToListAsync();
+                return CatalogToDto(pageNumber, songsCount, TitlesAndIds);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[CatalogModel]");
+                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
+            }
+        }
+
+        private int Navigate(List<int> navigationButtons, int pageNumber, int songsCount)
+        {
+            if (navigationButtons != null && navigationButtons[0] == 2)
+            {
+                //double r = Math.Ceiling(SongsCount / (double)pageSize);
+                int pageCount = Math.DivRem(songsCount, _pageSize, out int remainder);
+                if (remainder > 0)
+                {
+                    pageCount++;
+                }
+                if (pageNumber < pageCount)
+                {
+                    pageNumber++;
+                }
+            }
+            if (navigationButtons != null && navigationButtons[0] == 1)
+            {
+                if (pageNumber > 1)
+                {
+                    pageNumber--;
+                }
+            }
+
+            return pageNumber;
+        }
+
+        private CatalogDto CatalogToDto(int pageNumber, int songsCount, List<Tuple<string, int>> titlesAndIds)
+        {
+            return new CatalogDto
+            {
+                PageNumber = pageNumber,
+                TitlesAndIds = titlesAndIds ?? new List<Tuple<string, int>>(),
+                SongsCount = songsCount
+            };
         }
     }
 }

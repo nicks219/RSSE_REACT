@@ -31,29 +31,5 @@
             //model.GenresNamesCS = dto.GenresNamesCS;
             model.SavedTextId = dto.SavedTextId;
         }
-
-        public static CatalogDto CatalogToDto(this ICatalogModel model)
-        {
-            //закомментированы ненужные на данный момент поля
-            var dto = new CatalogDto
-            {
-                //NavigationButtons = model.NavigationButtons,
-                //SavedTextId = model.SavedTextId,
-                PageNumber = model.PageNumber,
-                TitlesAndIds = model.TitlesAndIds,
-                SongsCount = model.SongsCount
-            };
-            return dto;
-        }
-
-        public static void DtoToCatalog(this ICatalogModel model, CatalogDto dto)
-        {
-            //закомментированы ненужные на данный момент поля
-            model.NavigationButtons = dto.NavigationButtons;
-            model.SavedTextId = dto.SavedTextId;
-            model.PageNumber = dto.PageNumber;
-            //model.SongsCount = dto.SongsCount;
-            //model.TitlesAndIds = dto.TitlesAndIds;
-        }
     }
 }
