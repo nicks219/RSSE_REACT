@@ -11,12 +11,11 @@
 # Технологии
 Что-то надо же рассказать
 * Среда выполнения - .NET Core 3.1   
-* Архитектура решения - WebAPI (запросы Create, Read, Update, Login, Catalog)   
-* Фронт - REACT (jsx/js)    
+* Реализован Web API - запросы Create, Read, Update, Login, Catalog   
+* Фронт - React (jsx/js)    
 * Транспилятор JSX - загружен в проект (NuGet пакет REACT.ASPNET)    
 # Комментарии   
-Рефакторинг проекта https://github.com/nicks219/Random-Song-Search-Engine    
-Изменена архитектура решения с RazorPages на WebAPI, добавлен фронт на REACT    
+Рефакторинг проекта https://github.com/nicks219/Random-Song-Search-Engine        
 При запуске создаётся бд с заполненной таблицей с категориями текстов (T-SQL)  
 Таблица для авторизации пользователя остаётся пустой    
 Проект в стадии доработки   
