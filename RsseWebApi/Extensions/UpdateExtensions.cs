@@ -73,7 +73,7 @@ namespace RandomSongSearchEngine.Extensions
             List<int> checkedList = await database.ReadGenresForUpdateSql(model.SavedTextId).ToListAsync();
             foreach (int i in checkedList)
             {
-                model.IsGenreCheckedCs[i - 1] = "checked";
+                model.CheckedCheckboxesCs[i - 1] = "checked";
             }
         }
 

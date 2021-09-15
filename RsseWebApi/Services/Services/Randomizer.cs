@@ -21,16 +21,16 @@ namespace RandomSongSearchEngine.Services.Services
         /// <param name="database">Контекст базы данных</param>
         /// <param name="areChecked">Список выбраных категорий</param>
         /// <returns></returns>
-        public static async Task<int> GetRandomSongAsync(this RsseContext database, List<int> areChecked)
+        public static async Task<int> GetRandomIdAsync(this RsseContext database, List<int> areChecked)
         {
             int[] chosenOnes = areChecked.ToArray();
-            int howManySongs = await database.ReadSongsForRandomSql(chosenOnes).CountAsync();
+            int howManySongs = await database.ReadSongsIdForRandomSql(chosenOnes).CountAsync();
             if (howManySongs == 0)
             {
                 return 0;
             }
             int coin = GetRandom(howManySongs);
-            var result = await database.ReadSongsForRandomSql(chosenOnes)
+            var result = await database.ReadSongsIdForRandomSql(chosenOnes)
             //[WARNING] [Microsoft.EntityFrameworkCore.Query]  The query uses a row limiting operator ('Skip'/'Take')
             // without an 'OrderBy' operator.
                     .OrderBy(s => s)

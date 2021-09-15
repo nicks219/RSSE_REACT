@@ -23,9 +23,9 @@ namespace RandomSongSearchEngine.Models
 
         #endregion
 
-        public CatalogModel(IServiceScope serviceScopeFactory)
+        public CatalogModel(IServiceScope serviceScope)
         {
-            _scope = serviceScopeFactory;
+            _scope = serviceScope;
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
         }
 

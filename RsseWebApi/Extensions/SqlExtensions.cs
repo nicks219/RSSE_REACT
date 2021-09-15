@@ -20,7 +20,7 @@ namespace RandomSongSearchEngine.Extensions
         /// </summary>
         /// <param name="database">Контекст базы данных</param>
         /// <returns></returns>
-        public static IQueryable<Tuple<string, int>> ReadCheckboxesSql(this RsseContext database)//
+        public static IQueryable<Tuple<string, int>> ReadGenreListSql(this RsseContext database)//
         {
             IQueryable<Tuple<string, int>> res = database.Genre
                 .Select(g => new Tuple<string, int>(g.Genre, g.GenreTextInGenre.Count))
@@ -34,7 +34,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="database">Контекст базы данных</param>
         /// <param name="chosenOnes">Отмеченые категории</param>
         /// <returns></returns>
-        public static IQueryable<int> ReadSongsForRandomSql(this RsseContext database, int[] chosenOnes)
+        public static IQueryable<int> ReadSongsIdForRandomSql(this RsseContext database, int[] chosenOnes)
         {
             //TODO определить какой лучше:
             //IQueryable<int> songsCollection = database.GenreText//
@@ -72,7 +72,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="database">Контекст базы данных</param>
         /// <param name="textId">ID песни</param>
         /// <returns></returns>
-        public static IQueryable<Tuple<string, string>> ReadTitleAndTextSql(this RsseContext database, int textId)
+        public static IQueryable<Tuple<string, string>> ReadSongSql(this RsseContext database, int textId)
         {
             IQueryable<Tuple<string, string>> titleAndText = database.Text
                 .Where(p => p.TextId == textId)

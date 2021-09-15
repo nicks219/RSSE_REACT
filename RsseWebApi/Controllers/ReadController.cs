@@ -17,10 +17,10 @@ namespace RandomSongSearchEngine.Controllers
 
     public class ReadController : ControllerBase
     {
-        private readonly ILogger<SongModel> _logger;
+        private readonly ILogger<ReadModel> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
  
-        public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<ReadModel> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
@@ -31,14 +31,13 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new SongModel(_serviceScopeFactory);
-                await model.OnGetReadAsync();
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                return await new ReadModel(scope).OnGetReadAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ReadController: OnGet Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageCs = "[ReadController: OnGet Error]" };
             }
         }
 
@@ -47,15 +46,13 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new SongModel(_serviceScopeFactory);
-                model.DtoToModel(dto);
-                await model.OnPostReadAsync();
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                return await new ReadModel(scope).OnPostReadAsync(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ReadController: OnPost Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageCs = "[ReadController: OnPost Error]" }; ;
             }
         }
     }

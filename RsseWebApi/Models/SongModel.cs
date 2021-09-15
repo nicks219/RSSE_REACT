@@ -18,8 +18,8 @@ namespace RandomSongSearchEngine.Models
 
         public SongModel(IServiceScopeFactory serviceScopeFactory)
         {
-            IsGenreCheckedCs = new List<string>();
-            GenresNamesCs = new List<string>();
+            CheckedCheckboxesCs = new List<string>();
+            GenreListCs = new List<string>();
             ServiceScopeFactory = serviceScopeFactory;
             Logger = ServiceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<SongModel>>();
         }
@@ -53,7 +53,7 @@ namespace RandomSongSearchEngine.Models
         /// <summary>
         /// Список строк "checked" или "unchecked" для создания чекбоксов во вьюхе для Update
         /// </summary>
-        public List<string> IsGenreCheckedCs { get; set; }
+        public List<string> CheckedCheckboxesCs { get; set; }
 
         /// <summary>
         /// Сохраненный ID текста для перехода между вьюхами
@@ -63,7 +63,7 @@ namespace RandomSongSearchEngine.Models
         /// <summary>
         /// Список с названиями жанров песен и количеством песен в каждом жанре
         /// </summary>
-        public List<string> GenresNamesCs { get; set; }
+        public List<string> GenreListCs { get; set; }
 
         /// <summary>
         /// Количество жанров песен, private

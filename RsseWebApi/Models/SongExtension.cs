@@ -17,7 +17,7 @@ namespace RandomSongSearchEngine.Models
             if (CheckedCheckboxesJs == null) return;
             foreach (int i in CheckedCheckboxesJs)
             {
-                IsGenreCheckedCs[i - 1] = "checked";
+                CheckedCheckboxesCs[i - 1] = "checked";
             }
         }
 
@@ -30,7 +30,7 @@ namespace RandomSongSearchEngine.Models
         public async Task GetSongAsync(RsseContext database, int textId)
         {
             //метод оставляет на экране ранее введенный текст в случае большинства исключений
-            var r = await database.ReadTitleAndTextSql(textId).ToListAsync();
+            var r = await database.ReadSongSql(textId).ToListAsync();
             if (r.Count > 0)
             {
                 TextCs = r[0].Item1;
@@ -50,22 +50,22 @@ namespace RandomSongSearchEngine.Models
         /// <returns></returns>
         public async Task GetCheckboxesAsync(RsseContext database)
         {
-            List<Tuple<string, int>> genresNames = await database.ReadCheckboxesSql().ToListAsync();
+            List<Tuple<string, int>> genresNames = await database.ReadGenreListSql().ToListAsync();
 
-            GenresNamesCs = new List<string>();//
+            GenreListCs = new List<string>();//
 
             foreach (var r in genresNames)
             {
                 if (r.Item2 > 0)
                 {
-                    GenresNamesCs.Add(r.Item1 + ": " + r.Item2);
+                    GenreListCs.Add(r.Item1 + ": " + r.Item2);
                 }
                 else
                 {
-                    GenresNamesCs.Add(r.Item1);
+                    GenreListCs.Add(r.Item1);
                 }
             }
-            GenresCount = GenresNamesCs.Count;
+            GenresCount = GenreListCs.Count;
             SetUnchecked();
         }
 
@@ -75,11 +75,11 @@ namespace RandomSongSearchEngine.Models
         protected void SetUnchecked()
         {
 
-            IsGenreCheckedCs = new List<string>();//
+            CheckedCheckboxesCs = new List<string>();//
 
             for (int i = 0; i < GenresCount; i++)
             {
-                IsGenreCheckedCs.Add("unchecked");
+                CheckedCheckboxesCs.Add("unchecked");
             }
         }
     }

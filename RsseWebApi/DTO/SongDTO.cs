@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace RandomSongSearchEngine.DTO
 {
-    public struct SongDto : ISongModel
+    public class SongDto : ISongModel
     {
         public List<int> CheckedCheckboxesJs { get; set; }
 
@@ -17,8 +17,30 @@ namespace RandomSongSearchEngine.DTO
 
         [JsonPropertyName("titleCS")] public string TitleCs { get; set; }
 
-        [JsonPropertyName("isGenreCheckedCS")] public List<string> IsGenreCheckedCs { get; set; }
+        [JsonPropertyName("isGenreCheckedCS")] public List<string> CheckedCheckboxesCs { get; set; }
 
-        [JsonPropertyName("genresNamesCS")] public List<string> GenresNamesCs { get; set; }
+        [JsonPropertyName("genresNamesCS")] public List<string> GenreListCs { get; set; }
+
+        public string ErrorMessageCs { get; set; }
+
+        public SongDto()
+        {
+        }
+
+        // конструктор для ReadModel
+        public SongDto(List<string> genreListCs, int savedTextId = 0, string textCs = "", string titleCs = "", List<string> checkedCheckboxesCs = null)
+        {
+            TextCs = textCs;
+            TitleCs = titleCs;
+            CheckedCheckboxesCs = checkedCheckboxesCs;
+            GenreListCs = genreListCs;
+            SavedTextId = savedTextId;
+            //???
+            //CheckedCheckboxesJs = null;
+            //TitleJs = "";
+            //TextJs = "";
+            //ErrorMessageCs = "";
+        }
+
     }
 }

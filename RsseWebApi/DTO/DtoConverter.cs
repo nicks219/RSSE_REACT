@@ -12,8 +12,8 @@
                 //TitleJS = model.TitleJS,
                 TextCs = model.TextCs,
                 TitleCs = model.TitleCs,
-                IsGenreCheckedCs = model.IsGenreCheckedCs,
-                GenresNamesCs = model.GenresNamesCs,
+                CheckedCheckboxesCs = model.CheckedCheckboxesCs,
+                GenreListCs = model.GenreListCs,
                 SavedTextId = model.SavedTextId
             };
             return dto;

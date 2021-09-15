@@ -19,8 +19,8 @@ namespace RandomSongSearchEngine.DTO
 
         public string TitleCs { get; set; }
 
-        public List<string> IsGenreCheckedCs { get; set; }
+        public List<string> CheckedCheckboxesCs { get; set; }
 
-        public List<string> GenresNamesCs { get; set; }
+        public List<string> GenreListCs { get; set; }
     }
 }

@@ -52,7 +52,7 @@ namespace RandomSongSearchEngine.Extensions
 
             using var scope = model.ServiceScopeFactory.CreateScope();
             var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-            int randomResult = await database.GetRandomSongAsync(model.CheckedCheckboxesJs);
+            int randomResult = await database.GetRandomIdAsync(model.CheckedCheckboxesJs);
             if (randomResult == 0)
             {
                 return;
