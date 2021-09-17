@@ -1,13 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Models;
 using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -30,66 +27,35 @@ namespace RandomSongSearchEngine.Controllers
         public async Task<ActionResult<string>> Login(string returnurl, string email, string password)
         {
             var loginModel = new LoginModel(email, password);
-            var a = await Login(loginModel);
-            // либо данные
-            var b = a.Value;
-            // либо действие
-            // var c = a.Result;
-            // TODO: если кука прикрепилась - продолжается ли выполнение [Authorize] контроллера?
-            if (b == "ok") return "[Authorize controller executed]";
-            return BadRequest(b);
+            var response = (await Login(loginModel));
+            return response == "[Ok]" ? "[LoginController: Login Ok]" : (ActionResult<string>)BadRequest(response);
         }
 
-
-        // Проверям логин и пароль
         [HttpPost]
-        public async Task<ActionResult<string>> Login(LoginModel model)
+        public async Task<string> Login(LoginModel model)
         {
+            using var scope = _scope.CreateScope();
             try
             {
-                if (model.Email == null || model.Password == null) ModelState.AddModelError("", "Некорректные логин и(или) пароль");
-                if (ModelState.IsValid)
+                ClaimsIdentity id = await model.TryLogin(scope);
+                if (id != null)
                 {
-                    using var scope = _scope.CreateScope();
-                    var db = scope.ServiceProvider.GetRequiredService<RsseContext>();
-                    UserEntity user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
-                    if (user != null)
-                    {
-                        await Authenticate(model.Email);
-                        // аутентификация прошла успешно
-                        return "ok";
-                    }
-                    // нет пользователя
-                    return "wrong_user";
+                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+                    return "[Ok]";
                 }
-                // нет логина или пароля
-                return "empty_data";
+                return "[LoginController: Data Error]";
             }
             catch (Exception ex)
             {
-                // ошибка в бд
-                _logger.LogError(ex, "[LoginModel]");
-                return "system_error";
+                _logger.LogError(ex, "[LoginController: System Error]");
+                return "[LoginController: System Error]";
             }
         }
 
-        // Прикрепляем куку к UserName
-        private async Task Authenticate(string userName)
-        {
-            // 1.создаем один Claim
-            var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, userName) };
-            // 2.создаем объект ClaimsIdentity
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            // 3.установка аутентификационных куки
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
-        }
-
-        // Удаляем куки
         public async Task<ActionResult<string>> Logout(string returnurl)
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return "Account controller executed: Logout";
-            //return RedirectToAction("ChangeText", "update");
+            return "[LoginController: Logout]";
         }
     }
 }
