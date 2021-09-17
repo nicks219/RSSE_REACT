@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Data;
+using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Models;
 using System;
 using System.Threading.Tasks;

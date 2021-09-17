@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using RandomSongSearchEngine.Data;
+using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Services.Services;
 using System;
 using System.Collections.Generic;

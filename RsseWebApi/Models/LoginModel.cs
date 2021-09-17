@@ -2,9 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
+using RandomSongSearchEngine.Dto;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -12,36 +12,30 @@ namespace RandomSongSearchEngine.Models
 {
     public class LoginModel
     {
-        [Required(ErrorMessage = "[Empty email]")]
-        public string Email { get; }
+        private readonly IServiceScope _scope;
 
-        [Required(ErrorMessage = "[Empty password]")]
-        [DataType(DataType.Password)]
-        public string Password { get; }
-
-        public LoginModel(string email, string password)
+        public LoginModel(IServiceScope scope)
         {
-            Email = email;
-            Password = password;
+            _scope = scope;
         }
 
-        public async Task<ClaimsIdentity> TryLogin(IServiceScope scope)
+        public async Task<ClaimsIdentity> TryLogin(LoginDto dto)
         {
             try
             {
-                if (Email == null && Password == null)
+                if (dto.Email == null && dto.Password == null)
                 {
                     return null;
                 }
 
-                await using var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-                UserEntity user = await database.Users.FirstOrDefaultAsync(u => u.Email == Email && u.Password == Password);
+                await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+                UserEntity user = await database.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Password == dto.Password);
                 if (user == null)
                 {
                     return null;
                 }
 
-                var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, Email) };
+                var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, dto.Email) };
                 ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
                 //это отработает только в классе, унаследованном от ControllerBase
                 //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
@@ -49,7 +43,7 @@ namespace RandomSongSearchEngine.Models
             }
             catch (Exception ex)
             {
-                var _logger = scope.ServiceProvider.GetRequiredService<ILogger<LoginModel>>();
+                var _logger = _scope.ServiceProvider.GetRequiredService<ILogger<LoginModel>>();
                 _logger.LogError(ex, "[LoginModel: System Error]");
                 return null;
             }

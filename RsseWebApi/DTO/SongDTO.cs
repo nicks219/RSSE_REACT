@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace RandomSongSearchEngine.Data
+namespace RandomSongSearchEngine.Dto
 {
     public class SongDto
     {
