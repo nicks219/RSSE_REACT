@@ -14,10 +14,10 @@ namespace RandomSongSearchEngine.Models
         /// </summary>
         public void SetChecked()
         {
-            if (CheckedCheckboxesJs == null) return;
-            foreach (int i in CheckedCheckboxesJs)
+            if (CheckedCheckboxesRequest == null) return;
+            foreach (int i in CheckedCheckboxesRequest)
             {
-                CheckedCheckboxesCs[i - 1] = "checked";
+                CheckedCheckboxesResponse[i - 1] = "checked";
             }
         }
 
@@ -33,13 +33,13 @@ namespace RandomSongSearchEngine.Models
             var r = await database.ReadSongSql(textId).ToListAsync();
             if (r.Count > 0)
             {
-                TextCs = r[0].Item1;
-                TitleCs = r[0].Item2;
+                TextResponse = r[0].Item1;
+                TitleResponse = r[0].Item2;
             }
             else
             {
-                TextCs = TextJs;
-                TitleCs = TitleJs;
+                TextResponse = TextRequest;
+                TitleResponse = TitleRequest;
             }
         }
 
@@ -52,20 +52,20 @@ namespace RandomSongSearchEngine.Models
         {
             List<Tuple<string, int>> genresNames = await database.ReadGenreListSql().ToListAsync();
 
-            GenreListCs = new List<string>();//
+            GenreListResponse = new List<string>();//
 
             foreach (var r in genresNames)
             {
                 if (r.Item2 > 0)
                 {
-                    GenreListCs.Add(r.Item1 + ": " + r.Item2);
+                    GenreListResponse.Add(r.Item1 + ": " + r.Item2);
                 }
                 else
                 {
-                    GenreListCs.Add(r.Item1);
+                    GenreListResponse.Add(r.Item1);
                 }
             }
-            GenresCount = GenreListCs.Count;
+            GenresCount = GenreListResponse.Count;
             SetUnchecked();
         }
 
@@ -75,11 +75,11 @@ namespace RandomSongSearchEngine.Models
         protected void SetUnchecked()
         {
 
-            CheckedCheckboxesCs = new List<string>();//
+            CheckedCheckboxesResponse = new List<string>();//
 
             for (int i = 0; i < GenresCount; i++)
             {
-                CheckedCheckboxesCs.Add("unchecked");
+                CheckedCheckboxesResponse.Add("unchecked");
             }
         }
     }

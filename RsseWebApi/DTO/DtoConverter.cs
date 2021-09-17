@@ -12,11 +12,11 @@ namespace RandomSongSearchEngine.DTO
                 //CheckedCheckboxesJS = model.CheckedCheckboxesJS,
                 //TextJS = model.TextJS,
                 //TitleJS = model.TitleJS,
-                TextCs = model.TextCs,
-                TitleCs = model.TitleCs,
-                CheckedCheckboxesCs = model.CheckedCheckboxesCs,
-                GenreListCs = model.GenreListCs,
-                SavedTextId = model.SavedTextId
+                TextResponse = model.TextResponse,
+                TitleResponse = model.TitleResponse,
+                CheckedCheckboxesResponse = model.CheckedCheckboxesResponse,
+                GenreListResponse = model.GenreListResponse,
+                CurrentTextId = model.CurrentTextId
             };
             return dto;
         }
@@ -24,10 +24,10 @@ namespace RandomSongSearchEngine.DTO
         public static void DtoToModel(this ISongModel model, SongDto dto)
         {
             //поля CS бэку не нужны
-            model.CheckedCheckboxesJs = dto.CheckedCheckboxesJs;
-            model.TextJs = dto.TextJs;
-            model.TitleJs = dto.TitleJs;
-            model.SavedTextId = dto.SavedTextId;
+            model.CheckedCheckboxesRequest = dto.CheckedCheckboxesRequest;
+            model.TextRequest = dto.TextRequest;
+            model.TitleRequest = dto.TitleRequest;
+            model.CurrentTextId = dto.CurrentTextId;
             //model.TextCS = dto.TextCS;
             //model.TitleCS = dto.TitleCS;
             //model.IsGenreCheckedCS = dto.IsGenreCheckedCS;

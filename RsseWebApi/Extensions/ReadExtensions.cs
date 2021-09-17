@@ -45,20 +45,20 @@ namespace RandomSongSearchEngine.Extensions
         /// </summary>
         private static async Task ReadRandomSongAsync(this SongModel model)
         {
-            if (model.CheckedCheckboxesJs == null || model.CheckedCheckboxesJs.Count == 0)
+            if (model.CheckedCheckboxesRequest == null || model.CheckedCheckboxesRequest.Count == 0)
             {
                 return;
             }
 
             using var scope = model.ServiceScopeFactory.CreateScope();
             var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-            int randomResult = await database.GetRandomIdAsync(model.CheckedCheckboxesJs);
+            int randomResult = await database.GetRandomIdAsync(model.CheckedCheckboxesRequest);
             if (randomResult == 0)
             {
                 return;
             }
             await model.GetSongAsync(database, randomResult);
-            model.SavedTextId = randomResult;
+            model.CurrentTextId = randomResult;
         }
     }
 }

@@ -30,10 +30,10 @@ namespace RandomSongSearchEngine.DTO
 
         public InnerDto(SongDto model)
         {
-            TitleFromHtml = model.TitleJs.Trim();
-            TextFromHtml = model.TextJs.Trim();
-            AreChecked = model.CheckedCheckboxesJs;
-            SavedTextId = model.SavedTextId;
+            TitleFromHtml = model.TitleRequest.Trim();
+            TextFromHtml = model.TextRequest.Trim();
+            AreChecked = model.CheckedCheckboxesRequest;
+            SavedTextId = model.CurrentTextId;
         }
     }
 }

@@ -29,14 +29,14 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new SongModel(_serviceScopeFactory);
-                await model.OnGetCreateAsync();
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                var model = new CreateModel(scope);
+                return await model.OnGetCreateAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CreateController: OnGet Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageResponse = "[CreateController: OnGet Error]" };
             }
         }
 
@@ -45,20 +45,14 @@ namespace RandomSongSearchEngine.Controllers
         {
             try
             {
-                var model = new SongModel(_serviceScopeFactory);
-                model.DtoToModel(dto);
-                await model.OnPostCreateAsync();
-                if (model.SavedTextId == 0)
-                {
-                    //не критическая ошибка: например, песня с таким названием уже есть, или поля пустые
-                    return model.ModelToDto();
-                }
-                return model.ModelToDto();
+                using var scope = _serviceScopeFactory.CreateScope();
+                var model = new CreateModel(scope);
+                return await model.OnPostCreateAsync(dto);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[CreateController: OnPost Error]");
-                return new SongModel().ModelToDto();
+                return new SongDto() { ErrorMessageResponse = "[CreateController: OnPost Error]" };
             }
         }
     }

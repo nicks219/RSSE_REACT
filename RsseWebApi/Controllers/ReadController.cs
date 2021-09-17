@@ -1,11 +1,10 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Models;
-using System.Threading.Tasks;
 using RandomSongSearchEngine.DTO;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Models;
+using System;
+using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Controllers
 {
@@ -37,7 +36,7 @@ namespace RandomSongSearchEngine.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ReadController: OnGet Error]");
-                return new SongDto() { ErrorMessageCs = "[ReadController: OnGet Error]" };
+                return new SongDto() { ErrorMessageResponse = "[ReadController: OnGet Error]" };
             }
         }
 
@@ -52,7 +51,7 @@ namespace RandomSongSearchEngine.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ReadController: OnPost Error]");
-                return new SongDto() { ErrorMessageCs = "[ReadController: OnPost Error]" }; ;
+                return new SongDto() { ErrorMessageResponse = "[ReadController: OnPost Error]" }; ;
             }
         }
     }

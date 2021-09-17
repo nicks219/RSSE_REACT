@@ -13,11 +13,11 @@ namespace RandomSongSearchEngine.Models
     public class UpdateModel
     {
         private IServiceScope _scope { get; }
-        private ILogger<SongModel> _logger { get; }
+        private ILogger<UpdateModel> _logger { get; }
         public UpdateModel(IServiceScope scope)
         {
             _scope = scope;
-            _logger = scope.ServiceProvider.GetRequiredService<ILogger<SongModel>>();
+            _logger = scope.ServiceProvider.GetRequiredService<ILogger<UpdateModel>>();
         }
 
         public async Task<SongDto> OnGetUpdateAsync(int textId)
@@ -55,7 +55,7 @@ namespace RandomSongSearchEngine.Models
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ChangeTextModel: OnGet Error]");
-                return new SongDto() { ErrorMessageCs = "[ChangeTextModel: OnGet Error]" };
+                return new SongDto() { ErrorMessageResponse = "[ChangeTextModel: OnGet Error]" };
             }
         }
 
@@ -64,31 +64,31 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                if (dto.CheckedCheckboxesJs == null || dto.TextJs == null || dto.TitleJs == null 
-                    || dto.CheckedCheckboxesJs.Count == 0 || dto.TextJs == "" || dto.TitleJs == "")
+                if (dto.CheckedCheckboxesRequest == null || dto.TextRequest == null || dto.TitleRequest == null 
+                    || dto.CheckedCheckboxesRequest.Count == 0 || dto.TextRequest == "" || dto.TitleRequest == "")
                 {
-                    return await OnGetUpdateAsync(dto.SavedTextId);
+                    return await OnGetUpdateAsync(dto.CurrentTextId);
                 }
-                List<int> originalGenres = await database.ReadSongGenresSql(dto.SavedTextId).ToListAsync();
+                List<int> originalGenres = await database.ReadSongGenresSql(dto.CurrentTextId).ToListAsync();
                 await database.UpdateSongSqlAsync(originalGenres, new InnerDto(dto));
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ChangeTextModel: OnPost Error]");
-                return new SongDto() { ErrorMessageCs = "[ChangeTextModel: OnPost Error]" };
+                return new SongDto() { ErrorMessageResponse = "[ChangeTextModel: OnPost Error]" };
             }
-            return await OnGetUpdateAsync(dto.SavedTextId);
+            return await OnGetUpdateAsync(dto.CurrentTextId);
         }
 
         public SongDto CreateDto(List<string> genreListCs, int savedTextId, string textCs, string titleCs, List<string> checkedCheckboxesCs)
         {
             var dto = new SongDto()
             {
-                TextCs = textCs,
-                TitleCs = titleCs,
-                CheckedCheckboxesCs = checkedCheckboxesCs,
-                GenreListCs = genreListCs,
-                SavedTextId = savedTextId
+                TextResponse = textCs,
+                TitleResponse = titleCs,
+                CheckedCheckboxesResponse = checkedCheckboxesCs,
+                GenreListResponse = genreListCs,
+                CurrentTextId = savedTextId
             };
             return dto;
         }

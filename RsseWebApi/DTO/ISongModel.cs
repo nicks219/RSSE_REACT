@@ -7,20 +7,20 @@ namespace RandomSongSearchEngine.DTO
         //[JsonProperty("TitleCS")]
         //[JsonProperty(PropertyName = "FooBar")]
         //[JsonPropertyName("CheckedCheckboxesJS")]
-        public List<int> CheckedCheckboxesJs { get; set; }
+        public List<int> CheckedCheckboxesRequest { get; set; }
 
-        public string TitleJs { get; set; }
+        public string TitleRequest { get; set; }
 
-        public string TextJs { get; set; }
+        public string TextRequest { get; set; }
 
-        public int SavedTextId { get; set; }
+        public int CurrentTextId { get; set; }
 
-        public string TextCs { get; set; }
+        public string TextResponse { get; set; }
 
-        public string TitleCs { get; set; }
+        public string TitleResponse { get; set; }
 
-        public List<string> CheckedCheckboxesCs { get; set; }
+        public List<string> CheckedCheckboxesResponse { get; set; }
 
-        public List<string> GenreListCs { get; set; }
+        public List<string> GenreListResponse { get; set; }
     }
 }

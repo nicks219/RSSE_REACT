@@ -5,42 +5,39 @@ namespace RandomSongSearchEngine.DTO
 {
     public class SongDto : ISongModel
     {
-        public List<int> CheckedCheckboxesJs { get; set; }
+        [JsonPropertyName("checkedCheckboxesJs")] public List<int> CheckedCheckboxesRequest { get; set; }
 
-        public string TitleJs { get; set; }
+        [JsonPropertyName("titleJs")] public string TitleRequest { get; set; }
 
-        public string TextJs { get; set; }
+        [JsonPropertyName("textJs")] public string TextRequest { get; set; }
 
-        public int SavedTextId { get; set; }
+        [JsonPropertyName("savedTextId")] public int CurrentTextId { get; set; }
 
-        [JsonPropertyName("textCS")] public string TextCs { get; set; }
+        [JsonPropertyName("textCS")] public string TextResponse { get; set; }
 
-        [JsonPropertyName("titleCS")] public string TitleCs { get; set; }
+        [JsonPropertyName("titleCS")] public string TitleResponse { get; set; }
 
-        [JsonPropertyName("isGenreCheckedCS")] public List<string> CheckedCheckboxesCs { get; set; }
+        [JsonPropertyName("isGenreCheckedCS")] public List<string> CheckedCheckboxesResponse { get; set; }
 
-        [JsonPropertyName("genresNamesCS")] public List<string> GenreListCs { get; set; }
+        [JsonPropertyName("genresNamesCS")] public List<string> GenreListResponse { get; set; }
 
-        public string ErrorMessageCs { get; set; }
+        public string ErrorMessageResponse { get; set; }
 
         public SongDto()
         {
         }
 
-        // конструктор для ReadModel
         public SongDto(List<string> genreListCs, int savedTextId = 0, string textCs = "", string titleCs = "", List<string> checkedCheckboxesCs = null)
         {
-            TextCs = textCs;
-            TitleCs = titleCs;
-            CheckedCheckboxesCs = checkedCheckboxesCs;
-            GenreListCs = genreListCs;
-            SavedTextId = savedTextId;
-            //???
+            TextResponse = textCs;
+            TitleResponse = titleCs;
+            CheckedCheckboxesResponse = checkedCheckboxesCs ?? new List<string>();
+            GenreListResponse = genreListCs;
+            CurrentTextId = savedTextId;
             //CheckedCheckboxesJs = null;
             //TitleJs = "";
             //TextJs = "";
             //ErrorMessageCs = "";
         }
-
     }
 }

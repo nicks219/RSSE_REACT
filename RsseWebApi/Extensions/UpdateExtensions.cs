@@ -14,10 +14,10 @@ namespace RandomSongSearchEngine.Extensions
     {
         public static async Task OnGetUpdateAsync(this SongModel model, int id)
         {
-            model.SavedTextId = id;
+            model.CurrentTextId = id;
             try
             {
-                if (model.SavedTextId == 0)
+                if (model.CurrentTextId == 0)
                 {
                     //не помню, в каком случае появляется ошибка
                     throw new NotImplementedException();
@@ -25,7 +25,7 @@ namespace RandomSongSearchEngine.Extensions
 
                 using var scope = model.ServiceScopeFactory.CreateScope();
                 var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
-                await model.GetSongAsync(database, model.SavedTextId);
+                await model.GetSongAsync(database, model.CurrentTextId);
                 await model.GetCheckboxesAsync(database);
                 //IGlobalData.InitialCheckboxes = await model.GetGenresForSongAsync(database);
                 await model.GetGenresForSongAsync(database);
@@ -40,10 +40,10 @@ namespace RandomSongSearchEngine.Extensions
         {
             try
             {
-                if (model.CheckedCheckboxesJs == null || model.TextJs == null || model.TitleJs == null || model.CheckedCheckboxesJs.Count == 0
-                    || model.TextJs == "" || model.TitleJs == "")
+                if (model.CheckedCheckboxesRequest == null || model.TextRequest == null || model.TitleRequest == null || model.CheckedCheckboxesRequest.Count == 0
+                    || model.TextRequest == "" || model.TitleRequest == "")
                 {
-                    await model.OnGetUpdateAsync(model.SavedTextId);
+                    await model.OnGetUpdateAsync(model.CurrentTextId);
                     return;
                 }
 
@@ -51,14 +51,14 @@ namespace RandomSongSearchEngine.Extensions
                 var database = scope.ServiceProvider.GetRequiredService<RsseContext>();
                 //List<int> initialCheckboxes = IGlobalData.InitialCheckboxes;
                 //повторное чтение из бд жанров песни - чтобы избавиться от состояния и передачи этих данных через dto
-                List<int> initialCheckboxes = await database.ReadSongGenresSql(model.SavedTextId).ToListAsync();
+                List<int> initialCheckboxes = await database.ReadSongGenresSql(model.CurrentTextId).ToListAsync();
                 await model.UpdateSongAsync(database, initialCheckboxes);
             }
             catch (Exception e)
             {
                 model.Logger.LogError(e, "[ChangeTextModel]");
             }
-            await model.OnGetUpdateAsync(model.SavedTextId);
+            await model.OnGetUpdateAsync(model.CurrentTextId);
         }
 
         /// <summary>
@@ -70,10 +70,10 @@ namespace RandomSongSearchEngine.Extensions
         private static async Task GetGenresForSongAsync(this SongModel model, RsseContext database)
         {
             //read checked genres for song
-            List<int> checkedList = await database.ReadSongGenresSql(model.SavedTextId).ToListAsync();
+            List<int> checkedList = await database.ReadSongGenresSql(model.CurrentTextId).ToListAsync();
             foreach (int i in checkedList)
             {
-                model.CheckedCheckboxesCs[i - 1] = "checked";
+                model.CheckedCheckboxesResponse[i - 1] = "checked";
             }
         }
 
@@ -88,10 +88,10 @@ namespace RandomSongSearchEngine.Extensions
         {
             InnerDto dt = new InnerDto
             {
-                TitleFromHtml = model.TitleJs.Trim(),
-                TextFromHtml = model.TextJs.Trim(),
-                AreChecked = model.CheckedCheckboxesJs,
-                SavedTextId = model.SavedTextId
+                TitleFromHtml = model.TitleRequest.Trim(),
+                TextFromHtml = model.TextRequest.Trim(),
+                AreChecked = model.CheckedCheckboxesRequest,
+                SavedTextId = model.CurrentTextId
             };
             //тут можно проверить имя на свопадение с существующим. редкая ошибка
             //if (ModelState.IsValid)

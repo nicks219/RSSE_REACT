@@ -32,8 +32,8 @@ namespace RandomSongSearchEngine.Models
             }
             else
             {
-                textCs = dto.TextJs;
-                titleCs = dto.TitleJs;
+                textCs = dto.TextRequest;
+                titleCs = dto.TitleRequest;
             }
             return (textCs, titleCs);
         }
@@ -75,9 +75,9 @@ namespace RandomSongSearchEngine.Models
                 checkedCheckboxesCs.Add("unchecked");
             }
 
-            if (dto.CheckedCheckboxesJs != null)
+            if (dto.CheckedCheckboxesRequest != null)
             {
-                foreach (int i in dto.CheckedCheckboxesJs)
+                foreach (int i in dto.CheckedCheckboxesRequest)
                 {
                     checkedCheckboxesCs[i - 1] = "checked";
                 }

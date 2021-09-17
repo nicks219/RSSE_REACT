@@ -35,7 +35,7 @@ namespace RandomSongSearchEngine.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[UpdateController: OnGet Error]");
-                return new SongDto() { ErrorMessageCs = "[UpdateController: OnGet Error]" };
+                return new SongDto() { ErrorMessageResponse = "[UpdateController: OnGet Error]" };
             }
         }
 
@@ -50,7 +50,7 @@ namespace RandomSongSearchEngine.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[UpdateController: OnPost Error]");
-                return new SongDto() { ErrorMessageCs = "[UpdateController: OnPost Error]" };
+                return new SongDto() { ErrorMessageResponse = "[UpdateController: OnPost Error]" };
             }
         }
     }

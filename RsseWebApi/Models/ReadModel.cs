@@ -14,11 +14,11 @@ namespace RandomSongSearchEngine.Models
     public class ReadModel
     {
         private IServiceScope _scope { get; }
-        private ILogger<SongModel> _logger { get; }
+        private ILogger<ReadModel> _logger { get; }
         public ReadModel(IServiceScope serviceScope)
         {
             _scope = serviceScope;
-            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<SongModel>>();
+            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
         }
 
         public async Task<SongDto> OnGetReadAsync()
@@ -32,7 +32,7 @@ namespace RandomSongSearchEngine.Models
             catch (Exception e)
             {
                 _logger.LogError(e, "[IndexModel: OnGet Error]");
-                return new SongDto() { ErrorMessageCs = "[IndexModel: OnGet Error]" };
+                return new SongDto() { ErrorMessageResponse = "[IndexModel: OnGet Error]" };
             }
         }
 
@@ -45,9 +45,9 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                if (dto.CheckedCheckboxesJs != null && dto.CheckedCheckboxesJs.Count != 0)
+                if (dto.CheckedCheckboxesRequest != null && dto.CheckedCheckboxesRequest.Count != 0)
                 {
-                    songId = await database.GetRandomIdAsync(dto.CheckedCheckboxesJs);
+                    songId = await database.GetRandomIdAsync(dto.CheckedCheckboxesRequest);
                     if (songId != 0)
                     {
                         var song = await database.ReadSongSql(songId).ToListAsync();
@@ -65,7 +65,7 @@ namespace RandomSongSearchEngine.Models
             catch (Exception e)
             {
                 _logger.LogError(e, "[IndexModel: OnPost Error]");
-                return new SongDto() { ErrorMessageCs = "[IndexModel: OnPost Error]" };
+                return new SongDto() { ErrorMessageResponse = "[IndexModel: OnPost Error]" };
             }
         }
 

@@ -26,8 +26,8 @@ namespace RandomSongSearchEngine.Extensions
 
         public static async Task OnPostCreateAsync(this SongModel model)
         {
-            if (model.CheckedCheckboxesJs == null || model.TextJs == null || model.TitleJs == null || model.CheckedCheckboxesJs.Count == 0
-                || model.TextJs == "" || model.TitleJs == "")
+            if (model.CheckedCheckboxesRequest == null || model.TextRequest == null || model.TitleRequest == null || model.CheckedCheckboxesRequest.Count == 0
+                || model.TextRequest == "" || model.TitleRequest == "")
             {
                 //очищаем модель, иначе список чекбоксов пустой останется
                 await model.OnGetCreateAsync();
@@ -40,7 +40,7 @@ namespace RandomSongSearchEngine.Extensions
                     var database = scope.ServiceProvider.GetRequiredService<RsseContext>();//
 
                     await model.CreateSongAsync(database);
-                    await model.GetSongAsync(database, model.SavedTextId);
+                    await model.GetSongAsync(database, model.CurrentTextId);
                 }
                 await model.OnGetCreateAsync();//
                 model.SetChecked();
@@ -62,14 +62,14 @@ namespace RandomSongSearchEngine.Extensions
         {
             InnerDto dt = new InnerDto
             {
-                TitleFromHtml = model.TitleJs.Trim(),
-                TextFromHtml = model.TextJs.Trim(),
-                AreChecked = model.CheckedCheckboxesJs
+                TitleFromHtml = model.TitleRequest.Trim(),
+                TextFromHtml = model.TextRequest.Trim(),
+                AreChecked = model.CheckedCheckboxesRequest
             };
             //if (ModelState.IsValid)
             {
                 //Получим 0 при ошибке
-                model.SavedTextId = await database.CreateSongSqlAsync(dt);
+                model.CurrentTextId = await database.CreateSongSqlAsync(dt);
             }
         }
     }
