@@ -23,7 +23,7 @@ namespace RandomSongSearchEngine.Models
         {
             try
             {
-                if (dto.Email == null && dto.Password == null)
+                if (dto.Email == null || dto.Password == null)
                 {
                     return null;
                 }
