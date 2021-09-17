@@ -3,21 +3,21 @@ using System.Text.Json.Serialization;
 
 namespace RandomSongSearchEngine.DTO
 {
-    public class SongDto : ISongModel
+    public class SongDto
     {
-        [JsonPropertyName("checkedCheckboxesJs")] public List<int> CheckedCheckboxesRequest { get; set; }
+        [JsonPropertyName("checkedCheckboxesJs")] public List<int> SongGenresRequest { get; set; }
 
         [JsonPropertyName("titleJs")] public string TitleRequest { get; set; }
 
         [JsonPropertyName("textJs")] public string TextRequest { get; set; }
 
-        [JsonPropertyName("savedTextId")] public int CurrentTextId { get; set; }
+        [JsonPropertyName("savedTextId")] public int SongId { get; set; }
 
         [JsonPropertyName("textCS")] public string TextResponse { get; set; }
 
         [JsonPropertyName("titleCS")] public string TitleResponse { get; set; }
 
-        [JsonPropertyName("isGenreCheckedCS")] public List<string> CheckedCheckboxesResponse { get; set; }
+        [JsonPropertyName("isGenreCheckedCS")] public List<string> SongGenresResponse { get; set; }
 
         [JsonPropertyName("genresNamesCS")] public List<string> GenreListResponse { get; set; }
 
@@ -31,13 +31,9 @@ namespace RandomSongSearchEngine.DTO
         {
             TextResponse = textCs;
             TitleResponse = titleCs;
-            CheckedCheckboxesResponse = checkedCheckboxesCs ?? new List<string>();
+            SongGenresResponse = checkedCheckboxesCs ?? new List<string>();
             GenreListResponse = genreListCs;
-            CurrentTextId = savedTextId;
-            //CheckedCheckboxesJs = null;
-            //TitleJs = "";
-            //TextJs = "";
-            //ErrorMessageCs = "";
+            SongId = savedTextId;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace RandomSongSearchEngine.Services.Logger
         /// </summary>
         /// <param name="logger">Логгер</param>
         /// <param name="model">Модель, из которой вызывается метод</param>
-        public static void LogId (this ILogger logger, SongModel model)
+        public static void LogId (this ILogger logger, ReadModel model)
         {
             var modelId = model.GetHashCode();
             //костыли - у модели сейчас нет контекста

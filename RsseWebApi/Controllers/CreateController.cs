@@ -15,10 +15,10 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class CreateController : ControllerBase
     {
-        private readonly ILogger<SongModel> _logger;
+        private readonly ILogger<CreateModel> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public CreateController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public CreateController(IServiceScopeFactory serviceScopeFactory, ILogger<CreateModel> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
@@ -31,7 +31,7 @@ namespace RandomSongSearchEngine.Controllers
             {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var model = new CreateModel(scope);
-                return await model.OnGetCreateAsync();
+                return await model.OnGetAsync();
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace RandomSongSearchEngine.Controllers
             {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var model = new CreateModel(scope);
-                return await model.OnPostCreateAsync(dto);
+                return await model.OnPostAsync(dto);
             }
             catch (Exception ex)
             {

@@ -31,7 +31,7 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new ReadModel(scope).OnGetReadAsync();
+                return await new ReadModel(scope).OnGetAsync();
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new ReadModel(scope).OnPostReadAsync(dto);
+                return await new ReadModel(scope).OnPostAsync(dto);
             }
             catch (Exception ex)
             {

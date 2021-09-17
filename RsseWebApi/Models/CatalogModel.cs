@@ -17,6 +17,9 @@ namespace RandomSongSearchEngine.Models
     {
         #region Fields
 
+        private const int Forward = 2;
+        private const int Backward = 1;
+        private const int MinimalPageNumber = 1;
         private static readonly int PageSize = 10;
         private readonly IServiceScope _scope;
         private readonly ILogger<CatalogModel> _logger;
@@ -29,17 +32,11 @@ namespace RandomSongSearchEngine.Models
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
         }
 
-        /// <summary>
-        /// Получаем листинг песен с их id по номеру страницы
-        /// </summary>
-        /// <param name="id">номер страницы</param>
-        /// <returns></returns>
-        public async Task<CatalogDto> OnGetCatalogAsync(int id)
+        public async Task<CatalogDto> OnGetAsync(int pageNumber)
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>(); //
             try
             {
-                int pageNumber = id;
                 int songsCount = await database.Text.CountAsync();
                 List<Tuple<string, int>> catalogPage =
                     await database.ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
@@ -52,12 +49,7 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        /// <summary>
-        /// Навигация по каталогу
-        /// </summary>
-        /// <param name="dto">запрос со стороны фронта</param>
-        /// <returns></returns>
-        public async Task<CatalogDto> OnPostCatalogAsync(CatalogDto dto)
+        public async Task<CatalogDto> OnPostAsync(CatalogDto dto)
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
@@ -79,7 +71,7 @@ namespace RandomSongSearchEngine.Models
 
         private int Navigate(int navigation, int pageNumber, int songsCount)
         {
-            if (navigation == 2)
+            if (navigation == Forward)
             {
                 int pageCount = Math.DivRem(songsCount, PageSize, out int remainder);
                 if (remainder > 0)
@@ -92,9 +84,9 @@ namespace RandomSongSearchEngine.Models
                 }
             }
 
-            if (navigation == 1)
+            if (navigation == Backward)
             {
-                if (pageNumber > 1) pageNumber--;
+                if (pageNumber > MinimalPageNumber) pageNumber--;
             }
 
             return pageNumber;
@@ -105,7 +97,7 @@ namespace RandomSongSearchEngine.Models
             return new CatalogDto
             {
                 PageNumber = pageNumber,
-                TitlesAndIds = catalogPage ?? new List<Tuple<string, int>>(),
+                CatalogPage = catalogPage ?? new List<Tuple<string, int>>(),
                 SongsCount = songsCount
             };
         }

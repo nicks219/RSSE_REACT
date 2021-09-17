@@ -10,28 +10,23 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class CreateModel
+    public class CreateModel : BaseModel
     {
         private IServiceScope _scope { get; }
-        private ILogger<SongModel> _logger { get; }
+        private ILogger<CreateModel> _logger { get; }
 
         public CreateModel(IServiceScope serviceScope)
         {
             _scope = serviceScope;
-            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<SongModel>>();
+            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CreateModel>>();
         }
 
-        public async Task<SongDto> OnGetCreateAsync()
+        public async Task<SongDto> OnGetAsync()
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<Tuple<string, int>> genreList = await database.ReadGenreListSql().ToListAsync();
-                List<string> genreListResponse = new List<string>();
-                foreach (var genreAndAmount in genreList)
-                {
-                    genreListResponse.Add(genreAndAmount.Item2 > 0 ? genreAndAmount.Item1 + ": " + genreAndAmount.Item2 : genreAndAmount.Item1);
-                }
+                List<string> genreListResponse = await GetGenreListAsync(database: database);
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -41,41 +36,41 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        public async Task<SongDto> OnPostCreateAsync(SongDto dto)
+        public async Task<SongDto> OnPostAsync(SongDto dto)
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<string> checkedCheckboxesResponse = new List<string>();
-                if (dto.CheckedCheckboxesRequest == null || dto.TextRequest == null || dto.TitleRequest == null
-                         || dto.CheckedCheckboxesRequest.Count == 0 || dto.TextRequest == "" || dto.TitleRequest == "")
+                if (dto.SongGenresRequest == null || dto.TextRequest == null || dto.TitleRequest == null
+                         || dto.SongGenresRequest.Count == 0 || dto.TextRequest == "" || dto.TitleRequest == "")
                 {
-                    SongDto errorDto = await OnGetCreateAsync();
+                    SongDto errorDto = await OnGetAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - empty data]";
                     if (dto.TextRequest != null && dto.TextRequest != "") errorDto.TextResponse = dto.TextRequest;
                     return errorDto;
                 }
 
-                int newTextId = await database.CreateSongSqlAsync(new InnerDto(dto));
-                if (newTextId == 0)
+                int newSongId = await database.CreateSongSqlAsync(dto);
+                if (newSongId == 0)
                 {
-                    SongDto errorDto = await OnGetCreateAsync();
+                    SongDto errorDto = await OnGetAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - create unsuccessfull]";
                     errorDto.TitleResponse = "[Already Exist]";
                     return errorDto;
                 }
 
-                SongDto updatedDto = await OnGetCreateAsync();
+                SongDto updatedDto = await OnGetAsync();
                 List<string> updatedGenreList = updatedDto.GenreListResponse;
+                List<string> songGenresResponse = new List<string>();
                 for (int i = 0; i < updatedGenreList.Count; i++)
                 {
-                    checkedCheckboxesResponse.Add("unchecked");
+                    songGenresResponse.Add("unchecked");
                 }
-                foreach (int i in dto.CheckedCheckboxesRequest) // checkedList)
+                foreach (int i in dto.SongGenresRequest)
                 {
-                    checkedCheckboxesResponse[i - 1] = "checked";
+                    songGenresResponse[i - 1] = "checked";
                 }
-                return new SongDto(updatedGenreList, newTextId, "", "[OK]", checkedCheckboxesResponse);
+                return new SongDto(updatedGenreList, newSongId, "", "[OK]", songGenresResponse);
             }
             catch (Exception ex)
             {

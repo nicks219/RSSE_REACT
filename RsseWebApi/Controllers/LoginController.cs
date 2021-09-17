@@ -17,10 +17,10 @@ namespace RandomSongSearchEngine.Controllers
     [Route("account/{action}")]
     public class LoginController : ControllerBase
     {
-        private readonly ILogger<SongModel> _logger;
+        private readonly ILogger<LoginModel> _logger;
         private readonly IServiceScopeFactory _scope;
 
-        public LoginController(IServiceScopeFactory serviceScopeFactory, ILogger<SongModel> logger)
+        public LoginController(IServiceScopeFactory serviceScopeFactory, ILogger<LoginModel> logger)
         {
             _logger = logger;
             _scope = serviceScopeFactory;
@@ -34,18 +34,14 @@ namespace RandomSongSearchEngine.Controllers
             // либо данные
             var b = a.Value;
             // либо действие
-            //var c = a.Result;
-            // если кука прикрепилась - продолжается выполнение [Authorize] контроллера? разберись
-            if (b == "ok") return "Authorize controller executed";
+            // var c = a.Result;
+            // TODO: если кука прикрепилась - продолжается ли выполнение [Authorize] контроллера?
+            if (b == "ok") return "[Authorize controller executed]";
             return BadRequest(b);
         }
 
 
-        /// <summary>
-        /// Проверям логин и пароль
-        /// </summary>
-        /// <param name="model"></param>
-        /// <returns></returns>
+        // Проверям логин и пароль
         [HttpPost]
         public async Task<ActionResult<string>> Login(LoginModel model)
         {
@@ -59,34 +55,28 @@ namespace RandomSongSearchEngine.Controllers
                     UserEntity user = await db.Users.FirstOrDefaultAsync(u => u.Email == model.Email && u.Password == model.Password);
                     if (user != null)
                     {
-                        // аутентификация идёт успешно
                         await Authenticate(model.Email);
-                        //return RedirectToAction("Index", "Read");
+                        // аутентификация прошла успешно
                         return "ok";
                     }
                     // нет пользователя
                     return "wrong_user";
                 }
                 // нет логина или пароля
-                //return model;
                 return "empty_data";
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 // ошибка в бд
-                _logger.LogError(e, "[LoginModel]");
+                _logger.LogError(ex, "[LoginModel]");
                 return "system_error";
             }
         }
 
-        /// <summary>
-        /// Прикрепляем куку к UserName
-        /// </summary>
-        /// <param name="userName"></param>
-        /// <returns></returns>
+        // Прикрепляем куку к UserName
         private async Task Authenticate(string userName)
         {
-            // 1.создаем один claim
+            // 1.создаем один Claim
             var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, userName) };
             // 2.создаем объект ClaimsIdentity
             ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
@@ -94,11 +84,7 @@ namespace RandomSongSearchEngine.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
         }
 
-        /// <summary>
-        /// Удаляем куки
-        /// </summary>
-        /// <param name="returnurl"></param>
-        /// <returns></returns>
+        // Удаляем куки
         public async Task<ActionResult<string>> Logout(string returnurl)
         {
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);

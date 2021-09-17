@@ -1,35 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace RandomSongSearchEngine.DTO
 {
-    public class CatalogDto // : ICatalogModel
+    public class CatalogDto
     {
-        /// <summary>
-        /// Список из названий песен и соответствующим им Id для бд
-        /// </summary>
-        public List<Tuple<string, int>> TitlesAndIds { get; set; }
+        //название и соответствующее ему Id из бд
+        [JsonPropertyName("titlesAndIds")] public List<Tuple<string, int>> CatalogPage { get; set; }
 
-        /// <summary>
-        /// Используется для определения какая кнопка была нажата во вьюхе
-        /// </summary>
-        public List<int> NavigationButtons { get; set; }
+        [JsonPropertyName("navigationButtons")] public List<int> NavigationButtons { get; set; }
 
-        //TODO: считай их количество на фронте
-        /// <summary>
-        /// Количество песен в базе данных
-        /// </summary>
-        public int SongsCount { get; set; }
+        [JsonPropertyName("songsCount")] public int SongsCount { get; set; }
 
-        /// <summary>
-        /// Номер последней просмотренной страницы
-        /// </summary>
-        public int PageNumber { get; set; }
+        [JsonPropertyName("pageNumber")] public int PageNumber { get; set; }
 
-        /// <summary>
-        /// Поле для сообщения об ошибке
-        /// </summary>
-        public string ErrorMessage { get; internal set; }
+        [JsonPropertyName("errorMessage")] public string ErrorMessage { get; internal set; }
 
         public int GetNavigation()
         {

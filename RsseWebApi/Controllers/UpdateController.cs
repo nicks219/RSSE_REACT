@@ -30,7 +30,7 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).OnGetUpdateAsync(id);
+                return await new UpdateModel(scope).OnGetAsync(id);
             }
             catch (Exception ex)
             {
@@ -45,7 +45,7 @@ namespace RandomSongSearchEngine.Controllers
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).OnPostUpdateAsync(dto);
+                return await new UpdateModel(scope).OnPostAsync(dto);
             }
             catch (Exception ex)
             {

@@ -102,7 +102,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="initialCheckboxes">Оригинальные категории песни</param>
         /// <param name="dt">Данные для песни</param>
         /// <returns></returns>
-        public static async Task UpdateSongSqlAsync(this RsseContext db, List<int> initialCheckboxes, InnerDto dt)
+        public static async Task UpdateSongSqlAsync(this RsseContext db, List<int> initialCheckboxes, SongDto dt)
         {
             // если имя заменено на существующее, то залоггируется исключение.
             // быстрой проверки нет - ресурсоёмко и ошибка редкая.
@@ -110,34 +110,34 @@ namespace RandomSongSearchEngine.Extensions
             await using IDbContextTransaction t = await db.Database.BeginTransactionAsync();
             try
             {
-                TextEntity text = await db.Text.FindAsync(dt.SavedTextId);
+                TextEntity text = await db.Text.FindAsync(dt.SongId);
                 if (text == null)
                 {
                     throw new Exception("[NULL in Text]");
                 }
-                HashSet<int> forAddition = dt.AreChecked.ToHashSet();
+                HashSet<int> forAddition = dt.SongGenresRequest.ToHashSet();
                 HashSet<int> forDelete = initialCheckboxes.ToHashSet();
                 List<int> except = forAddition.Intersect(forDelete).ToList();
                 forAddition.ExceptWith(except);
                 forDelete.ExceptWith(except);
-                db.CheckGenresExistsError(dt.SavedTextId, forAddition);
-                text.Title = dt.TitleFromHtml;
-                text.Song = dt.TextFromHtml;
+                // дешевле просто откатить транзакцию без механизма исключений
+                db.CheckGenresExistsError(dt.SongId, forAddition);
+                text.Title = dt.TitleRequest;
+                text.Song = dt.TextRequest;
                 db.Text.Update(text);
-                db.GenreText.RemoveRange(db.GenreText.Where(f => f.TextId == dt.SavedTextId && forDelete.Contains(f.GenreId)));
-                await db.GenreText.AddRangeAsync(forAddition.Select(genre => new GenreTextEntity { TextId = dt.SavedTextId, GenreId = genre }));
+                db.GenreText.RemoveRange(db.GenreText.Where(f => f.TextId == dt.SongId && forDelete.Contains(f.GenreId)));
+                await db.GenreText.AddRangeAsync(forAddition.Select(genre => new GenreTextEntity { TextId = dt.SongId, GenreId = genre }));
                 await db.SaveChangesAsync();
                 await t.CommitAsync();
             }
-            //ошибка навигации либо введены существующие данные
             catch (DataExistsException)
             {
                 await t.RollbackAsync();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 await t.RollbackAsync();
-                throw;
+                throw new Exception("[UpdateSongSqlAsync Method]", ex);
             }
         }
 
@@ -147,35 +147,34 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="db">Контекст базы данных</param>
         /// <param name="dt">Данные для песни</param>
         /// <returns>Возвращает ID добавленной песни или ноль при ошибке</returns>
-        public static async Task<int> CreateSongSqlAsync(this RsseContext db, InnerDto dt)
+        public static async Task<int> CreateSongSqlAsync(this RsseContext db, SongDto dt)
         {
             await using IDbContextTransaction t = await db.Database.BeginTransactionAsync();
             try
             {
-                db.CheckNameExistsError(dt.TitleFromHtml);
-                TextEntity addition = new TextEntity { Title = dt.TitleFromHtml, Song = dt.TextFromHtml };
+                // дешевле просто откатить транзакцию без механизма исключений
+                db.CheckNameExistsError(dt.TitleRequest);
+                TextEntity addition = new TextEntity { Title = dt.TitleRequest, Song = dt.TextRequest };
                 await db.Text.AddAsync(addition);
                 await db.SaveChangesAsync();
-                await db.GenreText.AddRangeAsync(dt.AreChecked.Select(genre => new GenreTextEntity { TextId = addition.TextId, GenreId = genre }));
+                await db.GenreText.AddRangeAsync(dt.SongGenresRequest.Select(genre => new GenreTextEntity { TextId = addition.TextId, GenreId = genre }));
                 await db.SaveChangesAsync();
                 await t.CommitAsync();
-                dt.SavedTextId = addition.TextId;
+                dt.SongId = addition.TextId;
             }
-            //ошибка навигации либо введены существующие данные
             catch (DataExistsException)
             {
                 await t.RollbackAsync();
-                dt.SavedTextId = 0;
+                dt.SongId = 0;
             }
-            //catch (DbUpdateException)
-            catch (Exception)
+            catch (Exception ex)
             {
                 await t.RollbackAsync();
-                dt.SavedTextId = 0;
-                throw;
+                dt.SongId = 0;
+                throw new Exception("[CreateSongSqlAsync Method]", ex);
             }
 
-            return dt.SavedTextId;
+            return dt.SongId;
         }
 
         /// <summary>

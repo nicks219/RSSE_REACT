@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class ReadModel
+    public class ReadModel : BaseModel
     {
         private IServiceScope _scope { get; }
         private ILogger<ReadModel> _logger { get; }
@@ -21,63 +21,51 @@ namespace RandomSongSearchEngine.Models
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
         }
 
-        public async Task<SongDto> OnGetReadAsync()
+        public async Task<SongDto> OnGetAsync()
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<string> genreListCs = await InitializeGenreListAsync(database: database);
-                return new SongDto(genreListCs);
+                List<string> genreListResponse = await GetGenreListAsync(database: database);
+                return new SongDto(genreListResponse);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e, "[IndexModel: OnGet Error]");
+                _logger.LogError(ex, "[IndexModel: OnGet Error]");
                 return new SongDto() { ErrorMessageResponse = "[IndexModel: OnGet Error]" };
             }
         }
 
-        public async Task<SongDto> OnPostReadAsync(SongDto dto)
+        public async Task<SongDto> OnPostAsync(SongDto dto)
         {
-            string textCs = "";
-            string titleCs = "";
+            string textResponse = "";
+            string titleResponse = "";
             int songId = 0;
-
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                if (dto.CheckedCheckboxesRequest != null && dto.CheckedCheckboxesRequest.Count != 0)
+                if (dto.SongGenresRequest != null && dto.SongGenresRequest.Count != 0)
                 {
-                    songId = await database.GetRandomIdAsync(dto.CheckedCheckboxesRequest);
+                    songId = await database.GetRandomIdAsync(dto.SongGenresRequest);
                     if (songId != 0)
                     {
                         var song = await database.ReadSongSql(songId).ToListAsync();
                         if (song.Count > 0)
                         {
-                            textCs = song[0].Item1;
-                            titleCs = song[0].Item2;
+                            textResponse = song[0].Item1;
+                            titleResponse = song[0].Item2;
                         }
                     }
                 }
 
-                List<string> genreListCs = await InitializeGenreListAsync(database: database);
-                return new SongDto(genreListCs, songId, textCs, titleCs);
+                List<string> genreListResponse = await GetGenreListAsync(database: database);
+                return new SongDto(genreListResponse, songId, textResponse, titleResponse);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e, "[IndexModel: OnPost Error]");
+                _logger.LogError(ex, "[IndexModel: OnPost Error]");
                 return new SongDto() { ErrorMessageResponse = "[IndexModel: OnPost Error]" };
             }
-        }
-
-        private async Task<List<string>> InitializeGenreListAsync(RsseContext database)
-        {
-            List<string> genreListCs = new List<string>();
-            List<Tuple<string, int>> genreList = await database.ReadGenreListSql().ToListAsync();
-            foreach (var genreAndAmount in genreList)
-            {
-                genreListCs.Add(genreAndAmount.Item2 > 0 ? genreAndAmount.Item1 + ": " + genreAndAmount.Item2 : genreAndAmount.Item1);
-            }
-            return genreListCs;
         }
     }
 }
