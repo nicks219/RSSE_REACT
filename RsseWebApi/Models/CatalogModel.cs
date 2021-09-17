@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
@@ -44,8 +45,8 @@ namespace RandomSongSearchEngine.Models
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
+                _logger.LogError(ex, "[CatalogModel: OnGet Error]");
+                return new CatalogDto() { ErrorMessage = "[CatalogModel: OnGet Error]" };
             }
         }
 
@@ -64,8 +65,24 @@ namespace RandomSongSearchEngine.Models
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[CatalogModel]");
-                return new CatalogDto() { ErrorMessage = "[CatalogModel]" };
+                _logger.LogError(ex, "[CatalogModel: OnPost Error]");
+                return new CatalogDto() { ErrorMessage = "[CatalogModel: OnPost Error]" };
+            }
+        }
+
+        public async Task<CatalogDto> OnDeleteAsync(int songId, int pageNumber)
+        {
+            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            int result;
+            try
+            {
+                result = await database.OnDeleteSql(songId);
+                return await OnGetAsync(pageNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[CatalogModel: OnDelete Error]");
+                return new CatalogDto() { ErrorMessage = "[CatalogModel: OnDelete Error]" };
             }
         }
 

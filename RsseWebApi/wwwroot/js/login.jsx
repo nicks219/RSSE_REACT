@@ -9,6 +9,8 @@ export class LoginRequired {
             if (component.url === "/api/update") {
                 // Loader в случае ошибки вызовет MessageOn()
                 Loader.getDataById(component, window.textId, component.url);
+            } else if (component.url === "/api/catalog") {
+                //Loader.getDataById(component, 1, component.url);// нужен PageNumber
             } else {
                 Loader.getData(component, component.url);
             }

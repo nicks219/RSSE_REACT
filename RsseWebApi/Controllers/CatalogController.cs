@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Dto;
@@ -51,6 +52,23 @@ namespace RandomSongSearchEngine.Controllers
                 _logger.LogError(ex, "[CatalogController: OnPost Error]");
                 return new CatalogDto() {ErrorMessage = "[CatalogController: OnGet Error]"};
             }
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<ActionResult<CatalogDto>> Delete(int id, int pg)
+        {
+            try
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
+                return await new CatalogModel(scope).OnDeleteAsync(id, pg);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[CatalogController: OnDelete Error]");
+                return new CatalogDto() { ErrorMessage = "[CatalogController: OnDelete Error]" };
+            }
+
         }
     }
 }

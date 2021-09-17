@@ -33,12 +33,21 @@ class CatalogView extends React.Component {
         this.props.listener.setState({ id: id });
     }
 
+    delete = (e) => {
+        e.preventDefault();
+        var id = Number(e.target.id);
+        //this.props.listener.setState({ id: id });
+        console.log('You want to delete song with id: ' + id);
+        Loader.deleteDataById(this, id, this.url, this.state.data.pageNumber);
+    }
+
     render() {
         if (!this.state.data) return null;
         var songs = [];
         for (let i = 0; i < this.state.data.titlesAndIds.length; i++) {
             songs.push(<tr key={"song " + i} className="d-sm-table-row "><td></td><td><a id={this.state.data.titlesAndIds[i].item2}
-                onClick={this.redirect}>{this.state.data.titlesAndIds[i].item1}</a></td></tr>);
+                onClick={this.redirect}>{this.state.data.titlesAndIds[i].item1}</a></td>
+                <td><button id={this.state.data.titlesAndIds[i].item2} onClick={this.delete}>DELETE</button></td></tr>);
         }
 
         return (

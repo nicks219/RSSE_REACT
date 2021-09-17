@@ -177,6 +177,28 @@ namespace RandomSongSearchEngine.Extensions
             return dt.SongId;
         }
 
+        public static async Task<int> OnDeleteSql(this RsseContext db, int songId)
+        {
+            await using IDbContextTransaction t = await db.Database.BeginTransactionAsync();
+            try
+            {
+                var result = 0;
+                var song = await db.Text.FindAsync(songId);
+                if (song != null)
+                {
+                    db.Text.Remove(song);
+                    result = await db.SaveChangesAsync();
+                    await t.CommitAsync();
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await t.RollbackAsync();
+                throw new Exception("[OnDeleteSql Method]", ex);
+            }
+        }
+
         /// <summary>
         /// Проверка консистентости данных по названию песни
         /// </summary>

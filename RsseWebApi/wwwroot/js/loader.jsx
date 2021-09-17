@@ -53,4 +53,20 @@ export class Loader {
             console.log("Loader try-catch: 3");
         }
     }
+
+    //DELETE request: /api/controller?id=
+    static deleteDataById(component, requestId, url, pageNumber) {
+        LoginRequired.MessageOff();
+        try {
+            window.fetch(url + "?id=" + String(requestId) + "&pg=" + String(pageNumber), {
+                method: "DELETE",
+                credentials: "same-origin"
+            })
+                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(data => { if (component.mounted) component.setState({ data }) })
+                .catch((e) => LoginRequired.MessageOn(component));//LogForm(component)
+        } catch (err) {
+            console.log("Loader try-catch: 2");
+        }
+    }
 }

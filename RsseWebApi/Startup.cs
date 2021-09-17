@@ -19,9 +19,10 @@ namespace RandomSongSearchEngine
 {
     //- V0.0.9 для запросов Create, Read, Update(и Catalog) логика инкапсулирована в моделях, не имеющих зависимостей от ASP
     //  public методы моделей: OnGet(), OnPost() и (кроме Catalog) GetGenreListAsync(), public поля отсутствуют
-    //  TODO: рефакторинг LoginController и LoginModel
+    //  +TODO: рефакторинг LoginController и LoginModel
     //  TODO: добавить запрос Delete
     //  TODO: перевести фронт на TSX
+    //  TODO: разберись с неймингом в роутинге и сделай CRUD (post=create, get=read, put=update, delete=delete)
     public class Startup
     {
         public Startup(IConfiguration configuration)
