@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
-using RandomSongSearchEngine.DTO;
 using RandomSongSearchEngine.Extensions;
 using System;
 using System.Collections.Generic;

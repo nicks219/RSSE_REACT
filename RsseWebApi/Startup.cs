@@ -17,6 +17,11 @@ using RandomSongSearchEngine.Services.Logger;
 
 namespace RandomSongSearchEngine
 {
+    //- V0.0.9 для запросов Create, Read, Update(и Catalog) логика инкапсулирована в моделях, не имеющих зависимостей от ASP
+    //  public методы моделей: OnGet(), OnPost() и (кроме Catalog) GetGenreListAsync(), public поля отсутствуют
+    //  TODO: рефакторинг LoginController и LoginModel
+    //  TODO: добавить запрос Delete
+    //  TODO: перевести фронт на TSX
     public class Startup
     {
         public Startup(IConfiguration configuration)

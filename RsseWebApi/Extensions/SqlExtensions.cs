@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using RandomSongSearchEngine.Data;
+using RandomSongSearchEngine.Services.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using RandomSongSearchEngine.Data;
-using RandomSongSearchEngine.DTO;
-using RandomSongSearchEngine.Services.Services;
 
 namespace RandomSongSearchEngine.Extensions
 {
