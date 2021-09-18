@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class UpdateModel : BaseModel
+    public class UpdateModel : DatabaseAccess
     {
         private IServiceScope _scope { get; }
         private ILogger<UpdateModel> _logger { get; }
@@ -28,15 +28,15 @@ namespace RandomSongSearchEngine.Models
                 //if (SavedTextId == 0) throw new NotImplementedException();
                 string textResponse = "";
                 string titleResponse = "";
-                List<Tuple<string, string>> song = await database.ReadSongSql(songId).ToListAsync();
+                List<Tuple<string, string>> song = await ReadSong(database, songId).ToListAsync();
                 if (song.Count > 0)
                 {
                     textResponse = song[0].Item1;
                     titleResponse = song[0].Item2;
                 }
 
-                List<string> genreListResponse = await GetGenreListAsync(database: database);
-                List<int> songGenres = await database.ReadSongGenresSql(songId).ToListAsync();
+                List<string> genreListResponse = await ReadGenreListAsync(database: database);
+                List<int> songGenres = await ReadSongGenres(database, songId).ToListAsync();
                 List<string> songGenresResponse = new List<string>();
                 for (int i = 0; i < genreListResponse.Count; i++)
                 {
@@ -65,8 +65,8 @@ namespace RandomSongSearchEngine.Models
                 {
                     return await OnGetAsync(dto.SongId);
                 }
-                List<int> originalGenres = await database.ReadSongGenresSql(dto.SongId).ToListAsync();
-                await database.UpdateSongSqlAsync(originalGenres, dto);
+                List<int> originalGenres = await ReadSongGenres(database, dto.SongId).ToListAsync();
+                await UpdateSongAsync(database, originalGenres, dto);
                 return await OnGetAsync(dto.SongId);
             }
             catch (Exception ex)

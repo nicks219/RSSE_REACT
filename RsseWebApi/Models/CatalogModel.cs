@@ -14,7 +14,7 @@ namespace RandomSongSearchEngine.Models
     /// <summary>
     /// Каталог песен
     /// </summary>
-    public class CatalogModel
+    public class CatalogModel : DatabaseAccess
     {
         #region Fields
 
@@ -40,7 +40,7 @@ namespace RandomSongSearchEngine.Models
             {
                 int songsCount = await database.Text.CountAsync();
                 List<Tuple<string, int>> catalogPage =
-                    await database.ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
+                    await ReadCatalogPage(database, pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -59,8 +59,7 @@ namespace RandomSongSearchEngine.Models
                 int pageNumber = dto.PageNumber;
                 int songsCount = await database.Text.CountAsync();
                 pageNumber = Navigate(navigation, pageNumber, songsCount);
-                List<Tuple<string, int>> catalogPage = await database
-                    .ReadCatalogPageSql(pageNumber, PageSize).ToListAsync();
+                List<Tuple<string, int>> catalogPage = await ReadCatalogPage(database, pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -76,7 +75,7 @@ namespace RandomSongSearchEngine.Models
             int result;
             try
             {
-                result = await database.OnDeleteSql(songId);
+                result = await DeleteSongAsync(database, songId);
                 return await OnGetAsync(pageNumber);
             }
             catch (Exception ex)

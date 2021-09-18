@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class ReadModel : BaseModel
+    public class ReadModel : DatabaseAccess
     {
         private IServiceScope _scope { get; }
         private ILogger<ReadModel> _logger { get; }
@@ -26,7 +26,7 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<string> genreListResponse = await GetGenreListAsync(database: database);
+                List<string> genreListResponse = await ReadGenreListAsync(database: database);
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace RandomSongSearchEngine.Models
                     songId = await database.GetRandomIdAsync(dto.SongGenresRequest);
                     if (songId != 0)
                     {
-                        var song = await database.ReadSongSql(songId).ToListAsync();
+                        var song = await ReadSong(database, songId).ToListAsync();
                         if (song.Count > 0)
                         {
                             textResponse = song[0].Item1;
@@ -58,7 +58,7 @@ namespace RandomSongSearchEngine.Models
                     }
                 }
 
-                List<string> genreListResponse = await GetGenreListAsync(database: database);
+                List<string> genreListResponse = await ReadGenreListAsync(database: database);
                 return new SongDto(genreListResponse, songId, textResponse, titleResponse);
             }
             catch (Exception ex)

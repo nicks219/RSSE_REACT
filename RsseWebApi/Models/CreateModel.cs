@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class CreateModel : BaseModel
+    public class CreateModel : DatabaseAccess
     {
         private IServiceScope _scope { get; }
         private ILogger<CreateModel> _logger { get; }
@@ -25,7 +25,7 @@ namespace RandomSongSearchEngine.Models
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
             try
             {
-                List<string> genreListResponse = await GetGenreListAsync(database: database);
+                List<string> genreListResponse = await ReadGenreListAsync(database: database);
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -49,7 +49,7 @@ namespace RandomSongSearchEngine.Models
                     return errorDto;
                 }
 
-                int newSongId = await database.CreateSongSqlAsync(dto);
+                int newSongId = await CreateSongAsync(database, dto);
                 if (newSongId == 0)
                 {
                     SongDto errorDto = await OnGetAsync();
