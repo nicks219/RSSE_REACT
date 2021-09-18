@@ -45,7 +45,7 @@ namespace RandomSongSearchEngine.Models
                 {
                     SongDto errorDto = await OnGetAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - empty data]";
-                    if (dto.TextRequest != null && dto.TextRequest != "") errorDto.TextResponse = dto.TextRequest;
+                    if (!string.IsNullOrEmpty(dto.TextRequest)) errorDto.TextResponse = dto.TextRequest;
                     return errorDto;
                 }
 

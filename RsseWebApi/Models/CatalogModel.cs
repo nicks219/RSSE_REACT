@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
@@ -72,10 +71,9 @@ namespace RandomSongSearchEngine.Models
         public async Task<CatalogDto> OnDeleteAsync(int songId, int pageNumber)
         {
             await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
-            int result;
             try
             {
-                result = await DeleteSongAsync(database, songId);
+                await DeleteSongAsync(database, songId);
                 return await OnGetAsync(pageNumber);
             }
             catch (Exception ex)
@@ -85,7 +83,7 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        private int Navigate(int navigation, int pageNumber, int songsCount)
+        private static int Navigate(int navigation, int pageNumber, int songsCount)
         {
             if (navigation == Forward)
             {
@@ -108,7 +106,7 @@ namespace RandomSongSearchEngine.Models
             return pageNumber;
         }
 
-        private CatalogDto CreateCatalogDto(int pageNumber, int songsCount, List<Tuple<string, int>> catalogPage)
+        private static CatalogDto CreateCatalogDto(int pageNumber, int songsCount, List<Tuple<string, int>> catalogPage)
         {
             return new CatalogDto
             {

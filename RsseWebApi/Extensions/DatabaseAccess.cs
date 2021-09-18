@@ -26,7 +26,6 @@ namespace RandomSongSearchEngine.Extensions
         /// <summary>
         /// Выборка списка ID песен в отмеченных категориях
         /// </summary>
-        /// <param name="database">Контекст базы данных</param>
         /// <param name="checkedGenres">Отмеченые категории</param>
         /// <returns></returns>
         public IQueryable<int> SelectSongIds(int[] checkedGenres)
@@ -215,7 +214,7 @@ namespace RandomSongSearchEngine.Extensions
         /// </summary>
         /// <param name="db">Контекст базы данных</param>
         /// <param name="title">Название песни</param>
-        private void CheckNameExistsError(RsseContext db, string title)
+        private static void CheckNameExistsError(RsseContext db, string title)
         {
             int r = db.Text
                 .Where(p => p.Title == title)
@@ -233,7 +232,7 @@ namespace RandomSongSearchEngine.Extensions
         /// <param name="db">Контекст базы данных</param>
         /// <param name="savedTextId">ID песни</param>
         /// <param name="forAddition">Категории для добавления</param>
-        private void CheckGenresExistsError(RsseContext db, int savedTextId, HashSet<int> forAddition)
+        private static void CheckGenresExistsError(RsseContext db, int savedTextId, HashSet<int> forAddition)
         {
             if (forAddition.Count > 0)
             {
@@ -253,7 +252,7 @@ namespace RandomSongSearchEngine.Extensions
         /// </summary>
         /// <param name="database">Контекст базы данных</param>
         /// <returns></returns>
-        private IQueryable<Tuple<string, int>> ReadGenreList(RsseContext database)//
+        private static IQueryable<Tuple<string, int>> ReadGenreList(RsseContext database)//
         {
             IQueryable<Tuple<string, int>> res = database.Genre
                 .Select(g => new Tuple<string, int>(g.Genre, g.GenreTextInGenre.Count))

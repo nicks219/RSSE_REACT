@@ -51,7 +51,7 @@ namespace RandomSongSearchEngine.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "[ReadController: OnPost Error]");
-                return new SongDto() { ErrorMessageResponse = "[ReadController: OnPost Error]" }; ;
+                return new SongDto() { ErrorMessageResponse = "[ReadController: OnPost Error]" };
             }
         }
     }
