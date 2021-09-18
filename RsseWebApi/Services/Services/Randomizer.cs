@@ -1,37 +1,27 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using RandomSongSearchEngine.Repository;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using RandomSongSearchEngine.Data;
-using RandomSongSearchEngine.Extensions;
 
 namespace RandomSongSearchEngine.Services.Services
 {
-    /// <summary>
-    /// Выборка случайной песни
-    /// </summary>
     public static class Randomizer
     {
         private static readonly Random Random = new Random();
 
-        /// <summary>
-        /// Возвращает ID случайно выбранной песни из выбраных категорий
-        /// </summary>
-        /// <param name="database">Контекст базы данных</param>
-        /// <param name="songGenresRequest">Список выбраных категорий</param>
-        /// <returns></returns>
-        public static async Task<int> ReadRandomIdAsync(this IDatabaseAccess database, List<int> songGenresRequest)
+        // Возвращает Id случайно выбранной песни из заданных категорий
+        public static async Task<int> ReadRandomIdAsync(this IRepository repo, List<int> songGenresRequest)
         {
             int[] checkedGenres = songGenresRequest.ToArray();
-            //IDatabaseAccess db = new DatabaseAccess(database);
-            int howManySongs = await database.SelectAllSongsInGenres(checkedGenres).CountAsync();
+            int howManySongs = await repo.SelectAllSongsInGenres(checkedGenres).CountAsync();
             if (howManySongs == 0)
             {
                 return 0;
             }
             int coin = GetRandom(howManySongs);
-            var result = await database.SelectAllSongsInGenres(checkedGenres)
+            var result = await repo.SelectAllSongsInGenres(checkedGenres)
             //[WARNING] [Microsoft.EntityFrameworkCore.Query]  The query uses a row limiting operator ('Skip'/'Take')
             // without an 'OrderBy' operator.
                     .OrderBy(s => s)

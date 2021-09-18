@@ -9,13 +9,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace RandomSongSearchEngine.Extensions
+namespace RandomSongSearchEngine.Repository
 {
-    public class DatabaseAccess : IDatabaseAccess, IAsyncDisposable, IDisposable
+    public class MsSqlRepository : IRepository, IAsyncDisposable, IDisposable
     {
         private RsseContext _context;
 
-        public DatabaseAccess(IServiceProvider serviceProvider)
+        public MsSqlRepository(IServiceProvider serviceProvider)
         {
             _context = serviceProvider.GetRequiredService<RsseContext>();
         }
@@ -33,11 +33,11 @@ namespace RandomSongSearchEngine.Extensions
             return songsForRandomizer;
         }
 
-        public IQueryable<Tuple<string, int>> ReadCatalogPage(int savedLastViewedPage, int pageSize)
+        public IQueryable<Tuple<string, int>> ReadCatalogPage(int lastPage, int pageSize)
         {
             IQueryable<Tuple<string, int>> titlesAndIdsList = _context.Text
                 .OrderBy(s => s.Title)
-                .Skip((savedLastViewedPage - 1) * pageSize)
+                .Skip((lastPage - 1) * pageSize)
                 .Take(pageSize)
                 .Select(s => new Tuple<string, int>(s.Title, s.TextId))
                 .AsNoTracking();
@@ -54,10 +54,10 @@ namespace RandomSongSearchEngine.Extensions
             return titleAndText;
         }
 
-        public IQueryable<int> ReadSongGenres(int savedTextId)
+        public IQueryable<int> ReadSongGenres(int textId)
         {
             IQueryable<int> songGenres = _context.GenreText
-                .Where(p => p.TextInGenreText.TextId == savedTextId)
+                .Where(p => p.TextInGenreText.TextId == textId)
                 .Select(s => s.GenreId);
             return songGenres;
         }

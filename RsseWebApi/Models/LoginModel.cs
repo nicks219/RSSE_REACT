@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Dto;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -28,8 +28,8 @@ namespace RandomSongSearchEngine.Models
                     return null;
                 }
 
-                await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
-                UserEntity user = await database.GetUser(login);
+                await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+                UserEntity user = await repo.GetUser(login);
                 if (user == null)
                 {
                     return null;

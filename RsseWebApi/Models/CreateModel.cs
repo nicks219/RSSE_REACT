@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Dto;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -22,10 +21,10 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<SongDto> ReadGenreListAsync()
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                List<string> genreListResponse = await database.ReadGenreListAsync();
+                List<string> genreListResponse = await repo.ReadGenreListAsync();
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -37,7 +36,7 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<SongDto> CreateSongAsync(SongDto createdSong)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
                 if (createdSong.SongGenres == null || createdSong.Text == null || createdSong.Title == null
@@ -49,7 +48,7 @@ namespace RandomSongSearchEngine.Models
                     return errorDto;
                 }
 
-                int newSongId = await database.CreateSongAsync(createdSong);
+                int newSongId = await repo.CreateSongAsync(createdSong);
                 if (newSongId == 0)
                 {
                     SongDto errorDto = await ReadGenreListAsync();

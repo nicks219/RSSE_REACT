@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Dto;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 using RandomSongSearchEngine.Services.Services;
 using System;
 using System.Collections.Generic;
@@ -23,10 +23,10 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<SongDto> ReadGenreListAsync()
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                List<string> genreListResponse = await database.ReadGenreListAsync();
+                List<string> genreListResponse = await repo.ReadGenreListAsync();
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -41,15 +41,15 @@ namespace RandomSongSearchEngine.Models
             string textResponse = "";
             string titleResponse = "";
             int songId = 0;
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
                 if (request.SongGenres != null && request.SongGenres.Count != 0)
                 {
-                    songId = await database.ReadRandomIdAsync(request.SongGenres);
+                    songId = await repo.ReadRandomIdAsync(request.SongGenres);
                     if (songId != 0)
                     {
-                        var song = await database.ReadSong(songId).ToListAsync();
+                        var song = await repo.ReadSong(songId).ToListAsync();
                         if (song.Count > 0)
                         {
                             textResponse = song[0].Item1;
@@ -58,7 +58,7 @@ namespace RandomSongSearchEngine.Models
                     }
                 }
 
-                List<string> genreListResponse = await database.ReadGenreListAsync();
+                List<string> genreListResponse = await repo.ReadGenreListAsync();
                 return new SongDto(genreListResponse, songId, textResponse, titleResponse);
             }
             catch (Exception ex)

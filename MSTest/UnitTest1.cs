@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.DependencyInjection;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 using RandomSongSearchEngine.Models;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 namespace MSTest
 {
     [TestClass]
-    public class UnitTest1
+    public class ModelTest
     {
         IServiceScope scope;
         ReadModel readModel;
@@ -54,7 +54,7 @@ namespace MSTest
         public Scope()
         {
             var services = new ServiceCollection();
-            services.AddTransient<IDatabaseAccess, DatabaseAccess>();
+            services.AddTransient<IRepository, MsSqlRepository>();
             services.AddTransient<ILogger<ReadModel>, MyLogger<ReadModel>>();
             services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
             var serviceProvider = services.BuildServiceProvider();

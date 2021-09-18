@@ -14,7 +14,7 @@ using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using JavaScriptEngineSwitcher.ChakraCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RandomSongSearchEngine.Services.Logger;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 
 namespace RandomSongSearchEngine
 {
@@ -35,7 +35,7 @@ namespace RandomSongSearchEngine
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<IDatabaseAccess, DatabaseAccess>();
+            services.AddScoped<IRepository, MsSqlRepository>();
 
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Nick", Version = "v1" }); });
             services.AddDbContext<RsseContext>(options =>

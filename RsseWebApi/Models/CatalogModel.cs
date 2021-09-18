@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Dto;
-using RandomSongSearchEngine.Extensions;
+using RandomSongSearchEngine.Repository;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,12 +33,12 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<CatalogDto> ReadCatalogPageAsync(int pageNumber)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>(); //
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>(); //
             try
             {
-                int songsCount = await database.ReadTextsCountAsync();
+                int songsCount = await repo.ReadTextsCountAsync();
                 List<Tuple<string, int>> catalogPage =
-                    await database.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+                    await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -50,14 +50,14 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<CatalogDto> NavigateCatalogAsync(CatalogDto catalog)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
                 int direction = catalog.Direction();
                 int pageNumber = catalog.PageNumber;
-                int songsCount = await database.ReadTextsCountAsync();
+                int songsCount = await repo.ReadTextsCountAsync();
                 pageNumber = NavigateCatalogPages(direction, pageNumber, songsCount);
-                List<Tuple<string, int>> catalogPage = await database.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+                List<Tuple<string, int>> catalogPage = await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -69,10 +69,10 @@ namespace RandomSongSearchEngine.Models
 
         public async Task<CatalogDto> DeleteSongAsync(int songId, int pageNumber)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                await database.DeleteSongAsync(songId);
+                await repo.DeleteSongAsync(songId);
                 return await ReadCatalogPageAsync(pageNumber);
             }
             catch (Exception ex)
