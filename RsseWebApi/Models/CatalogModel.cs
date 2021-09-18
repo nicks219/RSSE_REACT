@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Extensions;
 using System;
@@ -13,7 +12,7 @@ namespace RandomSongSearchEngine.Models
     /// <summary>
     /// Каталог песен
     /// </summary>
-    public class CatalogModel : DatabaseAccess
+    public class CatalogModel
     {
         #region Fields
 
@@ -32,14 +31,14 @@ namespace RandomSongSearchEngine.Models
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
         }
 
-        public async Task<CatalogDto> OnGetAsync(int pageNumber)
+        public async Task<CatalogDto> ReadCatalogPageAsync(int pageNumber)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>(); //
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>(); //
             try
             {
-                int songsCount = await database.Text.CountAsync();
+                int songsCount = await database.ReadTextsCountAsync();
                 List<Tuple<string, int>> catalogPage =
-                    await ReadCatalogPage(database, pageNumber, PageSize).ToListAsync();
+                    await database.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -49,16 +48,16 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        public async Task<CatalogDto> OnPostAsync(CatalogDto dto)
+        public async Task<CatalogDto> NavigateCatalogAsync(CatalogDto catalog)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                int navigation = dto.GetNavigation();
-                int pageNumber = dto.PageNumber;
-                int songsCount = await database.Text.CountAsync();
-                pageNumber = Navigate(navigation, pageNumber, songsCount);
-                List<Tuple<string, int>> catalogPage = await ReadCatalogPage(database, pageNumber, PageSize).ToListAsync();
+                int direction = catalog.Direction();
+                int pageNumber = catalog.PageNumber;
+                int songsCount = await database.ReadTextsCountAsync();
+                pageNumber = NavigateCatalogPages(direction, pageNumber, songsCount);
+                List<Tuple<string, int>> catalogPage = await database.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
                 return CreateCatalogDto(pageNumber, songsCount, catalogPage);
             }
             catch (Exception ex)
@@ -68,13 +67,13 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        public async Task<CatalogDto> OnDeleteAsync(int songId, int pageNumber)
+        public async Task<CatalogDto> DeleteSongAsync(int songId, int pageNumber)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                await DeleteSongAsync(database, songId);
-                return await OnGetAsync(pageNumber);
+                await database.DeleteSongAsync(songId);
+                return await ReadCatalogPageAsync(pageNumber);
             }
             catch (Exception ex)
             {
@@ -83,7 +82,7 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        private static int Navigate(int navigation, int pageNumber, int songsCount)
+        private static int NavigateCatalogPages(int navigation, int pageNumber, int songsCount)
         {
             if (navigation == Forward)
             {

@@ -5,14 +5,14 @@ namespace RandomSongSearchEngine.Dto
 {
     public class SongDto
     {
-        [JsonPropertyName("checkedCheckboxesJs")] public List<int> SongGenresRequest { get; set; }
+        // request
+        [JsonPropertyName("checkedCheckboxesJs")] public List<int> SongGenres { get; set; }
 
-        [JsonPropertyName("titleJs")] public string TitleRequest { get; set; }
+        [JsonPropertyName("titleJs")] public string Title { get; set; }
 
-        [JsonPropertyName("textJs")] public string TextRequest { get; set; }
+        [JsonPropertyName("textJs")] public string Text { get; set; }
 
-        [JsonPropertyName("savedTextId")] public int SongId { get; set; }
-
+        // resopnse
         [JsonPropertyName("textCS")] public string TextResponse { get; set; }
 
         [JsonPropertyName("titleCS")] public string TitleResponse { get; set; }
@@ -22,6 +22,9 @@ namespace RandomSongSearchEngine.Dto
         [JsonPropertyName("genresNamesCS")] public List<string> GenreListResponse { get; set; }
 
         public string ErrorMessageResponse { get; set; }
+
+        // request and response
+        [JsonPropertyName("savedTextId")] public int Id { get; set; }
 
         public SongDto()
         {
@@ -33,7 +36,7 @@ namespace RandomSongSearchEngine.Dto
             TitleResponse = titleCs;
             SongGenresResponse = checkedCheckboxesCs ?? new List<string>();
             GenreListResponse = genreListCs;
-            SongId = savedTextId;
+            Id = savedTextId;
         }
     }
 }

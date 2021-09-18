@@ -24,12 +24,12 @@ namespace RandomSongSearchEngine.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<SongDto>> ChangeText(int id)
+        public async Task<ActionResult<SongDto>> OnGetOriginalSongAsync(int id)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).OnGetAsync(id);
+                return await new UpdateModel(scope).ReadOriginalSongAsync(id);
             }
             catch (Exception ex)
             {
@@ -39,12 +39,12 @@ namespace RandomSongSearchEngine.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<SongDto>> ChangeText([FromBody] SongDto dto)
+        public async Task<ActionResult<SongDto>> UpdateSongAsync([FromBody] SongDto dto)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).OnPostAsync(dto);
+                return await new UpdateModel(scope).UpdateSongAsync(dto);
             }
             catch (Exception ex)
             {

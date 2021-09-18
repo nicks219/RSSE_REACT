@@ -70,6 +70,7 @@ namespace RandomSongSearchEngine.Data
         }
     }
 }
+
 /*
 CREATE TABLE [dbo].[Genre] (
     [GenreID] INT           IDENTITY (1, 1) NOT NULL,

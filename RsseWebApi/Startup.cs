@@ -14,6 +14,7 @@ using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using JavaScriptEngineSwitcher.ChakraCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RandomSongSearchEngine.Services.Logger;
+using RandomSongSearchEngine.Extensions;
 
 namespace RandomSongSearchEngine
 {
@@ -34,6 +35,8 @@ namespace RandomSongSearchEngine
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IDatabaseAccess, DatabaseAccess>();
+
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Nick", Version = "v1" }); });
             services.AddDbContext<RsseContext>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
@@ -50,6 +53,8 @@ namespace RandomSongSearchEngine
                 {
                     options.LoginPath = new PathString("/Account/Login/");
                 });
+
+            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)

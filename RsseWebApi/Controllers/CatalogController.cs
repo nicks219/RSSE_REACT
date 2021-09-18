@@ -25,12 +25,12 @@ namespace RandomSongSearchEngine.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<CatalogDto>> Catalog(int id)
+        public async Task<ActionResult<CatalogDto>> OnGetCatalogPageAsync(int id)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new CatalogModel(scope).OnGetAsync(id);
+                return await new CatalogModel(scope).ReadCatalogPageAsync(id);
             }
             catch (Exception ex)
             {
@@ -40,12 +40,12 @@ namespace RandomSongSearchEngine.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CatalogDto>> Catalog([FromBody] CatalogDto dto)
+        public async Task<ActionResult<CatalogDto>> NavigateCatalogAsync([FromBody] CatalogDto dto)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new CatalogModel(scope).OnPostAsync(dto);
+                return await new CatalogModel(scope).NavigateCatalogAsync(dto);
             }
             catch (Exception ex)
             {
@@ -56,12 +56,12 @@ namespace RandomSongSearchEngine.Controllers
 
         [Authorize]
         [HttpDelete]
-        public async Task<ActionResult<CatalogDto>> Delete(int id, int pg)
+        public async Task<ActionResult<CatalogDto>> OnDeleteSongAsync(int id, int pg)
         {
             try
             {
                 using var scope = _serviceScopeFactory.CreateScope();
-                return await new CatalogModel(scope).OnDeleteAsync(id, pg);
+                return await new CatalogModel(scope).DeleteSongAsync(id, pg);
             }
             catch (Exception ex)
             {

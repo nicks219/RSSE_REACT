@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Extensions;
 using RandomSongSearchEngine.Services.Services;
@@ -11,22 +10,23 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class ReadModel : DatabaseAccess
+    public class ReadModel
     {
         private IServiceScope _scope { get; }
         private ILogger<ReadModel> _logger { get; }
+
         public ReadModel(IServiceScope serviceScope)
         {
             _scope = serviceScope;
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
         }
 
-        public async Task<SongDto> OnGetAsync()
+        public async Task<SongDto> ReadGenreListAsync()
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                List<string> genreListResponse = await ReadGenreListAsync(database: database);
+                List<string> genreListResponse = await database.ReadGenreListAsync();
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -36,20 +36,20 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        public async Task<SongDto> OnPostAsync(SongDto dto)
+        public async Task<SongDto> ReadRandomSongAsync(SongDto request)
         {
             string textResponse = "";
             string titleResponse = "";
             int songId = 0;
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                if (dto.SongGenresRequest != null && dto.SongGenresRequest.Count != 0)
+                if (request.SongGenres != null && request.SongGenres.Count != 0)
                 {
-                    songId = await database.GetRandomIdAsync(dto.SongGenresRequest);
+                    songId = await database.ReadRandomIdAsync(request.SongGenres);
                     if (songId != 0)
                     {
-                        var song = await ReadSong(database, songId).ToListAsync();
+                        var song = await database.ReadSong(songId).ToListAsync();
                         if (song.Count > 0)
                         {
                             textResponse = song[0].Item1;
@@ -58,7 +58,7 @@ namespace RandomSongSearchEngine.Models
                     }
                 }
 
-                List<string> genreListResponse = await ReadGenreListAsync(database: database);
+                List<string> genreListResponse = await database.ReadGenreListAsync();
                 return new SongDto(genreListResponse, songId, textResponse, titleResponse);
             }
             catch (Exception ex)

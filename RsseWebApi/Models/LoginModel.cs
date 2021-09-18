@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Dto;
+using RandomSongSearchEngine.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
@@ -19,23 +19,23 @@ namespace RandomSongSearchEngine.Models
             _scope = scope;
         }
 
-        public async Task<ClaimsIdentity> TryLogin(LoginDto dto)
+        public async Task<ClaimsIdentity> TryLogin(LoginDto login)
         {
             try
             {
-                if (dto.Email == null || dto.Password == null)
+                if (login.Email == null || login.Password == null)
                 {
                     return null;
                 }
 
-                await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
-                UserEntity user = await database.Users.FirstOrDefaultAsync(u => u.Email == dto.Email && u.Password == dto.Password);
+                await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
+                UserEntity user = await database.GetUser(login);
                 if (user == null)
                 {
                     return null;
                 }
 
-                var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, dto.Email) };
+                var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, login.Email) };
                 ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
                 //это отработает только в классе, унаследованном от ControllerBase
                 //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));

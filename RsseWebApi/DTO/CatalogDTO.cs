@@ -17,7 +17,7 @@ namespace RandomSongSearchEngine.Dto
 
         [JsonPropertyName("errorMessage")] public string ErrorMessage { get; internal set; }
 
-        public int GetNavigation()
+        public int Direction()
         {
             if (NavigationButtons is null) return 0;
             if (NavigationButtons[0] == 1) return 1;

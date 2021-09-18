@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    public class CreateModel : DatabaseAccess
+    public class CreateModel
     {
         private IServiceScope _scope { get; }
         private ILogger<CreateModel> _logger { get; }
@@ -20,12 +20,12 @@ namespace RandomSongSearchEngine.Models
             _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CreateModel>>();
         }
 
-        public async Task<SongDto> OnGetAsync()
+        public async Task<SongDto> ReadGenreListAsync()
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                List<string> genreListResponse = await ReadGenreListAsync(database: database);
+                List<string> genreListResponse = await database.ReadGenreListAsync();
                 return new SongDto(genreListResponse);
             }
             catch (Exception ex)
@@ -35,37 +35,37 @@ namespace RandomSongSearchEngine.Models
             }
         }
 
-        public async Task<SongDto> OnPostAsync(SongDto dto)
+        public async Task<SongDto> CreateSongAsync(SongDto createdSong)
         {
-            await using var database = _scope.ServiceProvider.GetRequiredService<RsseContext>();
+            await using var database = _scope.ServiceProvider.GetRequiredService<IDatabaseAccess>();
             try
             {
-                if (dto.SongGenresRequest == null || dto.TextRequest == null || dto.TitleRequest == null
-                         || dto.SongGenresRequest.Count == 0 || dto.TextRequest == "" || dto.TitleRequest == "")
+                if (createdSong.SongGenres == null || createdSong.Text == null || createdSong.Title == null
+                         || createdSong.SongGenres.Count == 0 || createdSong.Text == "" || createdSong.Title == "")
                 {
-                    SongDto errorDto = await OnGetAsync();
+                    SongDto errorDto = await ReadGenreListAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - empty data]";
-                    if (!string.IsNullOrEmpty(dto.TextRequest)) errorDto.TextResponse = dto.TextRequest;
+                    if (!string.IsNullOrEmpty(createdSong.Text)) errorDto.TextResponse = createdSong.Text;
                     return errorDto;
                 }
 
-                int newSongId = await CreateSongAsync(database, dto);
+                int newSongId = await database.CreateSongAsync(createdSong);
                 if (newSongId == 0)
                 {
-                    SongDto errorDto = await OnGetAsync();
+                    SongDto errorDto = await ReadGenreListAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - create unsuccessfull]";
                     errorDto.TitleResponse = "[Already Exist]";
                     return errorDto;
                 }
 
-                SongDto updatedDto = await OnGetAsync();
+                SongDto updatedDto = await ReadGenreListAsync();
                 List<string> updatedGenreList = updatedDto.GenreListResponse;
                 List<string> songGenresResponse = new List<string>();
                 for (int i = 0; i < updatedGenreList.Count; i++)
                 {
                     songGenresResponse.Add("unchecked");
                 }
-                foreach (int i in dto.SongGenresRequest)
+                foreach (int i in createdSong.SongGenres)
                 {
                     songGenresResponse[i - 1] = "checked";
                 }
