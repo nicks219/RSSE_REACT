@@ -25,13 +25,13 @@ namespace RandomSongSearchEngine.Services.Services
         {
             int[] checkedGenres = songGenresRequest.ToArray();
             //IDatabaseAccess db = new DatabaseAccess(database);
-            int howManySongs = await database.SelectSongIds(checkedGenres).CountAsync();
+            int howManySongs = await database.SelectAllSongsInGenres(checkedGenres).CountAsync();
             if (howManySongs == 0)
             {
                 return 0;
             }
             int coin = GetRandom(howManySongs);
-            var result = await database.SelectSongIds(checkedGenres)
+            var result = await database.SelectAllSongsInGenres(checkedGenres)
             //[WARNING] [Microsoft.EntityFrameworkCore.Query]  The query uses a row limiting operator ('Skip'/'Take')
             // without an 'OrderBy' operator.
                     .OrderBy(s => s)

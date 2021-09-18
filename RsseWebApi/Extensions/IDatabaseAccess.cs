@@ -9,7 +9,6 @@ namespace RandomSongSearchEngine.Extensions
 {
     public interface IDatabaseAccess : IAsyncDisposable, IDisposable
     {
-        Task НуЕгоНаХуй();
         Task<UserEntity> GetUser(LoginDto dt);
         Task<int> ReadTextsCountAsync();
         Task<int> CreateSongAsync(SongDto dt);
@@ -18,7 +17,7 @@ namespace RandomSongSearchEngine.Extensions
         Task<List<string>> ReadGenreListAsync();
         IQueryable<Tuple<string, string>> ReadSong(int textId);
         IQueryable<int> ReadSongGenres(int savedTextId);
-        IQueryable<int> SelectSongIds(int[] checkedGenres);
+        IQueryable<int> SelectAllSongsInGenres(int[] checkedGenres);
         Task UpdateSongAsync(List<int> initialCheckboxes, SongDto dt);
     }
 }

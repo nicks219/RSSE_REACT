@@ -20,55 +20,29 @@ namespace RandomSongSearchEngine.Extensions
             _context = serviceProvider.GetRequiredService<RsseContext>();
         }
 
-        public async Task НуЕгоНаХуй()
-        {
-            await DisposeAsync();
-        }
-
-        public async Task<UserEntity> GetUser(LoginDto login)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email && u.Password == login.Password);
-        }
-
-        public async Task<int> ReadTextsCountAsync()
-        {
-            return await _context.Text.CountAsync();
-        }
-
-        public IQueryable<int> SelectSongIds(int[] checkedGenres)
+        public IQueryable<int> SelectAllSongsInGenres(int[] checkedGenres)
         {
             //TODO определить какой лучше:
             //IQueryable<int> songsCollection = database.GenreText//
             //    .Where(s => chosenOnes.Contains(s.GenreInGenreText.GenreID))
             //    .Select(s => s.TextInGenreText.TextID);
 
-            IQueryable<int> songsCollection = from a in _context.Text
+            IQueryable<int> songsForRandomizer = from a in _context.Text
                                               where a.GenreTextInText.Any(c => checkedGenres.Contains(c.GenreId))
                                               select a.TextId;
-            return songsCollection;
-        }
-
-        public async Task<List<string>> ReadGenreListAsync()
-        {
-            List<string> genreListResponse = new List<string>();
-            List<Tuple<string, int>> genreList = await ReadGenreList().ToListAsync();
-            foreach (var genreAndAmount in genreList)
-            {
-                genreListResponse.Add(genreAndAmount.Item2 > 0 ? genreAndAmount.Item1 + ": " + genreAndAmount.Item2 : genreAndAmount.Item1);
-            }
-            return genreListResponse;
+            return songsForRandomizer;
         }
 
         public IQueryable<Tuple<string, int>> ReadCatalogPage(int savedLastViewedPage, int pageSize)
         {
-            IQueryable<Tuple<string, int>> titleAndTextId = _context.Text
+            IQueryable<Tuple<string, int>> titlesAndIdsList = _context.Text
                 .OrderBy(s => s.Title)
                 .Skip((savedLastViewedPage - 1) * pageSize)
                 .Take(pageSize)
                 .Select(s => new Tuple<string, int>(s.Title, s.TextId))
                 .AsNoTracking();
 
-            return titleAndTextId;
+            return titlesAndIdsList;
         }
 
         public IQueryable<Tuple<string, string>> ReadSong(int textId)
@@ -82,10 +56,31 @@ namespace RandomSongSearchEngine.Extensions
 
         public IQueryable<int> ReadSongGenres(int savedTextId)
         {
-            IQueryable<int> checkedList = _context.GenreText
+            IQueryable<int> songGenres = _context.GenreText
                 .Where(p => p.TextInGenreText.TextId == savedTextId)
                 .Select(s => s.GenreId);
-            return checkedList;
+            return songGenres;
+        }
+
+        public async Task<UserEntity> GetUser(LoginDto login)
+        {
+            return await _context.Users.FirstOrDefaultAsync(u => u.Email == login.Email && u.Password == login.Password);
+        }
+
+        public async Task<int> ReadTextsCountAsync()
+        {
+            return await _context.Text.CountAsync();
+        }
+
+        public async Task<List<string>> ReadGenreListAsync()
+        {
+            List<string> genreListResponse = new List<string>();
+            List<Tuple<string, int>> genreList = await ReadGenreList().ToListAsync();
+            foreach (var genreAndAmount in genreList)
+            {
+                genreListResponse.Add(genreAndAmount.Item2 > 0 ? genreAndAmount.Item1 + ": " + genreAndAmount.Item2 : genreAndAmount.Item1);
+            }
+            return genreListResponse;
         }
 
         public async Task UpdateSongAsync(List<int> originalCheckboxes, SongDto song)
@@ -179,6 +174,16 @@ namespace RandomSongSearchEngine.Extensions
             }
         }
 
+        public async ValueTask DisposeAsync()
+        {
+            await _context.DisposeAsync().ConfigureAwait(false);
+        }
+
+        public void Dispose()
+        {
+            _context?.Dispose();
+        }
+
         // Проверка консистентости данных по названию песни
         private void CheckNameExistsError(string title)
         {
@@ -211,43 +216,10 @@ namespace RandomSongSearchEngine.Extensions
         // Выборка названий жанров и количества песен в каждом из них
         private IQueryable<Tuple<string, int>> ReadGenreList()
         {
-            IQueryable<Tuple<string, int>> res = _context.Genre
+            IQueryable<Tuple<string, int>> genreList = _context.Genre
                 .Select(g => new Tuple<string, int>(g.Genre, g.GenreTextInGenre.Count))
                 .AsNoTracking();
-            return res;
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await DisposeAsyncCore();
-            Dispose(disposing: false);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual async Task DisposeAsyncCore()
-        {
-            if (_context != null)
-            {
-                await _context.DisposeAsync().ConfigureAwait(false);
-            }
-
-            _context = null;
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                _context?.Dispose();
-            }
-
-            _context = null;
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            return genreList;
         }
     }
 }

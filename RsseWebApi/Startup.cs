@@ -54,7 +54,6 @@ namespace RandomSongSearchEngine
                     options.LoginPath = new PathString("/Account/Login/");
                 });
 
-            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
