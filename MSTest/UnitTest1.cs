@@ -6,6 +6,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using RandomSongSearchEngine.Data;
 using Microsoft.EntityFrameworkCore;
+using RandomSongSearchEngine.Dto;
+using System.Collections.Generic;
 
 namespace MSTest
 {
@@ -23,10 +25,18 @@ namespace MSTest
         }
 
         [TestMethod]
-        public void TestMethod1()
+        public void AreThere44GenresTest()
         {
             var result = readModel.ReadGenreListAsync().Result;
             Assert.AreEqual(44, result.GenreListResponse.Count);
+        }
+
+        [TestMethod]
+        public void AskForRandomSongTest()
+        {
+            var dto = new SongDto() { SongGenres = new List<int>() { 2 } };
+            var result = readModel.ReadRandomSongAsync(dto).Result;
+            Assert.AreEqual("2", result.TitleResponse);
         }
 
         [TestCleanup]
