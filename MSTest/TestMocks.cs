@@ -8,23 +8,23 @@ using System;
 
 namespace MSTest
 {
-    public class MockScope
+    public class FakeScope
     {
         public readonly IServiceScope ServiceScope;
         private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\NEW3;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-        public MockScope()
+        public FakeScope()
         {
             var services = new ServiceCollection();
             services.AddTransient<IRepository, MsSqlRepository>();
-            services.AddTransient<ILogger<ReadModel>, MockLogger<ReadModel>>();
+            services.AddTransient<ILogger<ReadModel>, FakeLogger<ReadModel>>();
             services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
             var serviceProvider = services.BuildServiceProvider();
             ServiceScope = serviceProvider.CreateScope();
         }
     }
 
-    public class MockLogger<ReadModel> : ILogger<ReadModel>
+    public class FakeLogger<ReadModel> : ILogger<ReadModel>
     {
         public IDisposable BeginScope<TState>(TState state)
         {
@@ -38,12 +38,12 @@ namespace MSTest
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            LogError.ExceptionMessage = exception.Message;
-            LogError.LogErrorMessage = state.ToString();
+            FakeLoggerErrors.ExceptionMessage = exception.Message;
+            FakeLoggerErrors.LogErrorMessage = state.ToString();
         }
     }
 
-    public static class LogError
+    public static class FakeLoggerErrors
     {
         public static string ExceptionMessage { get; set; }
         public static string LogErrorMessage { get; set; }
