@@ -33,6 +33,10 @@ namespace RandomSongSearchEngine.Models
                     textResponse = song[0].Item1;
                     titleResponse = song[0].Item2;
                 }
+                else
+                {
+                    textResponse = "[Song: Always Deleted. Select another pls]";
+                }
 
                 List<string> genreListResponse = await repo.ReadGenreListAsync();
                 List<int> songGenres = await repo.ReadSongGenres(originalSongId).ToListAsync();

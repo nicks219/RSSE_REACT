@@ -7,6 +7,7 @@ using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MSTest
 {
@@ -26,67 +27,65 @@ namespace MSTest
         }
 
         [TestMethod]
-        public void AreThere44GenresTest()
+        public async Task AreThere44GenresTest()
         {
-            var response = readModel.ReadGenreListAsync().Result;
+            var response = await readModel.ReadGenreListAsync();
             Assert.AreEqual(44, response.GenreListResponse.Count);
         }
 
         [TestMethod]
-        public void AskForRandomSongTest()
+        public async Task AskForRandomSongTest()
         {
             var request = new SongDto() { SongGenres = new List<int>() { 2 } };
-            var response = readModel.ReadRandomSongAsync(request).Result;
+            var response = await readModel.ReadRandomSongAsync(request);
             Assert.AreEqual("2", response.TitleResponse);
         }
 
         [TestMethod]
-        public void AskForWtfTest()
+        public async Task AskForWtfTest()
         {
             var frontRequest = new SongDto() { SongGenres = new List<int>() { 1000 } };
-            var result = readModel.ReadRandomSongAsync(frontRequest).Result;
+            var result = await readModel.ReadRandomSongAsync(frontRequest);
             Assert.AreEqual("", result.TitleResponse);
         }
 
         [TestMethod]
-        public void IfNullLoggingErrorTest()
+        public async Task IfNullLoggingErrorTest()
         {
-            _ = readModel.ReadRandomSongAsync(null).Result;
+            _ = await readModel.ReadRandomSongAsync(null);
             Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
         }
 
         [TestMethod]
-        public void IfNullResponseNullInTitleTest()
+        public async Task IfNullResponseNullInTitleTest()
         {
-            var response = readModel.ReadRandomSongAsync(null).Result;
+            var response = await readModel.ReadRandomSongAsync(null);
             Assert.AreEqual("", response.TitleResponse);
         }
 
         [TestMethod]
-        public void NSubstituteThrowExceptionTest()
+        public async Task NSubstituteThrowExceptionTest()
         {
             var mockLogger = Substitute.For<ILogger<ReadModel>>();
             var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
             fakeServiceScopeFactory.When(s => s.CreateScope()).Do(i => throw new Exception());
             var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
 
-            _ = readController.GetRandomSongAsync(null).Result;
+            _ = await readController.GetRandomSongAsync(null);
 
             mockLogger.Received().LogError(Arg.Any<Exception>(), "[ReadController: OnPost Error]");
         }
 
         [TestMethod]
-        public void NSubstituteTest()
+        public async Task NSubstituteTest()
         {
             var mockLogger = Substitute.For<ILogger<ReadModel>>();
             var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
             fakeServiceScopeFactory.CreateScope().Returns(fakeScope);
             var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
 
-            var response = readController.GetRandomSongAsync(null).Result.Value;
-
-            //??????
-            Assert.ThrowsException<AggregateException>(() => readModel.ReadRandomSongAsync(null).Result);
+            var response = (await readController.GetRandomSongAsync(null)).Value;//.Result.Value;
+            
             Assert.AreEqual("", response.TitleResponse);
         }
 
