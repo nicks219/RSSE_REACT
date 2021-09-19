@@ -1,14 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.DependencyInjection;
-using RandomSongSearchEngine.Repository;
-using RandomSongSearchEngine.Models;
-using Microsoft.Extensions.Logging;
-using System;
-using RandomSongSearchEngine.Data;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RandomSongSearchEngine.Dto;
+using RandomSongSearchEngine.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MSTest
 {
@@ -23,7 +17,7 @@ namespace MSTest
         {
             LogError.ExceptionMessage = "";
             LogError.LogErrorMessage = "";
-            scope = new Scope().ServiceScope;
+            scope = new MockScope().ServiceScope;
             readModel = new ReadModel(scope);
         }
 
@@ -51,14 +45,14 @@ namespace MSTest
         }
 
         [TestMethod]
-        public void IfNullTest1()
+        public void IfNullLoggingErrorTest()
         {
             var result = readModel.ReadRandomSongAsync(null).Result;
             Assert.AreEqual("[IndexModel: OnPost Error]", LogError.LogErrorMessage);
         }
 
         [TestMethod]
-        public void IfNullTest2()
+        public void IfNullResponseNullInTitleTest()
         {
             var result = readModel.ReadRandomSongAsync(null).Result;
             Assert.AreEqual(null, result.TitleResponse);
@@ -69,47 +63,5 @@ namespace MSTest
         {
             scope.Dispose();
         }
-    }
-
-    public class Scope
-    {
-        public readonly IServiceScope ServiceScope;
-        private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\NEW3;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-
-        public Scope()
-        {
-            var services = new ServiceCollection();
-            services.AddTransient<IRepository, MsSqlRepository>();
-            services.AddTransient<ILogger<ReadModel>, MyLogger<ReadModel>>();
-            services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
-            var serviceProvider = services.BuildServiceProvider();
-            ServiceScope = serviceProvider.CreateScope();
-        }
-    }
-
-    public class MyLogger<ReadModel> : ILogger<ReadModel>
-    {
-        
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-        {
-            LogError.ExceptionMessage = exception.Message;
-            LogError.LogErrorMessage = state.ToString();
-        }
-    }
-
-    public static class LogError
-    {
-        public static string ExceptionMessage { get; set; }
-        public static string LogErrorMessage { get; set; }
     }
 }
