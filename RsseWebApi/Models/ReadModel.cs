@@ -44,7 +44,7 @@ namespace RandomSongSearchEngine.Models
             await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                if (request.SongGenres != null && request.SongGenres.Count != 0)
+                if (/*request != null &&*/ request.SongGenres != null && request.SongGenres.Count != 0)
                 {
                     songId = await repo.ReadRandomIdAsync(request.SongGenres);
                     if (songId != 0)

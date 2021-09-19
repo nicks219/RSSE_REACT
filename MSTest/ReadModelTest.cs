@@ -8,11 +8,12 @@ using RandomSongSearchEngine.Data;
 using Microsoft.EntityFrameworkCore;
 using RandomSongSearchEngine.Dto;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MSTest
 {
     [TestClass]
-    public class ModelTest
+    public class ReadModelTest
     {
         IServiceScope scope;
         ReadModel readModel;
@@ -20,6 +21,8 @@ namespace MSTest
         [TestInitialize]
         public void Initialize()
         {
+            LogError.ExceptionMessage = "";
+            LogError.LogErrorMessage = "";
             scope = new Scope().ServiceScope;
             readModel = new ReadModel(scope);
         }
@@ -39,6 +42,28 @@ namespace MSTest
             Assert.AreEqual("2", result.TitleResponse);
         }
 
+        [TestMethod]
+        public void AskForWtfTest()
+        {
+            var dto = new SongDto() { SongGenres = new List<int>() { 1000 } };
+            var result = readModel.ReadRandomSongAsync(dto).Result;
+            Assert.AreEqual("", result.TitleResponse);
+        }
+
+        [TestMethod]
+        public void IfNullTest1()
+        {
+            var result = readModel.ReadRandomSongAsync(null).Result;
+            Assert.AreEqual("[IndexModel: OnPost Error]", LogError.LogErrorMessage);
+        }
+
+        [TestMethod]
+        public void IfNullTest2()
+        {
+            var result = readModel.ReadRandomSongAsync(null).Result;
+            Assert.AreEqual(null, result.TitleResponse);
+        }
+
         [TestCleanup]
         public void TestCleanup()
         {
@@ -50,7 +75,7 @@ namespace MSTest
     {
         public readonly IServiceScope ServiceScope;
         private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\NEW3;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
-        
+
         public Scope()
         {
             var services = new ServiceCollection();
@@ -62,8 +87,9 @@ namespace MSTest
         }
     }
 
-    public class MyLogger<T> : ILogger<T>
+    public class MyLogger<ReadModel> : ILogger<ReadModel>
     {
+        
         public IDisposable BeginScope<TState>(TState state)
         {
             throw new NotImplementedException();
@@ -76,7 +102,14 @@ namespace MSTest
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            throw new NotImplementedException();
+            LogError.ExceptionMessage = exception.Message;
+            LogError.LogErrorMessage = state.ToString();
         }
+    }
+
+    public static class LogError
+    {
+        public static string ExceptionMessage { get; set; }
+        public static string LogErrorMessage { get; set; }
     }
 }
