@@ -52,14 +52,14 @@ namespace MSTest
         public void IfNullLoggingErrorTest()
         {
             _ = readModel.ReadRandomSongAsync(null).Result;
-            Assert.AreEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
+            Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
         }
 
         [TestMethod]
         public void IfNullResponseNullInTitleTest()
         {
             var response = readModel.ReadRandomSongAsync(null).Result;
-            Assert.AreEqual(null, response.TitleResponse);
+            Assert.AreEqual("", response.TitleResponse);
         }
 
         [TestMethod]
@@ -85,7 +85,9 @@ namespace MSTest
 
             var response = readController.GetRandomSongAsync(null).Result.Value;
 
-            Assert.AreEqual(null, response.TitleResponse);
+            //??????
+            Assert.ThrowsException<AggregateException>(() => readModel.ReadRandomSongAsync(null).Result);
+            Assert.AreEqual("", response.TitleResponse);
         }
 
         [TestCleanup]

@@ -28,8 +28,8 @@ namespace RandomSongSearchEngine.Repository
             //    .Select(s => s.TextInGenreText.TextID);
 
             IQueryable<int> songsForRandomizer = from a in _context.Text
-                                              where a.GenreTextInText.Any(c => checkedGenres.Contains(c.GenreId))
-                                              select a.TextId;
+                                                 where a.GenreTextInText.Any(c => checkedGenres.Contains(c.GenreId))
+                                                 select a.TextId;
             return songsForRandomizer;
         }
 
@@ -102,7 +102,7 @@ namespace RandomSongSearchEngine.Repository
                 forAddition.ExceptWith(except);
                 forDelete.ExceptWith(except);
                 // дешевле просто откатить транзакцию без механизма исключений
-                CheckGenresExistsError(song.Id, forAddition);
+                await CheckGenresExistsError(song.Id, forAddition);
                 text.Title = song.Title;
                 text.Song = song.Text;
                 _context.Text.Update(text);
@@ -128,7 +128,7 @@ namespace RandomSongSearchEngine.Repository
             try
             {
                 // дешевле просто откатить транзакцию без механизма исключений
-                CheckNameExistsError(song.Title);
+                await CheckNameExistsError(song.Title);
                 TextEntity addition = new TextEntity { Title = song.Title, Song = song.Text };
                 await _context.Text.AddAsync(addition);
                 await _context.SaveChangesAsync();
@@ -185,30 +185,41 @@ namespace RandomSongSearchEngine.Repository
         }
 
         // Проверка консистентости данных по названию песни
-        private void CheckNameExistsError(string title)
+        private async Task CheckNameExistsError(string title)
         {
-            int r = _context.Text
-                .Where(p => p.Title == title)
-                .AsNoTracking()
-                .Count();
-            if (r > 0)
+            //int r = _context.Text
+            //    .Where(p => p.Title == title)
+            //    .AsNoTracking()
+            //    .Count();
+            //if (r > 0)
+            //{
+            //    throw new DataExistsException("[Browser Refresh or Name Exists Error]");
+            //}
+            if (await _context.Text.AnyAsync(p => p.Title == title))
             {
                 throw new DataExistsException("[Browser Refresh or Name Exists Error]");
             }
         }
 
         // Проверка консистнентности данных по Id песни и категориям для добавления
-        private void CheckGenresExistsError(int textId, HashSet<int> forAddition)
+        private async Task CheckGenresExistsError(int textId, HashSet<int> forAddition)
         {
+            //if (forAddition.Count > 0)
+            //{
+            //    int r = _context.GenreText
+            //        .Where(p => p.TextId == textId && p.GenreId == forAddition.First())
+            //        .AsNoTracking()
+            //        .Count();
+            //    if (r > 0)
+            //    {
+            //        throw new DataExistsException("[Browser Refresh or Genre Exists Error]");
+            //    }
+            //}
             if (forAddition.Count > 0)
             {
-                int r = _context.GenreText
-                    .Where(p => p.TextId == textId && p.GenreId == forAddition.First())
-                    .AsNoTracking()
-                    .Count();
-                if (r > 0)
+                if (await _context.GenreText.AnyAsync(p => p.TextId == textId && p.GenreId == forAddition.First()))
                 {
-                    throw new DataExistsException("[Browser Refresh or Genre Exists Error]");
+                    throw new DataExistsException("[Browser Refresh or Name Exists Error]");
                 }
             }
         }

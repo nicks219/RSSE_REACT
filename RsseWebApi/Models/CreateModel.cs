@@ -39,8 +39,8 @@ namespace RandomSongSearchEngine.Models
             await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                if (createdSong.SongGenres == null || createdSong.Text == null || createdSong.Title == null
-                         || createdSong.SongGenres.Count == 0 || createdSong.Text == "" || createdSong.Title == "")
+                if (createdSong.SongGenres == null || string.IsNullOrEmpty(createdSong.Text) 
+                    || string.IsNullOrEmpty(createdSong.Title) || createdSong.SongGenres.Count == 0)
                 {
                     SongDto errorDto = await ReadGenreListAsync();
                     errorDto.ErrorMessageResponse = "[CreateModel: OnPost Error - empty data]";

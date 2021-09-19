@@ -59,8 +59,8 @@ namespace RandomSongSearchEngine.Models
             await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
             try
             {
-                if (updatedSong.SongGenres == null || updatedSong.Text == null || updatedSong.Title == null
-                    || updatedSong.SongGenres.Count == 0 || updatedSong.Text == "" || updatedSong.Title == "")
+                if (updatedSong.SongGenres == null || string.IsNullOrEmpty(updatedSong.Text)
+                    || string.IsNullOrEmpty(updatedSong.Title) || updatedSong.SongGenres.Count == 0)
                 {
                     return await ReadOriginalSongAsync(updatedSong.Id);
                 }
