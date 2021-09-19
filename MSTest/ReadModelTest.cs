@@ -1,7 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using RandomSongSearchEngine.Controllers;
 using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Models;
+using System;
 using System.Collections.Generic;
 
 namespace MSTest
@@ -55,6 +59,32 @@ namespace MSTest
         public void IfNullResponseNullInTitleTest()
         {
             var response = readModel.ReadRandomSongAsync(null).Result;
+            Assert.AreEqual(null, response.TitleResponse);
+        }
+
+        [TestMethod]
+        public void NSubstituteThrowExceptionTest()
+        {
+            var mockLogger = Substitute.For<ILogger<ReadModel>>();
+            var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
+            fakeServiceScopeFactory.When(s => s.CreateScope()).Do(i => throw new Exception());
+            var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
+
+            _ = readController.GetRandomSongAsync(null).Result;
+
+            mockLogger.Received().LogError(Arg.Any<Exception>(), "[ReadController: OnPost Error]");
+        }
+
+        [TestMethod]
+        public void NSubstituteTest()
+        {
+            var mockLogger = Substitute.For<ILogger<ReadModel>>();
+            var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
+            fakeServiceScopeFactory.CreateScope().Returns(fakeScope);
+            var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
+
+            var response = readController.GetRandomSongAsync(null).Result.Value;
+
             Assert.AreEqual(null, response.TitleResponse);
         }
 
