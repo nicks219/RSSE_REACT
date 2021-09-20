@@ -15,7 +15,10 @@ namespace RandomSongSearchEngine.Data
         {
             var res = Database.EnsureCreated();
             //в SeedSql удаляю индекс для GenreText таблицы
-            if (res) Database.ExecuteSqlRaw(SqlScripts.SqlSeedGenre);
+            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                if (res) Database.ExecuteSqlRaw(SqlScripts.SqlSeedGenre);
+            }
         }
 
         /// <summary>

@@ -13,10 +13,12 @@ namespace RandomSongSearchEngine.Models
     public class LoginModel
     {
         private readonly IServiceScope _scope;
+        private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(IServiceScope scope)
         {
             _scope = scope;
+            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<LoginModel>>();
         }
 
         public async Task<ClaimsIdentity> TryLogin(LoginDto login)
@@ -43,7 +45,6 @@ namespace RandomSongSearchEngine.Models
             }
             catch (Exception ex)
             {
-                var _logger = _scope.ServiceProvider.GetRequiredService<ILogger<LoginModel>>();
                 _logger.LogError(ex, "[LoginModel: System Error]");
                 return null;
             }

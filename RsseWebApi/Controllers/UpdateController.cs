@@ -14,10 +14,10 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class UpdateController : ControllerBase
     {
-        private readonly ILogger<UpdateModel> _logger;
+        private readonly ILogger<UpdateController> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<UpdateModel> logger)
+        public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<UpdateController> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;

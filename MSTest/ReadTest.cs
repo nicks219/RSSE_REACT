@@ -12,8 +12,9 @@ using System.Threading.Tasks;
 namespace MSTest
 {
     [TestClass]
-    public class ReadModelTest
+    public class ReadTest
     {
+        const int GenresCount = 44;
         IServiceScope fakeScope;
         ReadModel readModel;
 
@@ -22,27 +23,27 @@ namespace MSTest
         {
             FakeLoggerErrors.ExceptionMessage = "";
             FakeLoggerErrors.LogErrorMessage = "";
-            fakeScope = new FakeScope().ServiceScope;
+            fakeScope = new FakeScope<ReadModel>().ServiceScope;
             readModel = new ReadModel(fakeScope);
         }
 
         [TestMethod]
-        public async Task AreThere44GenresTest()
+        public async Task ShouldBe44GenresTest()
         {
             var response = await readModel.ReadGenreListAsync();
-            Assert.AreEqual(44, response.GenreListResponse.Count);
+            Assert.AreEqual(GenresCount, response.GenreListResponse.Count);
         }
 
         [TestMethod]
-        public async Task AskForRandomSongTest()
+        public async Task ShouldReadRandomSongTest()
         {
             var request = new SongDto() { SongGenres = new List<int>() { 2 } };
             var response = await readModel.ReadRandomSongAsync(request);
-            Assert.AreEqual("2", response.TitleResponse);
+            Assert.AreEqual("test title", response.TitleResponse);
         }
 
         [TestMethod]
-        public async Task AskForWtfTest()
+        public async Task ShouldResponseEmpltyTitleIfWtfTest()
         {
             var frontRequest = new SongDto() { SongGenres = new List<int>() { 1000 } };
             var result = await readModel.ReadRandomSongAsync(frontRequest);
@@ -50,23 +51,23 @@ namespace MSTest
         }
 
         [TestMethod]
-        public async Task IfNullLoggingErrorTest()
+        public async Task IfNullShouldLoggingErrorInsideModelTest()
         {
             _ = await readModel.ReadRandomSongAsync(null);
             Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
         }
 
         [TestMethod]
-        public async Task IfNullResponseNullInTitleTest()
+        public async Task IfNullShouldResponseEmptyTitleTest()
         {
             var response = await readModel.ReadRandomSongAsync(null);
             Assert.AreEqual("", response.TitleResponse);
         }
 
         [TestMethod]
-        public async Task NSubstituteThrowExceptionTest()
+        public async Task MockThrowsExceptionInsideControllerTest()
         {
-            var mockLogger = Substitute.For<ILogger<ReadModel>>();
+            var mockLogger = Substitute.For<ILogger<ReadController>>();
             var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
             fakeServiceScopeFactory.When(s => s.CreateScope()).Do(i => throw new Exception());
             var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
@@ -77,9 +78,9 @@ namespace MSTest
         }
 
         [TestMethod]
-        public async Task NSubstituteTest()
+        public async Task MockShouldResponseEmptyTitleTest()
         {
-            var mockLogger = Substitute.For<ILogger<ReadModel>>();
+            var mockLogger = Substitute.For<ILogger<ReadController>>();
             var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
             fakeServiceScopeFactory.CreateScope().Returns(fakeScope);
             var readController = new ReadController(fakeServiceScopeFactory, mockLogger);

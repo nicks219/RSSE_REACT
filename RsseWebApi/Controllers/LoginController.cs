@@ -15,10 +15,10 @@ namespace RandomSongSearchEngine.Controllers
     [Route("account/{action}")]
     public class LoginController : ControllerBase
     {
-        private readonly ILogger<LoginModel> _logger;
+        private readonly ILogger<LoginController> _logger;
         private readonly IServiceScopeFactory _scope;
 
-        public LoginController(IServiceScopeFactory serviceScopeFactory, ILogger<LoginModel> logger)
+        public LoginController(IServiceScopeFactory serviceScopeFactory, ILogger<LoginController> logger)
         {
             _logger = logger;
             _scope = serviceScopeFactory;

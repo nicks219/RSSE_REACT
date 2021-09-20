@@ -14,10 +14,10 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class CreateController : ControllerBase
     {
-        private readonly ILogger<CreateModel> _logger;
+        private readonly ILogger<CreateController> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public CreateController(IServiceScopeFactory serviceScopeFactory, ILogger<CreateModel> logger)
+        public CreateController(IServiceScopeFactory serviceScopeFactory, ILogger<CreateController> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;

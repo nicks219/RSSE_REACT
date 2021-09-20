@@ -15,10 +15,10 @@ namespace RandomSongSearchEngine.Controllers
     [ApiController]
     public class CatalogController : ControllerBase
     {
-        private readonly ILogger<CatalogModel> _logger;
+        private readonly ILogger<CatalogController> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public CatalogController(IServiceScopeFactory serviceScopeFactory, ILogger<CatalogModel> logger)
+        public CatalogController(IServiceScopeFactory serviceScopeFactory, ILogger<CatalogController> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;

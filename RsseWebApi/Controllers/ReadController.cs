@@ -16,13 +16,14 @@ namespace RandomSongSearchEngine.Controllers
 
     public class ReadController : ControllerBase
     {
-        private readonly ILogger<ReadModel> _logger;
+        private readonly ILogger<ReadController> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
  
-        public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<ReadModel> logger)
+        public ReadController(IServiceScopeFactory serviceScopeFactory, ILogger<ReadController> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            //_logger = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<ReadController>>();
         }
 
         [HttpGet]

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using RandomSongSearchEngine.Controllers;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Models;
 using RandomSongSearchEngine.Repository;
@@ -8,17 +9,18 @@ using System;
 
 namespace MSTest
 {
-    public class FakeScope
+    public class FakeScope<T> where T: class
     {
         public readonly IServiceScope ServiceScope;
-        private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\NEW3;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+        private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\SSDSQL;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-        public FakeScope()
+        public FakeScope() 
         {
             var services = new ServiceCollection();
             services.AddTransient<IRepository, MsSqlRepository>();
-            services.AddTransient<ILogger<ReadModel>, FakeLogger<ReadModel>>();
+            services.AddTransient<ILogger<T>, FakeLogger<T>>();
             services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
+            //services.AddDbContext<RsseContext>(options => options.UseInMemoryDatabase(databaseName: "rsse"));
             var serviceProvider = services.BuildServiceProvider();
             ServiceScope = serviceProvider.CreateScope();
         }
