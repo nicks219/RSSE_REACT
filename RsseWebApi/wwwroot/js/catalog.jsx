@@ -45,9 +45,22 @@ class CatalogView extends React.Component {
         if (!this.state.data) return null;
         var songs = [];
         for (let i = 0; i < this.state.data.titlesAndIds.length; i++) {
-            songs.push(<tr key={"song " + i} className="d-sm-table-row "><td></td><td><a id={this.state.data.titlesAndIds[i].item2}
-                onClick={this.redirect}>{this.state.data.titlesAndIds[i].item1}</a></td>
-                <td><button id={this.state.data.titlesAndIds[i].item2} onClick={this.delete}>DELETE</button></td></tr>);
+            songs.push(
+                <tr key={"song " + i} className="bg-warning">
+                    {/*className="d-sm-table-row "*/}
+                    <td></td>
+                    <td>
+                        <button className="btn btn-outline-light" id={this.state.data.titlesAndIds[i].item2}
+                            onClick={this.redirect}>{this.state.data.titlesAndIds[i].item1}
+                        </button>
+                    </td>
+                    <td>
+                        <button className="btn btn-outline-light" id={this.state.data.titlesAndIds[i].item2} onClick={this.delete}>
+                            &#10060;
+                            {/*String.fromCodePoint(0x274C)*/}
+                        </button>
+                    </td>
+                </tr>);
         }
 
         return (
@@ -62,7 +75,7 @@ class CatalogView extends React.Component {
                     <thead className="thead-dark ">
                         <tr>
                             <th width="10%"></th>
-                            <th width="80%">
+                            <th width="70%">
                                 <form>
                                     <button id="js-nav-1" className="btn btn-info" onClick={this.click}>
                                          &lt;Назад
@@ -73,7 +86,7 @@ class CatalogView extends React.Component {
                                     </button>
                                 </form>
                             </th>
-                            <th width="10%"></th>
+                            <th width="20%"></th>
                         </tr>
                     </thead>
                     <tbody>

@@ -5,7 +5,7 @@ class CreateView extends React.Component {
         super(props);
         this.state = { data: null };
         this.url = "/api/create";
-        this.formId;
+        this.formId = null;
         this.mounted = true;
     }
 
@@ -85,9 +85,10 @@ class CheckboxBts extends React.Component {
 }
 
 class Message extends React.Component {
-    constructor(props) {
-        super(props);
-    }
+    // ESlint пометил бесполезным
+    //constructor(props) {
+    //    super(props);
+    //}
 
     inputText = (e) => {
         const newText = e.target.value;

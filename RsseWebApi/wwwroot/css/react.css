@@ -156,6 +156,7 @@ button.pas {
 
 	.regular-checkbox:checked + label:after {
 		content: '\2714';
+		/*content: '\274C';*/
 		font-size: 14px;
 		position: absolute;
 		top: 0px;

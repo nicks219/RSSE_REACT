@@ -1,17 +1,19 @@
-﻿//import { HomeView } from "/jst/read.js";
-//import UpdateView from "/jst/update.js";
-//import CreateView from "/jst/create.js";
-//import CatalogView from "/jst/catalog.js";
-//import { Login } from "/jst/login.js";
-
-import { HomeView } from "./read.jsx";
+﻿import { HomeView } from "./read.jsx";
 import UpdateView from "./update.jsx";
 import CreateView from "./create.jsx";
 import CatalogView from "./catalog.jsx";
 import { Login } from "./login.jsx";
 
+//import React from 'react';
+//import ReactDOM from 'react-dom';
+//import { HomeView } from "/jst/read.js";
+//import UpdateView from "/jst/update.js";
+//import CreateView from "/jst/create.js";
+//import CatalogView from "/jst/catalog.js";
+//import { Login } from "/jst/login.js";
+
 window.textId = 0;
-window.temp;
+window.temp = null;
 
 class Menu extends React.Component {
     constructor(props) {
@@ -115,3 +117,5 @@ ReactDOM.render(
     <Login listener={this} />
     , document.querySelector("#renderLoginForm")
 );
+
+export default Menu;

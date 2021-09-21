@@ -5,7 +5,7 @@ export class HomeView extends React.Component {
         super(props);
         this.state = { data: null };
         this.url = '/api/read';
-        this.formId;
+        this.formId = null;
         this.mounted = true;
     }
 
