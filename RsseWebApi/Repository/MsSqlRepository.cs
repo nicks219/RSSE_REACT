@@ -22,8 +22,8 @@ namespace RandomSongSearchEngine.Repository
 
         public IQueryable<int> SelectAllSongsInGenres(int[] checkedGenres)
         {
-            //TODO определить какой лучше:
-            //IQueryable<int> songsCollection = database.GenreText//
+            // TODO: определить какой метод лучше
+            // IQueryable<int> songsCollection = database.GenreText//
             //    .Where(s => chosenOnes.Contains(s.GenreInGenreText.GenreID))
             //    .Select(s => s.TextInGenreText.TextID);
 
@@ -93,18 +93,17 @@ namespace RandomSongSearchEngine.Repository
 
             if (await CheckGenresExistsErrorAsync(song.Id, forAddition))
             {
-                // если имя заменено на существующее, то залоггируется исключение.
-                // быстрой проверки нет - ресурсоёмко и ошибка редкая.
-                // Id жанров из бд и номера кнопок с фронта совпадают
+                // название песни остаётся неизменным (constraint)
+                // Id жанров и номера кнопок с фронта совпадают
                 await using IDbContextTransaction t = await _context.Database.BeginTransactionAsync();
                 try
                 {
+                    // дешевле просто откатить или не начинать транзакцию, без механизма исключений
                     TextEntity text = await _context.Text.FindAsync(song.Id);
                     if (text == null)
                     {
                         throw new Exception("[UpdateSongAsync: Null in Text]");
                     }
-                    // дешевле просто откатить или не начинать транзакцию, без механизма исключений
                     text.Title = song.Title;
                     text.Song = song.Text;
                     _context.Text.Update(text);
@@ -189,27 +188,13 @@ namespace RandomSongSearchEngine.Repository
 
         private async Task<bool> CheckNameExistsErrorAsync(string title)
         {
-            //int r = _context.Text
-            //    .Where(p => p.Title == title)
-            //    .AsNoTracking()
-            //    .Count();
-            //if (r > 0) throw new DataExistsException("[Browser Refresh or Name Exists Error]");
             return !await _context.Text.AnyAsync(p => p.Title == title);
         }
 
         private async Task<bool> CheckGenresExistsErrorAsync(int textId, HashSet<int> forAddition)
         {
-            //if (forAddition.Count > 0)
-            //{
-            //    int r = _context.GenreText
-            //        .Where(p => p.TextId == textId && p.GenreId == forAddition.First())
-            //        .AsNoTracking()
-            //        .Count();
-            //    if (r > 0) throw new DataExistsException("[Browser Refresh or Genre Exists Error]");
-            //}
             if (forAddition.Count > 0)
             {
-                // Что оно проверяет??
                 if (await _context.GenreText.AnyAsync(p => p.TextId == textId && p.GenreId == forAddition.First()))
                 {
                     throw new DataExistsException("[Global Error: Genre Exists Error]");

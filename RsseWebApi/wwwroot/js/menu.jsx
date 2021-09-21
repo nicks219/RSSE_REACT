@@ -1,8 +1,4 @@
-﻿//0 не существующий id в бд
-window.textId = 0;
-window.temp;
-
-//import { HomeView } from "/jst/read.js";
+﻿//import { HomeView } from "/jst/read.js";
 //import UpdateView from "/jst/update.js";
 //import CreateView from "/jst/create.js";
 //import CatalogView from "/jst/catalog.js";
@@ -13,6 +9,9 @@ import UpdateView from "./update.jsx";
 import CreateView from "./create.jsx";
 import CatalogView from "./catalog.jsx";
 import { Login } from "./login.jsx";
+
+window.textId = 0;
+window.temp;
 
 class Menu extends React.Component {
     constructor(props) {
@@ -26,18 +25,19 @@ class Menu extends React.Component {
 
     select(e) {
         var target = Number(e.target.id.slice(5));
-        //если меняем невыбранное
+        //если "update" до выбора песни
         if (target === 1 && window.textId === 0) return;
 
         this.visibilityFlag.forEach((value, index) => this.visibilityFlag[index] = false);
         this.visibilityFlag[target] = !this.visibilityFlag[target];
-        this.forceUpdate();//this.setState(this.state)
+        //this.setState(this.state)
+        this.forceUpdate();
     }
 
     componentDidUpdate() {
         if (this.state.id) this.setState({ id: null });
         if (!this.visibilityFlag[0]) {
-            //костыль, убирает кнопку "Поиск"
+            // костыль, убирает кнопку "Поиск"
             ReactDOM.render(
                 <div>
                 </div>,
@@ -47,7 +47,7 @@ class Menu extends React.Component {
     }
 
     render() {
-        //костыль - переключаемся из catalog на changeText
+        // костыль - переключаемся из catalog на changeText
         if (this.state.id) {
             this.visibilityFlag = [false, true, false, false];
             window.textId = this.state.id;

@@ -10,9 +10,6 @@ using System.Threading.Tasks;
 
 namespace RandomSongSearchEngine.Models
 {
-    /// <summary>
-    /// Каталог песен
-    /// </summary>
     public class CatalogModel
     {
         #region Fields

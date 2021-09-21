@@ -23,9 +23,7 @@ class UpdateView extends React.Component {
         if (this.state.data != null) {
             for (var i = 0; i < this.state.data.genresNamesCS.length; i++) {
                 checkboxes.push(<Checkbox key={"checkbox " + i + this.state.time} id={i} jsonStorage={this.state.data} />);
-                //
             }
-            //
         }
 
         return (

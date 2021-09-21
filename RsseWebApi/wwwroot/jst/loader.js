@@ -16,9 +16,9 @@ export class Loader {
         } catch (err) {
             console.log("Loader try-catch: 1");
         }
-    } //GET request: /api/controller?id=
+    } 
 
-
+    //GET request: /api/controller?id=
     static getDataById(component, requestId, url) {
         LoginRequired.MessageOff();
 
@@ -29,13 +29,14 @@ export class Loader {
                 if (component.mounted) component.setState({
                     data
                 });
-            }).catch(e => LoginRequired.MessageOn(component)); //LogForm(component)
+                //LogForm(component)
+            }).catch(e => LoginRequired.MessageOn(component)); 
         } catch (err) {
             console.log("Loader try-catch: 2");
         }
-    } //POST request: /api/controller
+    } 
 
-
+    //POST request: /api/controller
     static postData(component, requestBody, url) {
         // ПРОБЛЕМА: при пустых areChecked чекбоксах внешний вид компонента <Сheckboxes> не менялся (после "ошибки" POST)
         // при этом все данные были  правильные и рендеринг/обновление проходили успешно (в компоненте <UpdateView>)

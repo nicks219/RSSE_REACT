@@ -23,12 +23,13 @@ class Menu extends React.Component {
     }
 
     select(e) {
-        var target = Number(e.target.id.slice(5)); //если меняем невыбранное
-
+        var target = Number(e.target.id.slice(5));
+        // если "update" до выбора песни
         if (target == 1 && window.textId == 0) return;
         this.visibilityFlag.forEach((value, index) => this.visibilityFlag[index] = false);
         this.visibilityFlag[target] = !this.visibilityFlag[target];
-        this.forceUpdate(); //this.setState(this.state)
+        //this.setState(this.state)
+        this.forceUpdate(); 
     }
 
     componentDidUpdate() {
@@ -37,7 +38,7 @@ class Menu extends React.Component {
         });
 
         if (!this.visibilityFlag[0]) {
-            //костыль, убирает кнопку "Поиск"
+            // костыль, убирает кнопку "Поиск"
             ReactDOM.render( /*#__PURE__*/React.createElement("div", null), document.querySelector("#searchButton1"));
         }
     }
@@ -45,7 +46,7 @@ class Menu extends React.Component {
     co;
 
     render() {
-        //костыль - переключаемся из catalog на changeText
+        // костыль - переключаемся из catalog на changeText
         if (this.state.id) {
             this.visibilityFlag = [false, true, false, false];
             window.textId = this.state.id;
@@ -62,7 +63,9 @@ class Menu extends React.Component {
                 className: this.visibilityCss[i] //className="btn btn-info" style={{ margin: 10 + 'px' }}
 
             }, this.menu[i]));
-        } //+TODO: не отображать кнопку пока не загрузилось
+        }
+
+        //+TODO: не отображать кнопку пока не загрузилось
         //+TODO: менять цвет кнопки при выполнении POST запроса
         //+TODO: зачем view={this.visibilityFlag[0]}
         //TODO: список жанров точно один на всю сессию (кол-во песен в них будет отличаться) - зачем его грузить каждый раз?

@@ -39,8 +39,8 @@ namespace RandomSongSearchEngine.Models
 
                 var claims = new List<Claim> { new Claim(ClaimsIdentity.DefaultNameClaimType, login.Email) };
                 ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-                //это отработает только в классе, унаследованном от ControllerBase
-                //await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
+                // отработает только в классе, унаследованном от ControllerBase
+                // await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
                 return id;
             }
             catch (Exception ex)

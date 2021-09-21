@@ -8,7 +8,7 @@ namespace RandomSongSearchEngine.Data
     public sealed class RsseContext : DbContext
     {
         /// <summary>
-        /// Конструктор, конфигурирующий контекст базы данных
+        /// Конфигурируем контекст базы данных
         /// </summary>
         /// <param name="option"></param>
         public RsseContext(DbContextOptions<RsseContext> option) : base(option)

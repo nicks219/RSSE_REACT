@@ -1,22 +1,17 @@
-﻿//кнопка "все песни"
+﻿// кнопка "все песни"
 function moreDetailed() {
     var p = document.getElementById("flipflop");
     var p2 = document.getElementsByName("AreChecked");
-
-    //hideMenu();
-    //return;
 
     if (p.checked === true) p2.forEach(function (entry) { entry.checked = true; });
     if (p.checked === false) p2.forEach(function (entry) { entry.checked = false; });
     
 }
 
-//прячет-возвращает меню
+// прячет-и возвращает меню
 function hideMenu() {
     var product = document.getElementById("btns");
     var hider = document.getElementById("hider");
-
-    //return;
 
     if (hider.checked === false) {
         product.style.display = "none";
