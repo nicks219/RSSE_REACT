@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using RandomSongSearchEngine.Services.Logger;
 using RandomSongSearchEngine.Repository;
 using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using System.Diagnostics;
+using System.Threading.Tasks;
 //MS Template .NET Core 3.1 SPA using: Microsoft.AspNetCore.SpaServices.Extensions 3.1.16
 
 namespace RandomSongSearchEngine
@@ -78,6 +80,7 @@ namespace RandomSongSearchEngine
             else
             {
                 app.UseExceptionHandler("/Error");
+                YarnRunBuild();
             }
             // переключение между indexMin, indexJsx (и razor pages если будут)
             //var options = new DefaultFilesOptions();
@@ -122,10 +125,25 @@ namespace RandomSongSearchEngine
                 }
             });
             //
-
             loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"));
             var logger = loggerFactory.CreateLogger(typeof (FileLogger));
             logger.LogInformation("Application started at {0}, is 64-bit process: {1}", DateTime.Now, Environment.Is64BitProcess);
+        }
+
+        private void YarnRunBuild()
+        {
+            if (!Directory.Exists("./ClientApp/build"))
+            {
+                string strCmdText = "/C cd ./ClientApp && yarn run build";
+                //using {}
+                Process cmd = Process.Start("CMD.exe", strCmdText);
+                cmd.WaitForExit();
+                //ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
+                //String command = @"/k java -jar myJava.jar";
+                //cmdsi.Arguments = command;
+                //Process cmd = Process.Start(cmdsi);
+                //cmd.WaitForExit();
+            }
         }
     }
 }

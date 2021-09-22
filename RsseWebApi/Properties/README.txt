@@ -6,9 +6,11 @@ import './react.css';
 
 spa.UseReactDevelopmentServer(npmScript: "build");
 ccылка на скрипты в package.json
-скрипт "react-scripts build" (npm run build) из реакта не справился
-скрипт построил билд, но не смог запустить kestrel
+скрипт "react-scripts build" (npm run build)
+построил билд, но не запустился kestrel
+- возможно скрипт не awaitable
 
-см п.1 
-вручную yarn run build
 убрал  "proxy": "http://localhost:5000" из package.json
+
+добавил скрипт cd ./ClientApp/build || cd ./ClientApp && yarn run build в BuildEvent (свойства проекта)
+сделал работающий метод YarnRunBuild()
