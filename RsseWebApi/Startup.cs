@@ -15,6 +15,8 @@ using JavaScriptEngineSwitcher.ChakraCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using RandomSongSearchEngine.Services.Logger;
 using RandomSongSearchEngine.Repository;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+//MS Template .NET Core 3.1 SPA using: Microsoft.AspNetCore.SpaServices.Extensions 3.1.16
 
 namespace RandomSongSearchEngine
 {
@@ -47,6 +49,7 @@ namespace RandomSongSearchEngine
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
             services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
+            
             services.AddControllers();
             //services.AddControllersWithViews();
             //services.AddAuthentication(o => { }).AddCookie(options => { options.LoginPath = "/Account/Unauthorized/"; options.AccessDeniedPath = "/Account/Forbidden/"; });
@@ -55,6 +58,13 @@ namespace RandomSongSearchEngine
                 {
                     options.LoginPath = new PathString("/Account/Login/");
                 });
+
+            //SPA(1)
+            services.AddSpaStaticFiles(configuration =>
+            {
+                configuration.RootPath = "ClientApp/build";
+            });
+            //
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
@@ -70,12 +80,18 @@ namespace RandomSongSearchEngine
                 app.UseExceptionHandler("/Error");
             }
             // переключение между indexMin, indexJsx (и razor pages если будут)
-            var options = new DefaultFilesOptions();
-            options.DefaultFileNames.Clear();
-            options.DefaultFileNames.Add(Configuration.GetValue<string>("StartFile"));
-            app.UseDefaultFiles(options);
-            app.UseReact(config => { });
-            app.UseStaticFiles();
+            //var options = new DefaultFilesOptions();
+            //options.DefaultFileNames.Clear();
+            //options.DefaultFileNames.Add(Configuration.GetValue<string>("StartFile"));
+            //app.UseDefaultFiles(options);
+
+            //app.UseReact(config => { });//
+            // самый простой способ переключиться на TS
+            //app.UseStaticFiles();
+            //SPA(2)
+            app.UseSpaStaticFiles();
+            //
+
             //app.UseHttpsRedirection();
             app.UseRouting();
             //
@@ -88,8 +104,27 @@ namespace RandomSongSearchEngine
             //        name: "default",
             //        pattern: "{controller=Home}/{action=Index}/{id?}");
             //});
+
+            //SPA(3)
+            app.UseSpa(spa =>
+            {
+                spa.Options.SourcePath = "ClientApp";
+
+                if (env.IsDevelopment())
+                {
+                    spa.UseReactDevelopmentServer(npmScript: "start");
+                }
+                else
+                {
+                    // скрипт из package.json (npm run build) построил билд, но не смог запустить kestrel, свалился
+                    //if (Directory.Exists("")) ;
+                    //spa.UseReactDevelopmentServer(npmScript: "build");
+                }
+            });
+            //
+
             loggerFactory.AddFile(Path.Combine(Directory.GetCurrentDirectory(), "logger.txt"));
-            var logger = loggerFactory.CreateLogger("FileLogger");
+            var logger = loggerFactory.CreateLogger(typeof (FileLogger));
             logger.LogInformation("Application started at {0}, is 64-bit process: {1}", DateTime.Now, Environment.Is64BitProcess);
         }
     }
