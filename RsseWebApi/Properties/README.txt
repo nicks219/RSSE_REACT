@@ -11,3 +11,4 @@ ccылка на скрипты в package.json
 
 см п.1 
 вручную yarn run build
+убрал  "proxy": "http://localhost:5000" из package.json
