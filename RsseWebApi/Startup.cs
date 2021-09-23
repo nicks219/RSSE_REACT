@@ -1,23 +1,22 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
-using System;
-using System.IO;
-using Microsoft.AspNetCore.Http;
-using React.AspNet;
-using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
-using JavaScriptEngineSwitcher.ChakraCore;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using RandomSongSearchEngine.Services.Logger;
 using RandomSongSearchEngine.Repository;
-using Microsoft.AspNetCore.SpaServices.ReactDevelopmentServer;
+using RandomSongSearchEngine.Services.Logger;
+using React.AspNet;
+using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
+using System.IO;
 //MS Template .NET Core 3.1 SPA using: Microsoft.AspNetCore.SpaServices.Extensions 3.1.16
 
 namespace RandomSongSearchEngine
@@ -71,6 +70,7 @@ namespace RandomSongSearchEngine
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
+            //YarnRunBuild();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -132,10 +132,20 @@ namespace RandomSongSearchEngine
 
         private void YarnRunBuild()
         {
+            if (!Directory.Exists("./ClientApp/node_modules"))
+            {
+                // ноду надо ставить до старта - во время не получится, студия не скомпилирует typescript
+                // перенесу в скрипт BuildEvents
+                // yarn add --dev @types/react
+                //string strCmdText = "/C cd ./ClientApp && npm install";
+                //Process cmd = Process.Start("CMD.exe", strCmdText);
+                //cmd.WaitForExit();
+            }
             if (!Directory.Exists("./ClientApp/build"))
             {
-                string strCmdText = "/C cd ./ClientApp && yarn run build";
-                //using {}
+                // yarn add --dev @types/react
+                string strCmdText = "/C cd ./ClientApp && npm run build";
+                //using {Process}
                 Process cmd = Process.Start("CMD.exe", strCmdText);
                 cmd.WaitForExit();
                 //ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");

@@ -7,10 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientApp\samples\**" />
     <Compile Remove="Thrash\**" />
+    <Content Remove="ClientApp\samples\**" />
     <Content Remove="Thrash\**" />
+    <EmbeddedResource Remove="ClientApp\samples\**" />
     <EmbeddedResource Remove="Thrash\**" />
+    <None Remove="ClientApp\samples\**" />
     <None Remove="Thrash\**" />
+    <TypeScriptCompile Remove="ClientApp\samples\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,8 +51,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="ClientApp\samples\" />
-  </ItemGroup>
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cd ./ClientApp/node_modules || cd ./ClientApp &amp; npm install" />
+  </Target>
 
 </Project>
