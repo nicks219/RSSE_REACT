@@ -31,7 +31,7 @@ namespace RandomSongSearchEngine
     //  ?TODO: разберись с неймингом в роутинге 
     //  TODO: полагаю, js билд (ClientApp/build) уместно создавать только в разработке, до publish
     //  TODO: разберись с опциями publish, не публикует папку ClientApp/build, public, src (только файлы *.json)
-    //  TODO: сделай переключение между MSSQL и MySQL
+    //  +TODO: сделай переключение между MSSQL и MySQL
 
     public class Startup
     {
@@ -46,16 +46,23 @@ namespace RandomSongSearchEngine
         {
             services.AddScoped<IRepository, MsSqlRepository>();
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Nick", Version = "v1" }); });
-            
+            // определим по connection string тип сервера и делегат DbContextOptionBuilder
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
-            services.AddDbContext<RsseContext>(options =>
-            //MSSql
-            //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-            //MySql
-            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 26))));
+            string sqlServerType = "mysql";
+            if (connectionString.Contains("Data Source")) 
+            {
+                sqlServerType = "mssql";
+            }
+            // ?: для делегата в C#8 не работает, потому свич
+            Action<DbContextOptionsBuilder> dbOptions = sqlServerType switch
+            {
+                "mysql" => (options) => options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 26))),
+                _ => (options) => options.UseSqlServer(connectionString),
+            };
+            services.AddDbContext<RsseContext>(dbOptions);
 
             services.AddMemoryCache();
-            //для конфига REACT
+            // для конфига REACT
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddReact();
             services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
@@ -79,7 +86,7 @@ namespace RandomSongSearchEngine
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
-            //YarnRunBuild();
+            YarnRunBuild();
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -89,7 +96,7 @@ namespace RandomSongSearchEngine
             else
             {
                 app.UseExceptionHandler("/Error");
-                YarnRunBuild();
+                //YarnRunBuild();
             }
             // переключение между indexMin, indexJsx (и razor pages если будут)
             //var options = new DefaultFilesOptions();

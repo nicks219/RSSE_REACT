@@ -55,7 +55,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="cd ./ClientApp/node_modules || cd ./ClientApp &amp; npm install" />
+    <Exec Command="cd $(SpaRoot)ClientApp\node_modules\ || cd $(SpaRoot)ClientApp\ &amp;&amp; npm install" />
   </Target>
 
 </Project>
