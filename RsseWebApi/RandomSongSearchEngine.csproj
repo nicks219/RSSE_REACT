@@ -4,6 +4,8 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 	<UserSecretsId>89325659-56d0-436e-993a-e44aa19ed5e7</UserSecretsId>
     <Platforms>AnyCPU;x64</Platforms>
+    <Authors>Nikolay Medvedev</Authors>
+    <Company>Nick219</Company>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,6 +49,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.1" />
     <PackageReference Include="React.AspNet" Version="5.2.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.4" />
   </ItemGroup>

@@ -26,8 +26,12 @@ namespace RandomSongSearchEngine
     //  V1.0.0 выделен интерфейс IRepository - стало проще тестировать
     //  +TODO: рефакторинг LoginController и LoginModel
     //  +TODO: добавить запрос Delete
-    //  TODO: перевести фронт на TSX
-    //  TODO: разберись с неймингом в роутинге и сделай CRUD (post=create, get=read, put=update, delete=delete)
+    //  +TODO: перевести фронт на TSX
+    //  +TODO: сделай CRUD (post=create, get=read, put=update, delete=delete)
+    //  ?TODO: разберись с неймингом в роутинге 
+    //  TODO: полагаю, js билд (ClientApp/build) уместно создавать только в разработке, до publish
+    //  TODO: разберись с опциями publish, не публикует папку ClientApp/build, public, src (только файлы *.json)
+    //  TODO: сделай переключение между MSSQL и MySQL
 
     public class Startup
     {
@@ -41,10 +45,15 @@ namespace RandomSongSearchEngine
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IRepository, MsSqlRepository>();
-
             services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "Nick", Version = "v1" }); });
+            
+            string connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<RsseContext>(options =>
-            options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //MSSql
+            //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            //MySql
+            options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 26))));
+
             services.AddMemoryCache();
             //для конфига REACT
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
