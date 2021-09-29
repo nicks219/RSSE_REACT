@@ -14,13 +14,18 @@ namespace RandomSongSearchEngine.Data
         public RsseContext(DbContextOptions<RsseContext> option) : base(option)
         {
             var res = Database.EnsureCreated();
-            //в SeedSql удаляю индекс для GenreText таблицы
-            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            //в SqlScripts удаляю индекс для GenreText таблицы
+            switch (Database.ProviderName)
             {
-                //MySql
-                if (res) Database.ExecuteSqlRaw(MySqlScripts.SqlSeedGenre);
-                //MSSql
-                //if (res) Database.ExecuteSqlRaw(SqlScripts.SqlSeedGenre);
+                case "Pomelo.EntityFrameworkCore.MySql":
+                    if (res) Database.ExecuteSqlRaw(MySqlScripts.SqlSeedGenre);
+                    break;
+                case "Microsoft.EntityFrameworkCore.SqlServer":
+                    if (res) Database.ExecuteSqlRaw(SqlScripts.SqlSeedGenre);
+                    break;
+                default:
+                    //"Microsoft.EntityFrameworkCore.InMemory" например
+                    break;
             }
         }
 
