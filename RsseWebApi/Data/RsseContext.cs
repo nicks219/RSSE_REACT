@@ -1,84 +1,84 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RandomSongSearchEngine.Data.Repository;
 
-namespace RandomSongSearchEngine.Data
+namespace RandomSongSearchEngine.Data;
+
+/// <summary>
+/// Контекст (таблицы) базы данных
+/// </summary>
+public sealed class RsseContext : DbContext
 {
     /// <summary>
-    /// Контекст (таблицы) базы данных
+    /// Конфигурируем контекст базы данных
     /// </summary>
-    public sealed class RsseContext : DbContext
+    /// <param name="option"></param>
+    public RsseContext(DbContextOptions<RsseContext> option) : base(option)
     {
-        /// <summary>
-        /// Конфигурируем контекст базы данных
-        /// </summary>
-        /// <param name="option"></param>
-        public RsseContext(DbContextOptions<RsseContext> option) : base(option)
+        var res = Database.EnsureCreated();
+        //в SqlScripts удаляю индекс для GenreText таблицы
+        switch (Database.ProviderName)
         {
-            var res = Database.EnsureCreated();
-            //в SqlScripts удаляю индекс для GenreText таблицы
-            switch (Database.ProviderName)
-            {
-                case "Pomelo.EntityFrameworkCore.MySql":
-                    if (res) Database.ExecuteSqlRaw(MySqlScripts.SqlSeedGenre);
-                    break;
-                case "Microsoft.EntityFrameworkCore.SqlServer":
-                    if (res) Database.ExecuteSqlRaw(SqlScripts.SqlSeedGenre);
-                    break;
-                default:
-                    //"Microsoft.EntityFrameworkCore.InMemory" например
-                    break;
-            }
+            case "Pomelo.EntityFrameworkCore.MySql":
+                if (res) Database.ExecuteSqlRaw(MySqlScripts.CreateGenresScript);
+                break;
+            case "Microsoft.EntityFrameworkCore.SqlServer":
+                if (res) Database.ExecuteSqlRaw(MsSqlScripts.CreateGenresScript);
+                break;
+            default:
+                //"Microsoft.EntityFrameworkCore.InMemory" например
+                break;
         }
+    }
 
-        /// <summary>
-        /// Таблица бд с пользователями приложения
-        /// </summary>
-        public DbSet<UserEntity> Users { get; set; }
+    /// <summary>
+    /// Таблица бд с пользователями приложения
+    /// </summary>
+    public DbSet<UserEntity> Users { get; set; }
 
-        /// <summary>
-        /// Таблица бд с текстами песен
-        /// </summary>
-        public DbSet<TextEntity> Text { get; set; }
+    /// <summary>
+    /// Таблица бд с текстами песен
+    /// </summary>
+    public DbSet<TextEntity> Text { get; set; }
 
-        /// <summary>
-        /// Таблица бд с жанрами песен
-        /// </summary>
-        public DbSet<GenreEntity> Genre { get; set; }
+    /// <summary>
+    /// Таблица бд с жанрами песен
+    /// </summary>
+    public DbSet<GenreEntity> Genre { get; set; }
 
-        /// <summary>
-        /// Таблица бд, связывающая песни и их жанры
-        /// </summary>
-        public DbSet<GenreTextEntity> GenreText { get; set; }
+    /// <summary>
+    /// Таблица бд, связывающая песни и их жанры
+    /// </summary>
+    public DbSet<GenreTextEntity> GenreText { get; set; }
 
-        /// <summary>
-        /// Создание связей для модели "многие-ко-многим"
-        /// </summary>
-        /// <param name="modelBuilder"></param>
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            //base.OnModelCreating(modelBuilder);
-            modelBuilder.Entity<TextEntity>()
-                .HasKey(k => k.TextId);
-            //CONSTRAINT UNIQUE NONCLUSTERED
-            modelBuilder.Entity<TextEntity>()
-                .HasAlternateKey(k => k.Title);
+    /// <summary>
+    /// Создание связей для модели "многие-ко-многим"
+    /// </summary>
+    /// <param name="modelBuilder"></param>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        //base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<TextEntity>()
+            .HasKey(k => k.TextId);
+        //CONSTRAINT UNIQUE NONCLUSTERED
+        modelBuilder.Entity<TextEntity>()
+            .HasAlternateKey(k => k.Title);
 
-            modelBuilder.Entity<GenreEntity>()
-                .HasKey(k => k.GenreId);
-            //CONSTRAINT UNIQUE NONCLUSTERED
-            modelBuilder.Entity<GenreEntity>()
-                .HasAlternateKey(k => k.Genre);
+        modelBuilder.Entity<GenreEntity>()
+            .HasKey(k => k.GenreId);
+        //CONSTRAINT UNIQUE NONCLUSTERED
+        modelBuilder.Entity<GenreEntity>()
+            .HasAlternateKey(k => k.Genre);
 
-            modelBuilder.Entity<GenreTextEntity>()
-                .HasKey(k => new { GenreID = k.GenreId, TextID = k.TextId });
-            modelBuilder.Entity<GenreTextEntity>()
-                .HasOne(g => g.GenreInGenreText)
-                .WithMany(m => m.GenreTextInGenre)
-                .HasForeignKey(k => k.GenreId);
-            modelBuilder.Entity<GenreTextEntity>()
-                .HasOne(t => t.TextInGenreText)
-                .WithMany(m => m.GenreTextInText)
-                .HasForeignKey(k => k.TextId);
-        }
+        modelBuilder.Entity<GenreTextEntity>()
+            .HasKey(k => new {GenreID = k.GenreId, TextID = k.TextId});
+        modelBuilder.Entity<GenreTextEntity>()
+            .HasOne(g => g.GenreInGenreText)
+            .WithMany(m => m.GenreTextInGenre)
+            .HasForeignKey(k => k.GenreId);
+        modelBuilder.Entity<GenreTextEntity>()
+            .HasOne(t => t.TextInGenreText)
+            .WithMany(m => m.GenreTextInText)
+            .HasForeignKey(k => k.TextId);
     }
 }
 

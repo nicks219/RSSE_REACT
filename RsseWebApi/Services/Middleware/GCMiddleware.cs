@@ -2,25 +2,24 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace RandomSongSearchEngine.Services.Middleware
+namespace RandomSongSearchEngine.Services.Middleware;
+
+/// <summary>
+/// Настройка сборщика мусора на частое освобождение памяти
+/// </summary>
+public class GcMiddleware
 {
-    /// <summary>
-    /// Настройка сборщика мусора на частое освобождение памяти
-    /// </summary>
-    public class GcMiddleware
+    private readonly RequestDelegate _next;
+
+    public GcMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
+        _next = next;
+    }
 
-        public GcMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
-
-        public async Task Invoke(HttpContext httpContext)
-        {
-            await _next(httpContext);
-            GC.Collect(2, GCCollectionMode.Forced, true);
-            GC.WaitForPendingFinalizers();
-        }
+    public async Task Invoke(HttpContext httpContext)
+    {
+        await _next(httpContext);
+        GC.Collect(2, GCCollectionMode.Forced, true);
+        GC.WaitForPendingFinalizers();
     }
 }

@@ -2,55 +2,54 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Dto;
 using RandomSongSearchEngine.Models;
 using System;
 using System.Threading.Tasks;
+using RandomSongSearchEngine.Data.DTO;
 
-namespace RandomSongSearchEngine.Controllers
+namespace RandomSongSearchEngine.Controllers;
+
+[Authorize]
+[Route("api/update")]
+[ApiController]
+public class UpdateController : ControllerBase
 {
-    [Authorize]
-    [Route("api/update")]
-    [ApiController]
-    public class UpdateController : ControllerBase
+    private readonly ILogger<UpdateController> _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
+
+    public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<UpdateController> logger)
     {
-        private readonly ILogger<UpdateController> _logger;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
+        _serviceScopeFactory = serviceScopeFactory;
+        _logger = logger;
+    }
 
-        public UpdateController(IServiceScopeFactory serviceScopeFactory, ILogger<UpdateController> logger)
+    [HttpGet]
+    public async Task<ActionResult<SongDto>> OnGetOriginalSongAsync(int id)
+    {
+        try
         {
-            _serviceScopeFactory = serviceScopeFactory;
-            _logger = logger;
+            using var scope = _serviceScopeFactory.CreateScope();
+            return await new UpdateModel(scope).ReadOriginalSongAsync(id);
         }
-
-        [HttpGet]
-        public async Task<ActionResult<SongDto>> OnGetOriginalSongAsync(int id)
+        catch (Exception ex)
         {
-            try
-            {
-                using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).ReadOriginalSongAsync(id);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[UpdateController: OnGet Error]");
-                return new SongDto() { ErrorMessageResponse = "[UpdateController: OnGet Error]" };
-            }
+            _logger.LogError(ex, "[UpdateController: OnGet Error]");
+            return new SongDto() {ErrorMessageResponse = "[UpdateController: OnGet Error]"};
         }
+    }
 
-        [HttpPost]
-        public async Task<ActionResult<SongDto>> UpdateSongAsync([FromBody] SongDto dto)
+    [HttpPost]
+    public async Task<ActionResult<SongDto>> UpdateSongAsync([FromBody] SongDto dto)
+    {
+        try
         {
-            try
-            {
-                using var scope = _serviceScopeFactory.CreateScope();
-                return await new UpdateModel(scope).UpdateSongAsync(dto);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[UpdateController: OnPost Error]");
-                return new SongDto() { ErrorMessageResponse = "[UpdateController: OnPost Error]" };
-            }
+            using var scope = _serviceScopeFactory.CreateScope();
+            return await new UpdateModel(scope).UpdateSongAsync(dto);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[UpdateController: OnPost Error]");
+            return new SongDto() {ErrorMessageResponse = "[UpdateController: OnPost Error]"};
         }
     }
 }

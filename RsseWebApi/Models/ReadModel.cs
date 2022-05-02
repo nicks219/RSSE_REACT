@@ -1,71 +1,70 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RandomSongSearchEngine.Dto;
-using RandomSongSearchEngine.Repository;
 using RandomSongSearchEngine.Services.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using RandomSongSearchEngine.Data.DTO;
+using RandomSongSearchEngine.Data.Repository.Contracts;
 
-namespace RandomSongSearchEngine.Models
+namespace RandomSongSearchEngine.Models;
+
+public class ReadModel
 {
-    public class ReadModel
+    private IServiceScope _scope { get; }
+    private ILogger<ReadModel> _logger { get; }
+
+    public ReadModel(IServiceScope serviceScope)
     {
-        private IServiceScope _scope { get; }
-        private ILogger<ReadModel> _logger { get; }
+        _scope = serviceScope;
+        _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
+    }
 
-        public ReadModel(IServiceScope serviceScope)
+    public async Task<SongDto> ReadGenreListAsync()
+    {
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        try
         {
-            _scope = serviceScope;
-            _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
+            List<string> genreListResponse = await repo.ReadGenreListAsync();
+            return new SongDto(genreListResponse);
         }
-
-        public async Task<SongDto> ReadGenreListAsync()
+        catch (Exception ex)
         {
-            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
-            try
-            {
-                List<string> genreListResponse = await repo.ReadGenreListAsync();
-                return new SongDto(genreListResponse);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[IndexModel: OnGet Error]");
-                return new SongDto() { ErrorMessageResponse = "[IndexModel: OnGet Error]" };
-            }
+            _logger.LogError(ex, "[IndexModel: OnGet Error]");
+            return new SongDto() {ErrorMessageResponse = "[IndexModel: OnGet Error]"};
         }
+    }
 
-        public async Task<SongDto> ReadRandomSongAsync(SongDto request)
+    public async Task<SongDto> ReadRandomSongAsync(SongDto request)
+    {
+        string textResponse = "";
+        string titleResponse = "";
+        int songId = 0;
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        try
         {
-            string textResponse = "";
-            string titleResponse = "";
-            int songId = 0;
-            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
-            try
+            if (request != null && request.SongGenres != null && request.SongGenres.Count != 0)
             {
-                if (request != null && request.SongGenres != null && request.SongGenres.Count != 0)
+                songId = await repo.ReadRandomIdAsync(request.SongGenres);
+                if (songId != 0)
                 {
-                    songId = await repo.ReadRandomIdAsync(request.SongGenres);
-                    if (songId != 0)
+                    var song = await repo.ReadSong(songId).ToListAsync();
+                    if (song.Count > 0)
                     {
-                        var song = await repo.ReadSong(songId).ToListAsync();
-                        if (song.Count > 0)
-                        {
-                            textResponse = song[0].Item1;
-                            titleResponse = song[0].Item2;
-                        }
+                        textResponse = song[0].Item1;
+                        titleResponse = song[0].Item2;
                     }
                 }
+            }
 
-                List<string> genreListResponse = await repo.ReadGenreListAsync();
-                return new SongDto(genreListResponse, songId, textResponse, titleResponse);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "[IndexModel: OnPost Error]");
-                return new SongDto() { ErrorMessageResponse = "[IndexModel: OnPost Error]" };
-            }
+            List<string> genreListResponse = await repo.ReadGenreListAsync();
+            return new SongDto(genreListResponse, songId, textResponse, titleResponse);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[IndexModel: OnPost Error]");
+            return new SongDto() {ErrorMessageResponse = "[IndexModel: OnPost Error]"};
         }
     }
 }
