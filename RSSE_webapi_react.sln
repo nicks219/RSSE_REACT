@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rsse.Base", "Rsse.Base\Rsse.Base.csproj", "{57F9C100-FA1B-4DD0-A816-0196B48EBD71}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rsse.Base", "src\Rsse.Base\Rsse.Base.csproj", "{57F9C100-FA1B-4DD0-A816-0196B48EBD71}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Tests", "Rsse.Tests\Rsse.Tests.csproj", "{F06299B5-A78B-4FD9-BCD3-DD53BA78424E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Tests", "tests\Rsse.Tests\Rsse.Tests.csproj", "{F06299B5-A78B-4FD9-BCD3-DD53BA78424E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Front", "Rsse.Front\Rsse.Front.csproj", "{4FDA98AD-B663-4173-ADFC-17BFB853D11F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Front", "src\Rsse.Front\Rsse.Front.csproj", "{4FDA98AD-B663-4173-ADFC-17BFB853D11F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Data", "Rsse.Data\Rsse.Data.csproj", "{E5FA90BD-FED6-4E11-9F35-10808BA33FF1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rsse.Data", "src\Rsse.Data\Rsse.Data.csproj", "{E5FA90BD-FED6-4E11-9F35-10808BA33FF1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{AA4EF658-DA2E-4C04-AE32-6D2576462FCA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C685C254-6FDC-47DB-B1FD-3E9DF75688B3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,5 +61,11 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0BCBAEC4-7C63-49C7-A34C-99E073B3A6DC}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F06299B5-A78B-4FD9-BCD3-DD53BA78424E} = {C685C254-6FDC-47DB-B1FD-3E9DF75688B3}
+		{57F9C100-FA1B-4DD0-A816-0196B48EBD71} = {AA4EF658-DA2E-4C04-AE32-6D2576462FCA}
+		{E5FA90BD-FED6-4E11-9F35-10808BA33FF1} = {AA4EF658-DA2E-4C04-AE32-6D2576462FCA}
+		{4FDA98AD-B663-4173-ADFC-17BFB853D11F} = {AA4EF658-DA2E-4C04-AE32-6D2576462FCA}
 	EndGlobalSection
 EndGlobal
