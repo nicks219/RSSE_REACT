@@ -21,5 +21,10 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+*/*/bin*
+*/*/obj*
+*/bin
+*/obj
+**/logger.txt
 LICENSE
 README.md
