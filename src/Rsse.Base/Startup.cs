@@ -66,16 +66,15 @@ public class Startup
         {
             app.UseExceptionHandler("/Error");
         }
-
-        // настраиваем на index.html
+        
         app.UseDefaultFiles();
+        
         app.UseStaticFiles();
 
         // app.UseHttpsRedirection();
         app.UseRouting();
 
-        // CORS (нет в репе)
-        // credentials: "include"
+        // CORS: credentials: "include"
         app.UseCors(builder =>
         {
             builder.WithOrigins("http://localhost:3000", "http://localhost:5000").AllowCredentials();
