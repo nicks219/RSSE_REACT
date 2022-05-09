@@ -17,7 +17,7 @@ public class UpdateModel
 
     public async Task<SongDto> ReadOriginalSongAsync(int originalSongId)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             //if (SavedTextId == 0) throw new NotImplementedException();
@@ -58,7 +58,7 @@ public class UpdateModel
 
     public async Task<SongDto> UpdateSongAsync(SongDto updatedSong)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             if (updatedSong.SongGenres == null || string.IsNullOrEmpty(updatedSong.Text)

@@ -21,7 +21,7 @@ public class FakeScope<T> where T : class
     public FakeScope()
     {
         var services = new ServiceCollection();
-        services.AddTransient<IRepository, RsseRepository>();
+        services.AddTransient<IDataRepository, DataRepository>();
         services.AddTransient<ILogger<T>, FakeLogger<T>>();
 
         // MsSql

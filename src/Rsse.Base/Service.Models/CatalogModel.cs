@@ -25,7 +25,7 @@ public class CatalogModel
 
     public async Task<CatalogDto> ReadCatalogPageAsync(int pageNumber)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>(); //
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>(); //
         try
         {
             int songsCount = await repo.ReadTextsCountAsync();
@@ -42,7 +42,7 @@ public class CatalogModel
 
     public async Task<CatalogDto> NavigateCatalogAsync(CatalogDto catalog)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             int direction = catalog.Direction();
@@ -61,7 +61,7 @@ public class CatalogModel
 
     public async Task<CatalogDto> DeleteSongAsync(int songId, int pageNumber)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             await repo.DeleteSongAsync(songId);

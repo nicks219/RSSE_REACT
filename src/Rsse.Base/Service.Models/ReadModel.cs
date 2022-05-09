@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RandomSongSearchEngine.Data.DTO;
 using RandomSongSearchEngine.Data.Repository.Contracts;
-using RandomSongSearchEngine.Infrastructure.Services;
+using RandomSongSearchEngine.Infrastructure.Engine;
 
 namespace RandomSongSearchEngine.Service.Models;
 
@@ -16,9 +16,25 @@ public class ReadModel
         _logger = _scope.ServiceProvider.GetRequiredService<ILogger<ReadModel>>();
     }
 
+    public string? ReadSongTitleById(int id)
+    {
+        using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+
+        try
+        {
+            var res = repo.ReadSongTitleById(id);
+            return res;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReadModel: ReadSongTitleById error]");
+            return null;
+        }
+    }
+
     public async Task<SongDto> ReadGenreListAsync()
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             List<string> genreListResponse = await repo.ReadGenreListAsync();
@@ -26,8 +42,8 @@ public class ReadModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[IndexModel: OnGet Error]");
-            return new SongDto() {ErrorMessageResponse = "[IndexModel: OnGet Error]"};
+            _logger.LogError(ex, "[ReadModel: OnGet Error]");
+            return new SongDto() {ErrorMessageResponse = "[ReadModel: OnGet Error]"};
         }
     }
 
@@ -36,7 +52,7 @@ public class ReadModel
         string textResponse = "";
         string titleResponse = "";
         int songId = 0;
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             if (request != null && request.SongGenres != null && request.SongGenres.Count != 0)
@@ -58,8 +74,8 @@ public class ReadModel
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "[IndexModel: OnPost Error]");
-            return new SongDto() {ErrorMessageResponse = "[IndexModel: OnPost Error]"};
+            _logger.LogError(ex, "[ReadModel: OnPost Error]");
+            return new SongDto() {ErrorMessageResponse = "[ReadModel: OnPost Error]"};
         }
     }
 }

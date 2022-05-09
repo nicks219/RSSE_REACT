@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RandomSongSearchEngine.Data.DTO;
+using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
 using RandomSongSearchEngine.Service.Models;
 
 namespace RandomSongSearchEngine.Controllers;
@@ -18,7 +19,7 @@ public class CreateController : ControllerBase
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
     }
-
+    
     [HttpGet]
     public async Task<ActionResult<SongDto>> OnGetGenreListAsync()
     {
@@ -42,7 +43,17 @@ public class CreateController : ControllerBase
         {
             using var scope = _serviceScopeFactory.CreateScope();
             var model = new CreateModel(scope);
-            return await model.CreateSongAsync(dto);
+            var result =  await model.CreateSongAsync(dto);
+            
+            // TODO: create cache line
+            if (string.IsNullOrEmpty(result.ErrorMessageResponse))
+            {
+                var cache = scope.ServiceProvider.GetRequiredService<ICacheRepository>();
+                // это порядок дампа, для хэша название в финале
+                cache.Create(result.Id, string.Concat(result.Id, " '", dto.Title!, "' '", dto.Text!, "'"));
+            }
+
+            return result;
         }
         catch (Exception ex)
         {

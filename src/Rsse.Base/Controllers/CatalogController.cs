@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RandomSongSearchEngine.Data.DTO;
+using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
 using RandomSongSearchEngine.Service.Models;
 
 namespace RandomSongSearchEngine.Controllers;
@@ -57,6 +58,11 @@ public class CatalogController : ControllerBase
         try
         {
             using var scope = _serviceScopeFactory.CreateScope();
+            
+            // TODO: delete cache
+            var cache = scope.ServiceProvider.GetRequiredService<ICacheRepository>();
+            cache.Delete(id);
+            
             return await new CatalogModel(scope).DeleteSongAsync(id, pg);
         }
         catch (Exception ex)
@@ -64,6 +70,5 @@ public class CatalogController : ControllerBase
             _logger.LogError(ex, "[CatalogController: OnDelete Error]");
             return new CatalogDto() {ErrorMessage = "[CatalogController: OnDelete Error]"};
         }
-
     }
 }

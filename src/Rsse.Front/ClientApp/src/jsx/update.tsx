@@ -89,6 +89,26 @@ class Message extends React.Component<IProps> {
         this.hideMenu = this.hideMenu.bind(this);
     }
 
+    componentDidMount() {
+        this.getCookie();
+    }
+
+    // name: .AspNetCore.Cookies
+    getCookie = () => {
+        // выставляются в компоненте Login
+        const name = "rsse_auth";
+        var matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+
+        // return matches ? decodeURIComponent(matches[1]) : undefined;
+        if (matches == null || decodeURIComponent(matches[1]) === 'false')
+        {
+            this.hideMenu('something_stuff');
+        }
+    }
+    
+    // hideMenu() сидит в каждом компоненте !
     hideMenu(e: any) {
         if (this.props.formId.style.display !== "none") {
             this.props.formId.style.display = "none";

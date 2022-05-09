@@ -16,7 +16,7 @@ public class CreateModel
 
     public async Task<SongDto> ReadGenreListAsync()
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             List<string> genreListResponse = await repo.ReadGenreListAsync();
@@ -28,10 +28,10 @@ public class CreateModel
             return new SongDto() {ErrorMessageResponse = "[CreateModel: OnGet Error]"};
         }
     }
-
+    
     public async Task<SongDto> CreateSongAsync(SongDto createdSong)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
             if (createdSong.SongGenres == null || string.IsNullOrEmpty(createdSong.Text)
@@ -44,6 +44,9 @@ public class CreateModel
                 return errorDto;
             }
 
+            // TODO: добавь обрезку пробелов в названии
+            createdSong.Title = createdSong.Title.Trim();
+            
             int newSongId = await repo.CreateSongAsync(createdSong);
             if (newSongId == 0)
             {

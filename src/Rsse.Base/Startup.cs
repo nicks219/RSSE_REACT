@@ -4,6 +4,10 @@ using System.Globalization;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Data.Repository;
 using RandomSongSearchEngine.Data.Repository.Contracts;
+using RandomSongSearchEngine.Infrastructure.Cache;
+using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
+using RandomSongSearchEngine.Infrastructure.Engine;
+using RandomSongSearchEngine.Infrastructure.Engine.Contracts;
 using RandomSongSearchEngine.Infrastructure.Logger;
 
 namespace RandomSongSearchEngine;
@@ -27,7 +31,13 @@ public class Startup
     {
         services.AddCors();
 
-        services.AddScoped<IRepository, RsseRepository>();
+        services.AddScoped<IDataRepository, DataRepository>();
+
+        services.AddSingleton<ICacheRepository, CacheRepository>();
+
+        services.AddTransient<ITextProcessor, TextProcessor>();
+
+        services.AddHttpContextAccessor(); //
 
         services.AddSwaggerGen(c =>
         {
@@ -79,7 +89,7 @@ public class Startup
         {
             builder.WithOrigins("http://localhost:3000", "http://localhost:5000").AllowCredentials();
             builder.WithHeaders("Content-type");
-            builder.WithMethods("GET", "POST", "OPTIONS");
+            builder.WithMethods("GET", "POST", "DELETE", "OPTIONS");
         });
         //
 

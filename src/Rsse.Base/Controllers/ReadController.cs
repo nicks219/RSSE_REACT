@@ -20,6 +20,23 @@ public class ReadController : ControllerBase
         // _logger = _serviceScopeFactory.CreateScope().ServiceProvider.GetRequiredService<ILogger<ReadController>>();
     }
 
+    [HttpGet("title")]
+    public ActionResult GetTitleById(string id)
+    {
+        try
+        {
+            using var scope = _serviceScopeFactory.CreateScope();
+            var res = new ReadModel(scope).ReadSongTitleById(int.Parse(id));
+            return Ok(new{res});
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[ReadController: OnGetTitle Error]");
+            // return new SongDto() {ErrorMessageResponse = "[ReadController: OnGet Error]"};
+            return BadRequest("[ReadController: OnGetTitle Error]");
+        }
+    }
+
     [HttpGet]
     public async Task<ActionResult<SongDto>> OnGetGenreListAsync()
     {
@@ -48,6 +65,12 @@ public class ReadController : ControllerBase
         // HttpContext.Response.Headers.Add("Access-Control-Allow-Credentials", "true");
         // HttpContext.Response.Headers.Add("Access-Control-Allow-Methods", "POST");
 
+        // пучтые чекбоксы равнозначны запросу "всех жанров"
+        if (dto.SongGenres?.Count == 0)
+        {
+            dto.SongGenres = Enumerable.Range(1, 44).ToList();
+        }
+        
         try
         {
             using var scope = _serviceScopeFactory.CreateScope();

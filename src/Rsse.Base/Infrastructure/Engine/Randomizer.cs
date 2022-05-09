@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RandomSongSearchEngine.Data.Repository.Contracts;
 
-namespace RandomSongSearchEngine.Infrastructure.Services;
+namespace RandomSongSearchEngine.Infrastructure.Engine;
 
 public static class Randomizer
 {
     private static readonly Random Random = new Random();
 
     // Возвращает Id случайно выбранной песни из заданных категорий
-    public static async Task<int> ReadRandomIdAsync(this IRepository repo, List<int> songGenresRequest)
+    public static async Task<int> ReadRandomIdAsync(this IDataRepository repo, List<int> songGenresRequest)
     {
         int[] checkedGenres = songGenresRequest.ToArray();
         int howManySongs = await repo.SelectAllSongsInGenres(checkedGenres).CountAsync();

@@ -11,6 +11,10 @@ interface IProps {
 class CatalogView extends React.Component<IProps, IState> {
     url: string;
     mounted: boolean;
+    logoutUrl: string;
+    corsAddress: string;
+
+    private credos: "omit" | "same-origin" | "include";
 
     public state: IState = {
     data: null
@@ -20,6 +24,10 @@ class CatalogView extends React.Component<IProps, IState> {
         super(props);
         this.url = "/api/catalog";
         this.mounted = true;
+        // TODO: вынеси logout и credos в Loader или меню
+        this.corsAddress = "http://localhost:5000";
+        this.logoutUrl = this.corsAddress + "/account/logout";
+        this.credos = "include";
     }
 
     componentWillUnmount() {
@@ -29,7 +37,7 @@ class CatalogView extends React.Component<IProps, IState> {
     componentDidMount() {
         Loader.getDataById(this, 1, this.url);
     }
-
+    
     click = (e: any) => {
         e.preventDefault();
         var target = Number(e.target.id.slice(7));
@@ -39,6 +47,15 @@ class CatalogView extends React.Component<IProps, IState> {
         };
         var requestBody = JSON.stringify(item);
         Loader.postData(this, requestBody, this.url);
+    }
+    
+    logout = (e: any) => {
+        e.preventDefault();
+        document.cookie = 'rsse_auth = false';
+        // TODO: вынеси в Loader или меню
+        window.fetch(this.logoutUrl/*,
+            { credentials: this.credos }*/)
+            .then(response => response.ok ? console.log("Logout Ok") : console.log("Logout Err"));
     }
 
     redirect = (e: any) => {
@@ -94,6 +111,10 @@ class CatalogView extends React.Component<IProps, IState> {
                                     &nbsp;
                                     <button id="js-nav-2" className="btn btn-info" onClick={this.click}>
                                           Вперёд&gt;
+                                    </button>
+                                    &nbsp;
+                                    <button id="js-logout" className="btn btn-outline-light" onClick={this.logout}>
+                                        &lt;LogOut&gt;
                                     </button>
                                 </form>
                             </th>

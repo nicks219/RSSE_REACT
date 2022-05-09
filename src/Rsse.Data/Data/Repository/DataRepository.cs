@@ -7,13 +7,31 @@ using RandomSongSearchEngine.Data.Repository.Exceptions;
 
 namespace RandomSongSearchEngine.Data.Repository;
 
-public class RsseRepository : IRepository
+public class DataRepository : IDataRepository
 {
     private readonly RsseContext _context;
 
-    public RsseRepository(IServiceProvider serviceProvider)
+    public DataRepository(IServiceProvider serviceProvider)
     {
+        // контекст точно диспозится?
         _context = serviceProvider.GetRequiredService<RsseContext>();
+    }
+    
+    public IQueryable<string> ReadAllSongs()
+    {
+        var songs = _context.Text!
+            .Select(s => string.Concat(s.TextId, " '", s.Title!, "' '", s.Song!,"'"))
+            .AsNoTracking();
+        
+        return songs;
+    }
+
+    public string ReadSongTitleById(int id)
+    {
+        var textEntity = _context.Text!
+            .First(s => s.TextId == id);
+
+        return textEntity.Title!;
     }
 
     public IQueryable<int> SelectAllSongsInGenres(int[] checkedGenres)

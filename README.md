@@ -1,5 +1,9 @@
 # Random Song Search Engine 
 * Ветка [DOTNET-1] : рефакторинг   
+* Ветка [DOTNET-2] : добавлен нечеткий тестковый поиск  
+  ```bash
+  /api/find/{string} вернет json {res: [id, weight]}
+  ```  
   Цель: gRpc сервис и CI/CD конвейер
 # Технологии
 * ```bash

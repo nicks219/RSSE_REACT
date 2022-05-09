@@ -6,10 +6,10 @@ public record SongDto
 {
     // request
     [JsonPropertyName("checkedCheckboxesJs")]
-    public List<int>? SongGenres { get; init; }
+    public List<int>? SongGenres { get; set; }
 
     [JsonPropertyName("titleJs")] 
-    public string? Title { get; init; }
+    public string? Title { get; set; }
 
     [JsonPropertyName("textJs")] 
     public string? Text { get; init; }

@@ -85,10 +85,18 @@ export class Login extends React.Component<IProps, IState> {
 
         window.fetch(this.url + "?email=" + String(email) + "&password=" + String(password), 
             { credentials: this.credos })
-            .then(response => response.ok ? this.loginOk() : console.log("Login error"));
+            .then(response => response.ok ? this.loginOk() : this.loginErr());
+    }
+    
+    loginErr = () => {
+        // установим локальные куки
+        document.cookie = 'rsse_auth = false';
+        console.log("Login error");
     }
 
     loginOk = () => {
+        // установим локальные куки
+        document.cookie = 'rsse_auth = true';
         console.log("Login ok");
         this.setState({ style: "submitStyleGreen" });
         LoginRequired.ContinueLoading();

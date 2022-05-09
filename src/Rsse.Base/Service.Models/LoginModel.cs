@@ -25,7 +25,7 @@ public class LoginModel
                 return null;
             }
 
-            await using var repo = _scope.ServiceProvider.GetRequiredService<IRepository>();
+            await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
             UserEntity user = await repo.GetUser(login);
             if (user == null)
             {

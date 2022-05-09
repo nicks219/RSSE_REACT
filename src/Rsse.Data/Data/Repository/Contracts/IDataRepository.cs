@@ -2,8 +2,12 @@
 
 namespace RandomSongSearchEngine.Data.Repository.Contracts
 {
-    public interface IRepository : IAsyncDisposable, IDisposable
+    public interface IDataRepository : IAsyncDisposable, IDisposable
     {
+        public IQueryable<string> ReadAllSongs();
+        public string ReadSongTitleById(int id);
+        
+        // async
         Task<int> CreateSongAsync(SongDto dt);
         IQueryable<Tuple<string, string>> ReadSong(int textId);
         Task UpdateSongAsync(List<int> originalCheckboxes, SongDto dt);
