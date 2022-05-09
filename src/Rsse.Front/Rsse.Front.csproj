@@ -26,6 +26,10 @@
     </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <TypeScriptCompile Include="ClientApp\src\jsx\loader.tsx" />
+    </ItemGroup>
+
     <!-- 
     разберись, какая роль Include
     <ItemGroup>

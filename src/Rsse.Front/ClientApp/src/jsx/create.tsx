@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Loader } from "./loader.jsx";
+import { Loader } from "./loader";
 
 interface IState {
     data: any;
@@ -156,29 +156,34 @@ class SubmitButton extends React.Component<IProps> {
     //
     state: any;
     btn: any;
+
+    private credos: "omit" | "same-origin" | "include";
     
     constructor(props: any) {
         super(props);
         this.submit = this.submit.bind(this);
         this.url = "/api/create";
+        this.state = 0;
+        
         // TODO: вынеси в Loader или меню
-        this.corsAddress = "http://localhost:5000";
+        this.credos = Loader.credos; // "include"; // or "same-origin"
+        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
+        
         this.findUrl = this.corsAddress + "/api/find";
         this.readUrl = this.corsAddress + "/api/read/title";
-        this.state = 0;
     }
 
     cancel = (e: any) => {
         e.preventDefault();
         this.btn.style.display = "none";
         
-        // костыль чтоб получить [Already Exists] - нужна существующая песня
+        // TODO: костыль чтоб получить [Already Exists] - нужна существующая песня, поправь
         this.requestBody = JSON.stringify({
             "CheckedCheckboxesJS":[1],
             "TextJS":"Stub",
             "TitleJS":"Nirvana - In Bloom" // 
             });
-        //"Nirvana - In Bloom";
+        // "Nirvana - In Bloom";
         Loader.postData(this.props.listener, this.requestBody, this.url);
     }
     
@@ -230,20 +235,21 @@ class SubmitButton extends React.Component<IProps> {
     
     finder = async (formMessage: string | File | null, formTitle: string | File | null) => {
         let promise;
-        
+
         if (typeof formMessage === "string") {
-            formMessage =  formMessage.replace(/\r\n|\r|\n/g, " ");
+            formMessage = formMessage.replace(/\r\n|\r|\n/g, " ");
         }
-        
+
+        // TODO: вынеси в Loader или меню 
         try {
             promise = window.fetch(this.findUrl + "?text=" + formMessage + " " + formTitle
-                /*,{ credentials: this.credos }*/)
+                , {credentials: this.credos})
                 .then(response => response.ok ? response.json() : Promise.reject(response))
                 .then(data => this.checkScanResult(data));
         } catch (err) {
             console.log("Find when create: try-catch err");
         }
-        
+
         await promise;
     }
     
@@ -275,11 +281,12 @@ class SubmitButton extends React.Component<IProps> {
 
             let i = String(result[ind][0]);
 
-            // TODO: вынеси в Loader или меню - получаем имена возможных совпадений
+            // TODO: вынеси в Loader или меню 
+            //  получаем имена возможных совпадений
             var promise;
             try {
-                promise = window.fetch(this.readUrl + "?id=" + i/*,
-            { credentials: this.credos }*/)
+                promise = window.fetch(this.readUrl + "?id=" + i,
+                    {credentials: this.credos})
                     .then(response => response.ok ? response.json() : Promise.reject(response))
                     .then(data => this.getTitle(data));
             } catch (err) {

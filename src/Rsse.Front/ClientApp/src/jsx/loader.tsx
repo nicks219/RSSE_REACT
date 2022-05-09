@@ -1,23 +1,24 @@
 ﻿import { LoginRequired } from "./login";//
 
 export class Loader {
-    // при запуске отдельного фронта на nodejs [DOTNET-1], но должен быть настроен CORS
-    static credos = "include"; // or "same-origin"
-    static corsAddress = "http://localhost:5000";
-    
+    // "same-origin" (100% работает на хостинге) или "include" для запуска на nodejs
+    static readonly credos: "omit" | "same-origin" | "include" = "same-origin"; 
+    static readonly corsAddress: string = ""; // "http://localhost:5000"; для запуска на nodejs
+
     //GET request: /api/controller
-    static getData(component, url) {
+    static getData(component: any, url: any) {
         LoginRequired.MessageOff();
-        
+
         url = this.corsAddress + url;
-        
+
         try {
             window.fetch(url, {
-                //устанавливаем куки
                 credentials: this.credos
             })
                 .then(response => response.ok ? response.json() : Promise.reject(response))
-                .then(data => { if (component.mounted) component.setState({ data }) })
+                .then(data => {
+                    if (component.mounted) component.setState({data})
+                })
                 .catch((e) => LoginRequired.MessageOn(component));//
         } catch (err) {
             console.log("Loader try-catch: 1");
@@ -25,7 +26,7 @@ export class Loader {
     }
 
     //GET request: /api/controller?id=
-    static getDataById(component, requestId, url) {
+    static getDataById(component: any, requestId: any, url: any) {
         LoginRequired.MessageOff();
         
         url = this.corsAddress + url;
@@ -44,7 +45,7 @@ export class Loader {
     }
 
     //POST request: /api/controller
-    static postData(component, requestBody, url) {
+    static postData(component: any, requestBody: any, url: any) {
         // ПРОБЛЕМА: при пустых areChecked чекбоксах внешний вид компонента <Сheckboxes> не менялся (после "ошибки" POST)
         // при этом все данные были  правильные и рендеринг/обновление проходили успешно (в компоненте <UpdateView>)
         // РЕШЕНИЕ: уникальный key <Checkbox key={"checkbox " + i + this.state.time} ...>
@@ -69,7 +70,7 @@ export class Loader {
     }
 
     //DELETE request: /api/controller?id=
-    static deleteDataById(component, requestId, url, pageNumber) {
+    static deleteDataById(component: any, requestId: any, url: any, pageNumber: any) {
         LoginRequired.MessageOff();
         
         url = this.corsAddress + url;

@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Loader } from "./loader.jsx";
+import { Loader } from "./loader";
 
 interface IState {
     data: any;

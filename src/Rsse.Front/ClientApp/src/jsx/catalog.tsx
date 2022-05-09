@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Loader } from "./loader.jsx";
+import { Loader } from "./loader";
 
 interface IState {
     data: any;
@@ -24,10 +24,11 @@ class CatalogView extends React.Component<IProps, IState> {
         super(props);
         this.url = "/api/catalog";
         this.mounted = true;
+        
         // TODO: вынеси logout и credos в Loader или меню
-        this.corsAddress = "http://localhost:5000";
+        this.credos = Loader.credos; // "include"; // or "same-origin"
+        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
         this.logoutUrl = this.corsAddress + "/account/logout";
-        this.credos = "include";
     }
 
     componentWillUnmount() {
@@ -53,8 +54,8 @@ class CatalogView extends React.Component<IProps, IState> {
         e.preventDefault();
         document.cookie = 'rsse_auth = false';
         // TODO: вынеси в Loader или меню
-        window.fetch(this.logoutUrl/*,
-            { credentials: this.credos }*/)
+        window.fetch(this.logoutUrl,
+            {credentials: this.credos})
             .then(response => response.ok ? console.log("Logout Ok") : console.log("Logout Err"));
     }
 

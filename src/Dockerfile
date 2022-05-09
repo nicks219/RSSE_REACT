@@ -4,6 +4,7 @@ WORKDIR /app
 COPY ./Rsse.Base/ ./Rsse.Base/
 COPY ./Rsse.Data/ ./Rsse.Data/
 # скопируем билд фронта
+# TODO: предварительно необходимо запустить в папке хоста ./Rsse.Front/ClientApp/ команду npm run build
 COPY ./Rsse.Front/ClientApp/build/ ./Rsse.Base/ClientApp/build/
 
 WORKDIR /app/Rsse.Base

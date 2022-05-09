@@ -21,15 +21,20 @@ namespace RandomSongSearchEngine;
 public class Startup
 {
     private readonly IConfiguration _configuration;
+    private readonly IWebHostEnvironment _env;
     
-    public Startup(IConfiguration configuration)
+    public Startup(IConfiguration configuration, IWebHostEnvironment env)
     {
         _configuration = configuration;
+        _env = env;
     }
 
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddCors();
+        // if (_env.IsDevelopment())
+        {
+            services.AddCors();
+        }
 
         services.AddScoped<IDataRepository, DataRepository>();
 
@@ -66,7 +71,7 @@ public class Startup
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
     {
-        if (env.IsDevelopment())
+        if (_env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
             app.UseSwagger();
@@ -85,12 +90,15 @@ public class Startup
         app.UseRouting();
 
         // CORS: credentials: "include"
-        app.UseCors(builder =>
+        // if (_env.IsDevelopment())
         {
-            builder.WithOrigins("http://localhost:3000", "http://localhost:5000").AllowCredentials();
-            builder.WithHeaders("Content-type");
-            builder.WithMethods("GET", "POST", "DELETE", "OPTIONS");
-        });
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("http://localhost:3000", "http://localhost:5000", "http://188.120.235.243:5000").AllowCredentials();
+                builder.WithHeaders("Content-type");
+                builder.WithMethods("GET", "POST", "DELETE", "OPTIONS");
+            });
+        }
         //
 
         app.UseAuthentication();

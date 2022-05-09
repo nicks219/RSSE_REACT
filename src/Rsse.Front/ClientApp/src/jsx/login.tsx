@@ -1,7 +1,7 @@
 ﻿import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import { Loader } from "./loader.jsx";
+import { Loader } from "./loader";
 
 interface IState {
     style: any;
@@ -64,12 +64,11 @@ export class Login extends React.Component<IProps, IState> {
         super(props);
         this.submit = this.submit.bind(this);
         this.url = "/account/login";
-        
-        // при запуске отдельного фронта на nodejs [DOTNET-1]
-        this.credos = "include"; // or "same-origin"
-        this.corsAddress = "http://localhost:5000";
-        this.url = this.corsAddress + this.url; // но должен быть настроен CORS
-        //
+
+        // TODO: вынеси в Loader или меню 
+        this.credos = Loader.credos; // "include"; // or "same-origin"
+        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
+        this.url = this.corsAddress + this.url;
         
         (document.getElementById("login")as HTMLElement).style.display = "block";
     }
@@ -83,8 +82,8 @@ export class Login extends React.Component<IProps, IState> {
         if (emailElement) email = emailElement.value;
         if (passwordElement) password = passwordElement.value;
 
-        window.fetch(this.url + "?email=" + String(email) + "&password=" + String(password), 
-            { credentials: this.credos })
+        window.fetch(this.url + "?email=" + String(email) + "&password=" + String(password),
+            {credentials: this.credos})
             .then(response => response.ok ? this.loginOk() : this.loginErr());
     }
     
