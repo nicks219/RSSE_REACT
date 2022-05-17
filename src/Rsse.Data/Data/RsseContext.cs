@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Reflection;
+using System.Resources;
+using Microsoft.EntityFrameworkCore;
 using RandomSongSearchEngine.Data.Repository;
 
 namespace RandomSongSearchEngine.Data;
@@ -8,25 +10,45 @@ namespace RandomSongSearchEngine.Data;
 /// </summary>
 public sealed class RsseContext : DbContext
 {
+    private readonly object _obj = new();
+    private static bool _init;
+    
     /// <summary>
     /// Конфигурируем контекст базы данных
     /// </summary>
     /// <param name="option"></param>
     public RsseContext(DbContextOptions<RsseContext> option) : base(option)
     {
-        var res = Database.EnsureCreated();
-        //в SqlScripts удаляю индекс для GenreText таблицы
-        switch (Database.ProviderName)
+        // const string relativePath = "Dump/rsse-5-4.dump";
+        // var path = Path.Combine(AppContext.BaseDirectory, relativePath);
+        // var sql = File.ReadAllText(path);
+
+        // в SqlScripts удаляю индекс для GenreText таблицы
+        if (_init)
         {
-            case "Pomelo.EntityFrameworkCore.MySql":
-                if (res) Database.ExecuteSqlRaw(MySqlScripts.CreateGenresScript);
-                break;
-            case "Microsoft.EntityFrameworkCore.SqlServer":
-                if (res) Database.ExecuteSqlRaw(MsSqlScripts.CreateGenresScript);
-                break;
-            default:
-                //"Microsoft.EntityFrameworkCore.InMemory" например
-                break;
+            return;
+        }
+
+        lock (_obj)
+        {
+            _init = true;
+            
+            var res = Database.EnsureCreated();
+            
+            switch (Database.ProviderName)
+            {
+                case "Pomelo.EntityFrameworkCore.MySql":
+                    if (res) Database.ExecuteSqlRaw(MySqlScripts.CreateGenresScript);
+                    break;
+                
+                case "Microsoft.EntityFrameworkCore.SqlServer":
+                    if (res) Database.ExecuteSqlRaw(MsSqlScripts.CreateGenresScript);
+                    break;
+                
+                default:
+                    //"Microsoft.EntityFrameworkCore.InMemory" например
+                    break;
+            }
         }
     }
 

@@ -164,8 +164,8 @@ class SubmitButton extends React.Component<IProps> {
         this.submit = this.submit.bind(this);
         this.url = "/api/create";
         this.state = 0;
-        
-        // TODO: вынеси в Loader или меню
+
+        // TODO: вынеси в Loader: finder и checkScanResult([query], credos, callback) (await на promise)
         this.credos = Loader.credos; // "include"; // or "same-origin"
         this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
         
@@ -215,8 +215,7 @@ class SubmitButton extends React.Component<IProps> {
             TitleJS: formTitle
         };
         this.requestBody = JSON.stringify(item);
-
-        // TODO: вынеси в Loader или меню
+        
         this.storage = [];
         var promise = this.finder(formMessage, formTitle);
         await promise;
@@ -239,9 +238,9 @@ class SubmitButton extends React.Component<IProps> {
         if (typeof formMessage === "string") {
             formMessage = formMessage.replace(/\r\n|\r|\n/g, " ");
         }
-
-        // TODO: вынеси в Loader или меню 
+        
         try {
+            
             promise = window.fetch(this.findUrl + "?text=" + formMessage + " " + formTitle
                 , {credentials: this.credos})
                 .then(response => response.ok ? response.json() : Promise.reject(response))
@@ -280,11 +279,11 @@ class SubmitButton extends React.Component<IProps> {
             }
 
             let i = String(result[ind][0]);
-
-            // TODO: вынеси в Loader или меню 
+            
             //  получаем имена возможных совпадений
             var promise;
             try {
+                
                 promise = window.fetch(this.readUrl + "?id=" + i,
                     {credentials: this.credos})
                     .then(response => response.ok ? response.json() : Promise.reject(response))

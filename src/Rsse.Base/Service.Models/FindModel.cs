@@ -12,7 +12,7 @@ public class FindModel
     private readonly ILogger<FindModel> _logger;
     private readonly ConcurrentDictionary<int, List<int>> _undefinedCache;
     private readonly ConcurrentDictionary<int, List<int>> _definedCache;
-    private object _obj = new();
+    private readonly object _obj = new();
 
     public FindModel(IServiceScope scope)
     {
@@ -25,10 +25,11 @@ public class FindModel
     // TODO: сделать индекс, зависящий от количества слов в источнике и сортировку ответов по индексу
     public Dictionary<int, double> Find(string text)
     {
-        if (_undefinedCache.Count == 0)
+        /*if (_undefinedCache.IsEmpty)
         {
-            CreateCaches();
+            InitializeCaches();
         }
+        */
 
         var result = new Dictionary<int, double>();
 
@@ -36,13 +37,13 @@ public class FindModel
         const double defined = 0.8D;
         // II. undefined поиск: 0.4D
         const double undefined = 0.6D; // 0.6 .. 0.75
-        
+
         var undefinedSearch = true;
-        
+
         var processor = _scope.ServiceProvider.GetRequiredService<ITextProcessor>();
-        
+
         processor.Setup(ConsonantChain.Defined);
-        
+
         var hash = processor.CleanUpString(text);
 
         if (hash.Count == 0)
@@ -50,7 +51,7 @@ public class FindModel
             // песни вида "123 456" не ищем, так как "найдёт" весь каталог
             return result;
         }
-        
+
         var item = processor.GetHashSetFromStrings(hash);
 
         foreach (var (key, value) in _definedCache)
@@ -64,6 +65,7 @@ public class FindModel
                 result.Add(key, metric * (1000 / value.Count));
                 continue;
             }
+
             // II. defined% совпадение
             if (metric >= item.Count * defined)
             {
@@ -75,11 +77,11 @@ public class FindModel
         {
             return result;
         }
-        
+
         processor.Setup(ConsonantChain.Undefined);
-        
+
         hash = processor.CleanUpString(text);
-        
+
         item = processor.GetHashSetFromStrings(hash);
         // убираем дубликаты слов для intersect - это меняет результаты поиска
         item = item.ToHashSet().ToList();
@@ -94,17 +96,18 @@ public class FindModel
                 result.TryAdd(key, metric * (10 / value.Count));
                 continue;
             }
+
             // IV. undefined% совпадение
             if (metric >= item.Count * undefined)
             {
                 result.TryAdd(key, metric * (1 / value.Count));
             }
         }
-        
+
         return result;
     }
 
-    private void CreateCaches()
+    /*private void InitializeCaches()
     {
         using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         var processor = _scope.ServiceProvider.GetRequiredService<ITextProcessor>();
@@ -153,6 +156,5 @@ public class FindModel
             {
                 _logger.LogError(ex, "[FindModel: OnGet Error]");
             }
-        }
-    }
+        }*/
 }

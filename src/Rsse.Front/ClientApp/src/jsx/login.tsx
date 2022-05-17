@@ -65,7 +65,8 @@ export class Login extends React.Component<IProps, IState> {
         this.submit = this.submit.bind(this);
         this.url = "/account/login";
 
-        // TODO: вынеси в Loader или меню 
+        // TODO: вынеси в Loader fetch submit: get([query], credos, callback)
+        Loader.isEnv(); // по идее этот метод уже должен быть вызван минимум один раз при загрузке главной
         this.credos = Loader.credos; // "include"; // or "same-origin"
         this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
         this.url = this.corsAddress + this.url;

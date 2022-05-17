@@ -61,8 +61,10 @@ public sealed class TextProcessor : ITextProcessor
         // попробую стрингбилдер
         var stringBuilder = new StringBuilder(sentence.ToLower());
 
+        // replaces
         stringBuilder = stringBuilder.Replace((char)13, ' '); // @"\r"
         stringBuilder = stringBuilder.Replace((char)10, ' '); // @"\n"
+        stringBuilder = stringBuilder.Replace('ё', 'е');
 
         var words = stringBuilder.ToString().Split(" ");
 

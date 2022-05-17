@@ -32,19 +32,64 @@ public class FindController : ControllerBase
             var model = new FindModel(scope);
             var result = model.Find(text);
 
-            if (result.Count == 0)
+            switch (result.Count)
             {
-                return Ok(new{});
+                case 0:
+                    return Ok(new{});
+                
+                // нулевой вес не стоит учитывать если результатов много
+                case > 10:
+                    result = result
+                        .Where(kv => kv.Value > 0)
+                        .ToDictionary(x => x.Key, x => x.Value);
+                    break;
             }
 
-            // нулевой вес не стоит учитывать если результатов много
-            if (result.Count > 10)
+            result = result
+                .OrderByDescending(x => x.Value)
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            var resp = new OkObjectResult(new{Res = result});
+
+            return resp;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[FindController: OnGet Error - Search Indices May Failed !]");
+            return new BadRequestObjectResult("[FindController: OnGet Error - Search Indices May Failed !]");
+        }
+    }
+    
+    // TODO: тестовый контроллер
+    [HttpGet("async")]
+    public async Task<ActionResult> FindAsync(string text)
+    {
+        await Task.Delay(1);
+        
+        if (string.IsNullOrEmpty(text))
+        {
+            return Ok(new{});
+        }
+        
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var model = new FindModel(scope);
+            var result = model.Find(text);
+
+            switch (result.Count)
             {
-                result = result
-                    .Where(kv => kv.Value > 0)
-                    .ToDictionary(x => x.Key, x => x.Value);
+                case 0:
+                    return Ok(new{});
+                
+                // нулевой вес не стоит учитывать если результатов много
+                case > 10:
+                    result = result
+                        .Where(kv => kv.Value > 0)
+                        .ToDictionary(x => x.Key, x => x.Value);
+                    break;
             }
-            
+
             result = result
                 .OrderByDescending(x => x.Value)
                 .ToDictionary(x => x.Key, x => x.Value);

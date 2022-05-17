@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using RandomSongSearchEngine.Data.Repository.Contracts;
 using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
 using RandomSongSearchEngine.Infrastructure.Engine;
 using RandomSongSearchEngine.Infrastructure.Engine.Contracts;
@@ -11,17 +12,20 @@ public class CacheRepository : ICacheRepository
     // ConcurrentDicitionary - правильно ли я его использую?
     // TODO: в FindModel используй методы данного класса для CreateCaches
     // TODO: замени исключения на логгирование
-    // TODO: в случае ошибок в этом репозитории надо пересоздавать кэш под блокировкой (лови MethodAccessException)
+    // TODO: в случае ошибок в этом репозитории надо пересоздавать кэш под блокировкой, будет актуализированный по подам кэш, а не кидать эксепшны
     // TODO: docker restart: always
     private readonly IServiceScopeFactory _factory;
     private readonly  ConcurrentDictionary<int, List<int>> _undefinedCache;
     private readonly  ConcurrentDictionary<int, List<int>> _definedCache;
+    private readonly object _obj = new();
 
     public CacheRepository(IServiceScopeFactory factory)
     {
         _factory = factory;
         _undefinedCache = new ConcurrentDictionary<int, List<int>>();
         _definedCache = new ConcurrentDictionary<int, List<int>>();
+        
+        InitializeCaches();
     }
     
     public ConcurrentDictionary<int, List<int>> GetUndefinedCache()
@@ -125,6 +129,65 @@ public class CacheRepository : ICacheRepository
         else
         {
             throw new MethodAccessException("[ConcurrentCacheUpdate: defined failed on stage 1]");
+        }
+    }
+    
+    private void InitializeCaches()
+    {
+        using var scope = _factory.CreateScope();
+        using var repo = scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        var processor = scope.ServiceProvider.GetRequiredService<ITextProcessor>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<CacheRepository>>();
+
+        // TODO: стоит ли создавать индекс под блокировкой?
+        lock (_obj)
+        {
+            if (!_undefinedCache.IsEmpty)
+            {
+                throw new Exception("[Cache Repository: serial initialization]");
+            }
+            
+            try
+            {
+                var texts = repo.ReadAllSongs();
+
+                foreach (var text in texts)
+                {
+                    // undefined hash
+                    processor.Setup(ConsonantChain.Undefined);
+
+                    var song = processor.ConvertStringToText(text);
+
+                    song.Title.ForEach(t => song.Words.Add(t));
+
+                    var undefinedHash = processor.GetHashSetFromStrings(song.Words); // название - в конце списка
+
+                    if (!_undefinedCache.TryAdd(song.Number, undefinedHash))
+                    {
+                        throw new MethodAccessException("[FindModel Create Caches: undefined failed]");
+                    }
+
+                    // defined hash
+                    processor.Setup(ConsonantChain.Defined);
+
+                    song = processor.ConvertStringToText(text);
+
+                    song.Title.ForEach(t => song.Words.Add(t));
+
+                    var definedHash = processor.GetHashSetFromStrings(song.Words);
+
+                    if (!_definedCache.TryAdd(song.Number, definedHash))
+                    {
+                        throw new MethodAccessException("[FindModel Create Caches: defined failed]");
+                    }
+                }
+
+                GC.Collect();
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "[FindModel: OnGet Error]");
+            }
         }
     }
 }

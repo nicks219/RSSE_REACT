@@ -94,8 +94,15 @@ public class Startup
         {
             app.UseCors(builder =>
             {
-                builder.WithOrigins("http://localhost:3000", "http://localhost:5000", "http://188.120.235.243:5000").AllowCredentials();
+                builder.WithOrigins(
+                        // основное для локальной разработки
+                        "http://localhost:3000",
+                        "http://127.0.0.1:3000",
+                        // прод вроде same-origin сделал
+                        "http://188.120.235.243:5000")
+                    .AllowCredentials();
                 builder.WithHeaders("Content-type");
+                //builder.AllowAnyHeader();
                 builder.WithMethods("GET", "POST", "DELETE", "OPTIONS");
             });
         }
