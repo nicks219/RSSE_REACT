@@ -28,6 +28,7 @@ public class FindController : ControllerBase
             using var scope = _scopeFactory.CreateScope();
             var model = new FindModel(scope);
             var result = model.Find(text);
+            const double threshold = 0.1D; // было 0 int
 
             switch (result.Count)
             {
@@ -37,7 +38,7 @@ public class FindController : ControllerBase
                 // нулевой вес не стоит учитывать если результатов много
                 case > 10:
                     result = result
-                        .Where(kv => kv.Value > 0)
+                        .Where(kv => kv.Value > threshold)
                         .ToDictionary(x => x.Key, x => x.Value);
                     break;
             }
@@ -73,6 +74,7 @@ public class FindController : ControllerBase
             using var scope = _scopeFactory.CreateScope();
             var model = new FindModel(scope);
             var result = model.Find(text);
+            const double threshold = 0.1D; // было 0 int
 
             switch (result.Count)
             {
@@ -82,7 +84,7 @@ public class FindController : ControllerBase
                 // нулевой вес не стоит учитывать если результатов много
                 case > 10:
                     result = result
-                        .Where(kv => kv.Value > 0)
+                        .Where(kv => kv.Value > threshold)
                         .ToDictionary(x => x.Key, x => x.Value);
                     break;
             }

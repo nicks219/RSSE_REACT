@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Loader } from "./loader";
+import {Loader} from "./loader";
 
 interface IState {
     data: any;
@@ -20,7 +20,7 @@ class CreateView extends React.Component<IState> {
 
     public state: IState = {
         data: null,
-        time: null//?????получи реальное время иначе key отвалятся
+        time: null // получи реальное время иначе key отвалятся
     }
 
     mainForm: React.RefObject<HTMLFormElement>;
@@ -44,16 +44,16 @@ class CreateView extends React.Component<IState> {
     }
 
     componentDidUpdate() {
-        var id = 0;
+        let id = 0;
         if (this.state.data) id = Number(this.state.data.savedTextId);
         if (id !== 0) window.textId = id;
     }
 
     render() {
-        var checkboxes = [];
+        let checkboxes = [];
         if (this.state.data != null && this.state.data.genresNamesCS != null) {
-            for (var i = 0; i < this.state.data.genresNamesCS.length; i++) {
-                checkboxes.push(<Checkbox key={`checkbox ${i}${this.state.time}`} id={i} jsonStorage={this.state.data} listener formId/>);
+            for (let i = 0; i < this.state.data.genresNamesCS.length; i++) {
+                checkboxes.push(<Checkbox key={`checkbox ${i}${this.state.time}`} id={i} jsonStorage={this.state.data} listener={null} formId={null}/>);
             }
         }
 
@@ -69,11 +69,11 @@ class CreateView extends React.Component<IState> {
                     id="dizzy">
                     {checkboxes}
                     {this.state.data != null &&
-                        <SubmitButton listener={this} formId={this.formId} id jsonStorage/>
+                        <SubmitButton listener={this} formId={this.formId} id={null} jsonStorage={null}/>
                     }
                 </form>
                 {this.state.data != null &&
-                    <Message formId={this.formId} jsonStorage={jsonStorage} listener id/>
+                    <Message formId={this.formId} jsonStorage={jsonStorage} listener={null} id={null}/>
                 }
             </div>
         );
@@ -83,8 +83,10 @@ class CreateView extends React.Component<IState> {
 class Checkbox extends React.Component<IProps> {
 
     render() {
-        var checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked" ? true : false;
-        var getGenreName = (i: number) => { return this.props.jsonStorage.genresNamesCS[i]; };
+        let checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked";
+        let getGenreName = (i: number) => {
+            return this.props.jsonStorage.genresNamesCS[i];
+        };
         return (
             <div id="checkboxStyle">
                 <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id} className="regular-checkbox"
@@ -95,32 +97,14 @@ class Checkbox extends React.Component<IProps> {
     }
 }
 
-class CheckboxBts extends React.Component<IProps> {
-
-    render() {
-        var checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked" ? true : false;
-        var getGenreName = (i: number) => { return this.props.jsonStorage.genresNamesCS[i]; };
-        return (
-            //нужен site.css
-            <label className="checkbox-btn">
-                    <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id}
-                    defaultChecked = { checked } />
-                    <span style={{ lineHeight: 30 + 'px' }}>{getGenreName(this.props.id)}</span>
-            </label>
-        );
-    }
-}
-
 class Message extends React.Component<IProps> {
     inputText = (e: any) => {
-        const newText = e.target.value;
-        this.props.jsonStorage.textCS = newText;
+        this.props.jsonStorage.textCS = e.target.value;
         this.forceUpdate();
     }
 
     inputTitle = (e: any) => {
-        const newText = e.target.value;
-        this.props.jsonStorage.titleCS = newText;
+        this.props.jsonStorage.titleCS = e.target.value;
         this.forceUpdate();
     }
 
@@ -165,9 +149,9 @@ class SubmitButton extends React.Component<IProps> {
         this.url = "/api/create";
         this.state = 0;
 
-        // TODO: вынеси в Loader: finder и checkScanResult([query], credos, callback) (await на promise)
-        this.credos = Loader.credos; // "include"; // or "same-origin"
-        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
+        // [TODO]: вынеси в Loader: finder и checkScanResult([query], credos, callback) (await на promise)
+        this.credos = Loader.credos;
+        this.corsAddress = Loader.corsAddress;
         
         this.findUrl = this.corsAddress + "/api/find";
         this.readUrl = this.corsAddress + "/api/read/title";
@@ -204,11 +188,11 @@ class SubmitButton extends React.Component<IProps> {
             Loader.postData(this.props.listener, this.requestBody, this.url);
             return;
         }
-        
-        var formData = new FormData(this.props.formId);
-        var checkboxesArray = (formData.getAll('chkButton')).map(a => Number(a) + 1);
-        var formMessage = formData.get('msg');
-        var formTitle = formData.get('ttl');
+
+        let formData = new FormData(this.props.formId);
+        let checkboxesArray = (formData.getAll('chkButton')).map(a => Number(a) + 1);
+        let formMessage = formData.get('msg');
+        let formTitle = formData.get('ttl');
         const item = {
             CheckedCheckboxesJS: checkboxesArray,
             TextJS: formMessage,
@@ -217,7 +201,7 @@ class SubmitButton extends React.Component<IProps> {
         this.requestBody = JSON.stringify(item);
         
         this.storage = [];
-        var promise = this.finder(formMessage, formTitle);
+        let promise = this.finder(formMessage, formTitle);
         await promise;
         
         if (this.storage.length > 0)
@@ -259,7 +243,7 @@ class SubmitButton extends React.Component<IProps> {
             return;
         }
 
-        var array = Object.keys(response).map((key) => [Number(key), response[key]]);
+        let array = Object.keys(response).map((key) => [Number(key), response[key]]);
         array.sort(function (a, b) {
             return b[1] - a[1]
         });
@@ -281,7 +265,7 @@ class SubmitButton extends React.Component<IProps> {
             let i = String(result[ind][0]);
             
             //  получаем имена возможных совпадений
-            var promise;
+            let promise;
             try {
                 
                 promise = window.fetch(this.readUrl + "?id=" + i,
@@ -302,7 +286,7 @@ class SubmitButton extends React.Component<IProps> {
         let time = String(Date.now());
         // stub
         data = {
-            "genresNamesCS": this.storage,//this.props.listener.state.data.genresNamesCS, 
+            "genresNamesCS": this.storage, // this.props.listener.state.data.genresNamesCS, 
             "isGenreCheckedCS": [], 
             "textCS": JSON.parse(this.requestBody).TextJS
         };
@@ -328,3 +312,23 @@ class SubmitButton extends React.Component<IProps> {
 }
 
 export default CreateView;
+
+/*
+class CheckboxBts extends React.Component<IProps> {
+
+    render() {
+        let checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked";
+        let getGenreName = (i: number) => {
+            return this.props.jsonStorage.genresNamesCS[i];
+        };
+        return (
+            // нужен site.css
+            <label className="checkbox-btn">
+                <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id}
+                       defaultChecked = { checked } />
+                <span style={{ lineHeight: 30 + 'px' }}>{getGenreName(this.props.id)}</span>
+            </label>
+        );
+    }
+}
+*/

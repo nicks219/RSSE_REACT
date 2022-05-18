@@ -46,13 +46,13 @@ export default class Menu extends React.Component<IProps, IState> {
     }
 
     select(e: any) {
-        var target = Number(e.currentTarget.getAttribute('id').slice(5));
-        //если меняем невыбранное
+        let target = Number(e.currentTarget.getAttribute('id').slice(5));
+        // если меняем не выбранное
         if (target === 1 && window.textId === 0) return;
 
         this.visibilityFlag.forEach((value, index) => this.visibilityFlag[index] = false);
         this.visibilityFlag[target] = !this.visibilityFlag[target];
-        this.forceUpdate();//this.setState(this.state)
+        this.forceUpdate(); // this.setState(this.state)
     }
 
     handleClick(event: any) {
@@ -63,7 +63,7 @@ export default class Menu extends React.Component<IProps, IState> {
     componentDidUpdate() {
         if (this.state.id) this.setState({ id: null });
         if (!this.visibilityFlag[0]) {
-            //костыль, убирает кнопку "Поиск"
+            // костыль, убирает кнопку "Поиск"
             ReactDOM.render(
                 <div>
                 </div>,
@@ -73,7 +73,7 @@ export default class Menu extends React.Component<IProps, IState> {
     }
 
     render() {
-        //костыль - переключаемся из catalog на changeText
+        // костыль - переключаемся из catalog на changeText
         if (this.state.id) {
             this.visibilityFlag = [false, true, false, false];
             window.textId = this.state.id;
@@ -85,17 +85,17 @@ export default class Menu extends React.Component<IProps, IState> {
         this.buttons = [];
         for (let i = 0; i < 4; i++) {
             this.buttons.push(<button key={"menu " + i} onClick={this.select} id={"menu " + String(i)}
-                className={this.visibilityCss[i]}
-            //className="btn btn-info" style={{ margin: 10 + 'px' }}
+                                      className={this.visibilityCss[i]}
+                // className="btn btn-info" style={{ margin: 10 + 'px' }}
             >
                 {this.menu[i]}</button>);
         }
 
-        //+TODO: не отображать кнопку пока не загрузилось
-        //+TODO: менять цвет кнопки при выполнении POST запроса
-        //+TODO: зачем view={this.visibilityFlag[0]}
-        //TODO: список жанров точно один на всю сессию (кол-во песен в них будет отличаться) - зачем его грузить каждый раз?
-        //TODO: экран некрасиво мигает при переключении пунктов меню
+        // +TODO: не отображать кнопку пока не загрузилось
+        // +TODO: менять цвет кнопки при выполнении POST запроса
+        // +TODO: зачем view={this.visibilityFlag[0]}
+        // TODO: список жанров точно один на всю сессию (кол-во песен в них будет отличаться) - зачем его грузить каждый раз?
+        // TODO: экран некрасиво мигает при переключении пунктов меню
 
         return (
             <div>
@@ -103,25 +103,25 @@ export default class Menu extends React.Component<IProps, IState> {
                     {this.buttons}
                 </div>
                 {/*первый пункт меню*/}
-                {this.visibilityFlag[0] === true &&
+                {this.visibilityFlag[0] &&
                     <div id="renderContainer1">
                         <HomeView data />
                     </div>
                 }
                 {/*второй пункт меню*/}
-                {this.visibilityFlag[1] === true &&
+                {this.visibilityFlag[1] &&
                     <div id="renderContainer">
                         <UpdateView listener formId id jsonStorage />
                     </div>
                 }
                 {/*третий пункт меню*/}
-                {this.visibilityFlag[2] === true &&
+                {this.visibilityFlag[2] &&
                     <div id="renderContainer">
                         <CreateView data time />
                     </div>
                 }
                 {/*четвертый пункт меню*/}
-                {this.visibilityFlag[3] === true &&
+                {this.visibilityFlag[3] &&
                     <div id="renderContainer">
                         <CatalogView listener={this} />
                     </div>
@@ -132,6 +132,6 @@ export default class Menu extends React.Component<IProps, IState> {
 }
 
 ReactDOM.render(
-    <Login listener={this} formId jsonStorage id/>
+    <Login listener={this} formId={null} jsonStorage={null} id={null}/>
     , document.querySelector("#renderLoginForm")
 );

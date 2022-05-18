@@ -21,15 +21,19 @@ interface IProps {
 export class LoginRequired {
     // восстанавливаем данные (но не последнее действие), не полученные из-за ошибки авторизации
     static ContinueLoading() {
-        var component = window.temp;
+        let component = window.temp;
         if (component) {
             if (component.url === "/api/update") {
                 // Loader в случае ошибки вызовет MessageOn()
                 Loader.getDataById(component, window.textId, component.url);
-            } else {
+            } else if (component.url === "/api/catalog"){
+                Loader.getDataById(component, component.state.data.pageNumber, component.url);
+            }
+            else {
                 Loader.getData(component, component.url);
             }
         }
+        
         this.MessageOff();
     }
 
@@ -65,10 +69,10 @@ export class Login extends React.Component<IProps, IState> {
         this.submit = this.submit.bind(this);
         this.url = "/account/login";
 
-        // TODO: вынеси в Loader fetch submit: get([query], credos, callback)
-        Loader.isEnv(); // по идее этот метод уже должен быть вызван минимум один раз при загрузке главной
-        this.credos = Loader.credos; // "include"; // or "same-origin"
-        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
+        // [TODO]: вынеси в Loader fetch submit: get([query], credos, callback)
+        Loader.ifDevelopment(); // по идее этот метод уже должен быть вызван минимум один раз при загрузке главной
+        this.credos = Loader.credos;
+        this.corsAddress = Loader.corsAddress;
         this.url = this.corsAddress + this.url;
         
         (document.getElementById("login")as HTMLElement).style.display = "block";

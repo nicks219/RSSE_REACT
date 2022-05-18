@@ -25,9 +25,9 @@ class CatalogView extends React.Component<IProps, IState> {
         this.url = "/api/catalog";
         this.mounted = true;
         
-        // TODO: вынеси в Loader fetch logout: get(credos, callback)
-        this.credos = Loader.credos; // "include"; // or "same-origin"
-        this.corsAddress = Loader.corsAddress; // "http://localhost:5000";
+        // [TODO]: вынеси в Loader fetch logout: get(credos, callback)
+        this.credos = Loader.credos;
+        this.corsAddress = Loader.corsAddress;
         this.logoutUrl = this.corsAddress + "/account/logout";
     }
 
@@ -41,12 +41,12 @@ class CatalogView extends React.Component<IProps, IState> {
     
     click = (e: any) => {
         e.preventDefault();
-        var target = Number(e.target.id.slice(7));
+        let target = Number(e.target.id.slice(7));
         const item = {
             pageNumber: this.state.data.pageNumber,
             navigationButtons: [target]
         };
-        var requestBody = JSON.stringify(item);
+        let requestBody = JSON.stringify(item);
         Loader.postData(this, requestBody, this.url);
     }
     
@@ -61,20 +61,23 @@ class CatalogView extends React.Component<IProps, IState> {
 
     redirect = (e: any) => {
         e.preventDefault();
-        var id = Number(e.target.id);
+        let id = Number(e.target.id);
         this.props.listener.setState({ id: id });
     }
 
     delete = (e: any) => {
         e.preventDefault();
-        var id = Number(e.target.id);
+        let id = Number(e.target.id);
         console.log('You want to delete song with id: ' + id);
         Loader.deleteDataById(this, id, this.url, this.state.data.pageNumber);
     }
 
     render() {
-        if (!this.state.data) return null;
-        var songs = [];
+        if (!this.state.data) {
+            return null;
+        }
+        
+        let songs = [];
         for (let i = 0; i < this.state.data.titlesAndIds.length; i++) {
             songs.push(
                 <tr key={"song " + i} className="bg-warning">

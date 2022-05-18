@@ -33,7 +33,7 @@ export class HomeView extends React.Component<IState> {
     }
 
     componentDidMount() {
-        //[Obsolete] this.formId = ReactDOM.findDOMNode(this.refs.mainForm);
+        // [Obsolete] this.formId = ReactDOM.findDOMNode(this.refs.mainForm);
         this.formId = this.mainForm.current;
         Loader.getData(this, this.url);
     }
@@ -41,11 +41,11 @@ export class HomeView extends React.Component<IState> {
     componentDidUpdate() {
         ReactDOM.render(
             <div>
-                <SubmitButton listener={this} formId={this.formId} jsonStorage id/>
+                <SubmitButton listener={this} formId={this.formId} jsonStorage={null} id={null}/>
             </div>,
             document.querySelector("#searchButton1")
         );
-        //внешняя зависимость
+        // внешняя зависимость
         (document.getElementById("header")as HTMLElement).style.backgroundColor = "#e9ecee";//???
     }
 
@@ -54,10 +54,10 @@ export class HomeView extends React.Component<IState> {
     }
 
     render() {
-        var checkboxes = [];
+        let checkboxes = [];
         if (this.state.data != null) {
-            for (var i = 0; i < this.state.data.genresNamesCS.length; i++) {
-                checkboxes.push(<Checkbox key={`checkbox ${i}`} id={i} jsonStorage={this.state.data} listener formId/>);
+            for (let i = 0; i < this.state.data.genresNamesCS.length; i++) {
+                checkboxes.push(<Checkbox key={`checkbox ${i}`} id={i} jsonStorage={this.state.data} listener={null} formId={null}/>);
             }
         }
 
@@ -70,7 +70,7 @@ export class HomeView extends React.Component<IState> {
                 </form>
                 <div id="messageBox">
                     {this.state.data != null && this.state.data.textCS != null &&
-                        <Message formId={this.formId} jsonStorage={this.state.data} listener id/>
+                        <Message formId={this.formId} jsonStorage={this.state.data} listener={null} id={null}/>
                     }
                 </div>
             </div>
@@ -80,7 +80,9 @@ export class HomeView extends React.Component<IState> {
 
 class Checkbox extends React.Component<IProps> {
     render() {
-        var getGenreName = (i: number) => { return this.props.jsonStorage.genresNamesCS[i]; };
+        let getGenreName = (i: number) => {
+            return this.props.jsonStorage.genresNamesCS[i];
+        };
         return (
             <div id="checkboxStyle">
                 <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id} className="regular-checkbox" defaultChecked={false} />
@@ -99,16 +101,19 @@ class Message extends React.Component<IProps> {
     hideMenu(e: any) {
         if (this.props.formId.style.display !== "none") {
             this.props.formId.style.display = "none";
-            //внешняя зависимость
-            (document.getElementById("login")as HTMLElement).style.display = "none";/////////////
+            // внешняя зависимость
+            (document.getElementById("login")as HTMLElement).style.display = "none";
             return;
         }
+        
         this.props.formId.style.display = "block";
     }
 
     render() {
-        if (this.props.jsonStorage && Number(this.props.jsonStorage.savedTextId) !== 0) window.textId = Number(this.props.jsonStorage.savedTextId);
-
+        if (this.props.jsonStorage && Number(this.props.jsonStorage.savedTextId) !== 0) {
+            window.textId = Number(this.props.jsonStorage.savedTextId);
+        }
+        
         return (
             <span>
                 {this.props.jsonStorage != null ? (this.props.jsonStorage.textCS != null ?
@@ -138,21 +143,21 @@ class SubmitButton extends React.Component<IProps> {
 
     submit(e: any) {
         e.preventDefault();
-        //внешняя зависимость
+        // внешняя зависимость
         (document.getElementById("login") as HTMLElement).style.display = "none";
-        var formData = new FormData(this.props.formId);
-        var checkboxesArray = (formData.getAll("chkButton")).map(a => Number(a) + 1);
+        let formData = new FormData(this.props.formId);
+        let checkboxesArray = (formData.getAll("chkButton")).map(a => Number(a) + 1);
         const item = {
             CheckedCheckboxesJS: checkboxesArray
         };
-        var requestBody = JSON.stringify(item);
+        let requestBody = JSON.stringify(item);
         Loader.postData(this.props.listener, requestBody, this.url);
-        //внешняя зависимость
+        // внешняя зависимость
         (document.getElementById("header") as HTMLElement).style.backgroundColor = "slategrey";//#4cff00
     }
 
     componentWillUnmount() {
-        //отменяй подписки и асинхронную загрузку
+        // отменяй подписки и асинхронную загрузку
     }
 
     render() {

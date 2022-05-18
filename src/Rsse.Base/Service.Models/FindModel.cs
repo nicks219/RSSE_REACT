@@ -51,14 +51,16 @@ public class FindModel
             if (metric == item.Count)
             {
                 undefinedSearch = false;
-                result.Add(key, metric * (1000 / value.Count));
+                result.Add(key, metric * (1000D / value.Count)); // было int
                 continue;
             }
 
             // II. defined% совпадение
             if (metric >= item.Count * defined)
             {
-                result.Add(key, metric * (100 / value.Count));
+                // [TODO] можно так оценить
+                // undefinedSearch = false;
+                result.Add(key, metric * (100D / value.Count)); // было int
             }
         }
 
@@ -83,14 +85,14 @@ public class FindModel
             // III. 100% совпадение undefined
             if (metric == item.Count)
             {
-                result.TryAdd(key, metric * (10 / value.Count));
+                result.TryAdd(key, metric * (10D / value.Count)); // было int
                 continue;
             }
 
-            // IV. undefined% совпадение
+            // IV. undefined% совпадение - мы не можем наверняка оценить неточное совпадение
             if (metric >= item.Count * undefined)
             {
-                result.TryAdd(key, metric * (1 / value.Count));
+                result.TryAdd(key, metric * (1D / value.Count)); // было int
             }
         }
 

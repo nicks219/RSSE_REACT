@@ -1,5 +1,5 @@
 ﻿import * as React from 'react';
-import { Loader } from "./loader";
+import {Loader} from "./loader";
 
 interface IState {
     data: any;
@@ -44,24 +44,23 @@ class UpdateView extends React.Component<IProps, IState> {
     }
 
     render() {
-        var checkboxes = [];
+        let checkboxes = [];
         if (this.state != null && this.state.data != null) {
-            for (var i = 0; i < this.state.data.genresNamesCS.length; i++) {
-                checkboxes.push(<Checkbox key={"checkbox " + i + this.state.time} id={i} jsonStorage={this.state.data} listener formId/>);
+            for (let i = 0; i < this.state.data.genresNamesCS.length; i++) {
+                checkboxes.push(<Checkbox key={"checkbox " + i + this.state.time} id={i} jsonStorage={this.state.data} listener={null} formId={null}/>);
             }
         }
 
         return (
             <div>
-                <form ref={this.mainForm}
-                    id="dizzy">
+                <form ref={this.mainForm} id="dizzy">
                     {checkboxes}
-                    {this.state.data != null &&
-                        <SubmitButton listener={this} formId={this.formId} jsonStorage={this.state.data} id/>
+                    {this.state != null && this.state.data != null &&
+                        <SubmitButton listener={this} formId={this.formId} jsonStorage={this.state.data} id={null}/>
                     }
                 </form>
-                {this.state.data != null && this.state.data.textCS != null &&
-                    <Message formId={this.formId} jsonStorage={this.state.data} listener id/>
+                {this.state != null && this.state.data != null && this.state.data.textCS != null &&
+                    <Message formId={this.formId} jsonStorage={this.state.data} listener={null} id={null}/>
                 }
             </div>
         );
@@ -71,8 +70,10 @@ class UpdateView extends React.Component<IProps, IState> {
 class Checkbox extends React.Component<IProps> {
     
     render() {
-        var checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked" ? true : false;
-        var getGenreName = (i: number) => { return this.props.jsonStorage.genresNamesCS[i]; };
+        let checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked";
+        let getGenreName = (i: number) => {
+            return this.props.jsonStorage.genresNamesCS[i];
+        };
         return (
             <div id="checkboxStyle">
                 <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id} className="regular-checkbox"
@@ -97,8 +98,8 @@ class Message extends React.Component<IProps> {
     getCookie = () => {
         // выставляются в компоненте Login
         const name = "rsse_auth";
-        var matches = document.cookie.match(new RegExp(
-            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        let matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([.$?*|{}()\[\]\\\/+^])/g, '\\$1') + "=([^;]*)"
         ));
 
         // return matches ? decodeURIComponent(matches[1]) : undefined;
@@ -118,8 +119,7 @@ class Message extends React.Component<IProps> {
     }
 
     inputText = (e: any) => {
-        const newText = e.target.value;
-        this.props.jsonStorage.textCS = newText;
+        this.props.jsonStorage.textCS = e.target.value;
         this.forceUpdate();
     }
 
@@ -155,22 +155,22 @@ class SubmitButton extends React.Component<IProps> {
 
     submit(e: any) {
         e.preventDefault();
-        var formData = new FormData(this.props.formId);
-        var checkboxesArray = (formData.getAll("chkButton")).map(a => Number(a) + 1);
-        var formMessage = formData.get("msg");
+        let formData = new FormData(this.props.formId);
+        let checkboxesArray = (formData.getAll("chkButton")).map(a => Number(a) + 1);
+        let formMessage = formData.get("msg");
         const item = {
             CheckedCheckboxesJS: checkboxesArray,
             TextJS: formMessage,
             TitleJS: this.props.jsonStorage.titleCS,
             SavedTextId: window.textId
-            //InitialCheckboxes: this.props.jsonStorage.initialCheckboxes.map(a => Number(a))
+            // InitialCheckboxes: this.props.jsonStorage.initialCheckboxes.map(a => Number(a))
         };
-        var requestBody = JSON.stringify(item);
+        let requestBody = JSON.stringify(item);
         Loader.postData(this.props.listener, requestBody, this.url);
     }
 
     componentWillUnmount() {
-        //отменяй подписки и асинхронную загрузку
+        // отменяй подписки и асинхронную загрузку
     }
 
     render() {

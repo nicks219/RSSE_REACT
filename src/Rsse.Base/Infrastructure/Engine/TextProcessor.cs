@@ -129,7 +129,9 @@ public sealed class TextProcessor : ITextProcessor
     private static int GetUndefinedChainMetric(IEnumerable<int> baseHash, IEnumerable<int> searchHash)
     {
         // нечеткий поиск без последовательности
-        // 'я ты он она я ты он она я ты он она' будет найдено почти во всех пенях
+        // 'я ты он она я ты он она я ты он она' будет найдено почти во всех песнях
+        // можно "добавлять баллы" за правильную последовательность
+        // var r = GetDefinedChainMetric(baseHash.ToList(), searchHash.ToList()); // 171
 
         var res = baseHash.Intersect(searchHash);
 
