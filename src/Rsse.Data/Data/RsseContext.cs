@@ -9,7 +9,7 @@ namespace RandomSongSearchEngine.Data;
 public sealed class RsseContext : DbContext
 {
     private readonly object _obj = new();
-    private static bool _init;
+    private static volatile bool _init;
     
     /// <summary>
     /// Конфигурируем контекст базы данных
