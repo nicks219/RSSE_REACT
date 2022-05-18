@@ -6,27 +6,35 @@ namespace RandomSongSearchEngine.Service.Models;
 
 public class UpdateModel
 {
-    private IServiceScope _scope { get; }
-    private ILogger<UpdateModel> _logger { get; }
+    private readonly IServiceScope _scope;
+    
+    private readonly ILogger<UpdateModel> _logger;
 
     public UpdateModel(IServiceScope scope)
     {
         _scope = scope;
+
         _logger = scope.ServiceProvider.GetRequiredService<ILogger<UpdateModel>>();
     }
 
     public async Task<SongDto> ReadOriginalSongAsync(int originalSongId)
     {
         await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+
         try
         {
-            //if (SavedTextId == 0) throw new NotImplementedException();
-            string textResponse = "";
-            string titleResponse = "";
-            List<Tuple<string, string>> song = await repo.ReadSong(originalSongId).ToListAsync();
+            string textResponse;
+
+            var titleResponse = "";
+
+            var song = await repo
+                .ReadSong(originalSongId)
+                .ToListAsync();
+
             if (song.Count > 0)
             {
                 textResponse = song[0].Item1;
+
                 titleResponse = song[0].Item2;
             }
             else
@@ -34,15 +42,20 @@ public class UpdateModel
                 textResponse = "[Song: Always Deleted. Select another pls]";
             }
 
-            List<string> genreListResponse = await repo.ReadGenreListAsync();
-            List<int> songGenres = await repo.ReadSongGenres(originalSongId).ToListAsync();
-            List<string> songGenresResponse = new List<string>();
-            for (int i = 0; i < genreListResponse.Count; i++)
+            var genreListResponse = await repo.ReadGenreListAsync();
+
+            var songGenres = await repo
+                .ReadSongGenres(originalSongId)
+                .ToListAsync();
+
+            var songGenresResponse = new List<string>();
+
+            for (var i = 0; i < genreListResponse.Count; i++)
             {
                 songGenresResponse.Add("unchecked");
             }
 
-            foreach (int i in songGenres)
+            foreach (var i in songGenres)
             {
                 songGenresResponse[i - 1] = "checked";
             }
@@ -52,6 +65,7 @@ public class UpdateModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ChangeTextModel: OnGet Error]");
+
             return new SongDto() {ErrorMessageResponse = "[ChangeTextModel: OnGet Error]"};
         }
     }
@@ -59,22 +73,29 @@ public class UpdateModel
     public async Task<SongDto> UpdateSongAsync(SongDto updatedSong)
     {
         await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+
         try
         {
-            if (updatedSong.SongGenres == null || string.IsNullOrEmpty(updatedSong.Text)
-                                               || string.IsNullOrEmpty(updatedSong.Title) ||
-                                               updatedSong.SongGenres.Count == 0)
+            if (updatedSong.SongGenres == null
+                || string.IsNullOrEmpty(updatedSong.Text)
+                || string.IsNullOrEmpty(updatedSong.Title)
+                || updatedSong.SongGenres.Count == 0)
             {
                 return await ReadOriginalSongAsync(updatedSong.Id);
             }
 
-            List<int> originalGenres = await repo.ReadSongGenres(updatedSong.Id).ToListAsync();
+            var originalGenres = await repo
+                .ReadSongGenres(updatedSong.Id)
+                .ToListAsync();
+
             await repo.UpdateSongAsync(originalGenres, updatedSong);
+
             return await ReadOriginalSongAsync(updatedSong.Id);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[ChangeTextModel: OnPost Error]");
+
             return new SongDto() {ErrorMessageResponse = "[ChangeTextModel: OnPost Error]"};
         }
     }

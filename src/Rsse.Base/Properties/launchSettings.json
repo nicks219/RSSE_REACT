@@ -4,17 +4,17 @@
         "iis": {
             "anonymousAuthentication": false,
             "applicationUrl": "http://localhost/RazorWebApplication",
-            //http
-            //"sslPort": 0
-            //https
+            // http
+            // "sslPort": 0
+            // https
             "sslPort": 44357
         },
         "iisExpress": {
             "anonymousAuthentication": true,
             "applicationUrl": "http://localhost:51006",
-            //http
-            //"sslPort": 0
-            //https
+            // http
+            // "sslPort": 0
+            // https
             "sslPort": 44357
         }
     },

@@ -15,7 +15,9 @@ public class GcMiddleware
     public async Task Invoke(HttpContext httpContext)
     {
         await _next(httpContext);
+        
         GC.Collect(2, GCCollectionMode.Forced, true);
+        
         GC.WaitForPendingFinalizers();
     }
 }

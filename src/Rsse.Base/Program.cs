@@ -7,10 +7,10 @@ var builder = Host.CreateDefaultBuilder(args)
         webBuilder.UseWebRoot("ClientApp/build");
         webBuilder.UseKestrel(options =>
         {
-            // MinRequest ?
-            // Minresponse ?
-            // MaxConcurrent ?
-            var l = options.Limits;
+            // MinRequest
+            // Minresponse
+            // MaxConcurrent
+            var limits = options.Limits;
         });
     });
 

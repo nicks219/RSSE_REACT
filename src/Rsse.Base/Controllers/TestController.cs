@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace RandomSongSearchEngine.Controllers;
 
-// TODO: тестовый маршрут
 public class TestController : Controller
 {
     [HttpGet("test")]

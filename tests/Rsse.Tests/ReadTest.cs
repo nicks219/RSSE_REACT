@@ -16,15 +16,20 @@ namespace RandomSongSearchEngine.Tests
     public class ReadTest
     {
         private const int GenresCount = 44;
+        
         private IServiceScope? _fakeScope;
+        
         private ReadModel? _readModel;
 
         [TestInitialize]
         public void Initialize()
         {
             FakeLoggerErrors.ExceptionMessage = "";
+            
             FakeLoggerErrors.LogErrorMessage = "";
+            
             _fakeScope = new FakeScope<ReadModel>().ServiceScope;
+            
             _readModel = new ReadModel(_fakeScope);
         }
 
@@ -32,22 +37,27 @@ namespace RandomSongSearchEngine.Tests
         public async Task ShouldBe44GenresTest()
         {
             var response = await _readModel!.ReadGenreListAsync();
+            
             Assert.AreEqual(GenresCount, response.GenreListResponse?.Count);
         }
 
         [TestMethod]
         public async Task ShouldReadRandomSongTest()
         {
-            var request = new SongDto() { SongGenres = new List<int>() { 2 } };
+            var request = new SongDto { SongGenres = new List<int> { 2 } };
+            
             var response = await _readModel!.ReadRandomSongAsync(request);
+            
             Assert.AreEqual("test title", response.TitleResponse);
         }
 
         [TestMethod]
         public async Task ShouldResponseEmpltyTitleIfWtfTest()
         {
-            var frontRequest = new SongDto() { SongGenres = new List<int>() { 1000 } };
+            var frontRequest = new SongDto { SongGenres = new List<int> { 1000 } };
+            
             var result = await _readModel!.ReadRandomSongAsync(frontRequest);
+            
             Assert.AreEqual("", result.TitleResponse);
         }
 
@@ -55,6 +65,7 @@ namespace RandomSongSearchEngine.Tests
         public async Task IfNullShouldLoggingErrorInsideModelTest()
         {
             _ = await _readModel!.ReadRandomSongAsync(null!);
+            
             Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
         }
 
@@ -62,6 +73,7 @@ namespace RandomSongSearchEngine.Tests
         public async Task IfNullShouldResponseEmptyTitleTest()
         {
             var response = await _readModel!.ReadRandomSongAsync(null!);
+            
             Assert.AreEqual("", response.TitleResponse);
         }
 
@@ -86,7 +98,7 @@ namespace RandomSongSearchEngine.Tests
             fakeServiceScopeFactory.CreateScope().Returns(_fakeScope);
             var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
 
-            var response = (await readController.GetRandomSongAsync(null!)).Value;//.Result.Value;
+            var response = (await readController.GetRandomSongAsync(null!)).Value;
             
             Assert.AreEqual("", response?.TitleResponse);
         }

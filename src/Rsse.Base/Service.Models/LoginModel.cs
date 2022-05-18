@@ -13,6 +13,7 @@ public class LoginModel
     public LoginModel(IServiceScope scope)
     {
         _scope = scope;
+        
         _logger = _scope.ServiceProvider.GetRequiredService<ILogger<LoginModel>>();
     }
 
@@ -26,15 +27,22 @@ public class LoginModel
             }
 
             await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
-            UserEntity user = await repo.GetUser(login);
+            
+            var user = await repo.GetUser(login);
+            
             if (user == null)
             {
                 return null;
             }
 
-            var claims = new List<Claim> {new Claim(ClaimsIdentity.DefaultNameClaimType, login.Email)};
-            ClaimsIdentity id = new ClaimsIdentity(claims, "ApplicationCookie", ClaimsIdentity.DefaultNameClaimType,
+            var claims = new List<Claim> {new(ClaimsIdentity.DefaultNameClaimType, login.Email)};
+            
+            var id = new ClaimsIdentity(
+                claims, 
+                "ApplicationCookie", 
+                ClaimsIdentity.DefaultNameClaimType,
                 ClaimsIdentity.DefaultRoleClaimType);
+            
             // отработает только в классе, унаследованном от ControllerBase
             // await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id));
             return id;
@@ -42,6 +50,7 @@ public class LoginModel
         catch (Exception ex)
         {
             _logger.LogError(ex, "[LoginModel: System Error]");
+            
             return null;
         }
     }

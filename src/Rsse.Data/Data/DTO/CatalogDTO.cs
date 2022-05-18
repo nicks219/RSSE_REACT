@@ -22,7 +22,11 @@ public record CatalogDto
 
     public int Direction()
     {
-        if (NavigationButtons is null) return 0;
+        if (NavigationButtons is null)
+        {
+            return 0;
+        }
+        
         return NavigationButtons[0] switch
         {
             1 => 1,

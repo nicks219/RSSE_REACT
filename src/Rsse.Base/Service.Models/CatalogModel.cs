@@ -20,22 +20,26 @@ public class CatalogModel
     public CatalogModel(IServiceScope serviceScope)
     {
         _scope = serviceScope;
+        
         _logger = _scope.ServiceProvider.GetRequiredService<ILogger<CatalogModel>>();
     }
 
     public async Task<CatalogDto> ReadCatalogPageAsync(int pageNumber)
     {
-        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>(); //
+        await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        
         try
         {
-            int songsCount = await repo.ReadTextsCountAsync();
-            List<Tuple<string, int>> catalogPage =
-                await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+            var songsCount = await repo.ReadTextsCountAsync();
+            
+            var catalogPage = await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+            
             return CreateCatalogDto(pageNumber, songsCount, catalogPage);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[CatalogModel: OnGet Error]");
+            
             return new CatalogDto() {ErrorMessage = "[CatalogModel: OnGet Error]"};
         }
     }
@@ -45,16 +49,22 @@ public class CatalogModel
         await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
         try
         {
-            int direction = catalog.Direction();
-            int pageNumber = catalog.PageNumber;
-            int songsCount = await repo.ReadTextsCountAsync();
+            var direction = catalog.Direction();
+            
+            var pageNumber = catalog.PageNumber;
+            
+            var songsCount = await repo.ReadTextsCountAsync();
+            
             pageNumber = NavigateCatalogPages(direction, pageNumber, songsCount);
-            List<Tuple<string, int>> catalogPage = await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+            
+            var catalogPage = await repo.ReadCatalogPage(pageNumber, PageSize).ToListAsync();
+            
             return CreateCatalogDto(pageNumber, songsCount, catalogPage);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[CatalogModel: OnPost Error]");
+            
             return new CatalogDto() {ErrorMessage = "[CatalogModel: OnPost Error]"};
         }
     }
@@ -62,43 +72,52 @@ public class CatalogModel
     public async Task<CatalogDto> DeleteSongAsync(int songId, int pageNumber)
     {
         await using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        
         try
         {
             await repo.DeleteSongAsync(songId);
+            
             return await ReadCatalogPageAsync(pageNumber);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "[CatalogModel: OnDelete Error]");
+            
             return new CatalogDto() {ErrorMessage = "[CatalogModel: OnDelete Error]"};
         }
     }
 
     private static int NavigateCatalogPages(int navigation, int pageNumber, int songsCount)
     {
-        if (navigation == Forward)
+        switch (navigation)
         {
-            int pageCount = Math.DivRem(songsCount, PageSize, out int remainder);
-            if (remainder > 0)
+            case Forward:
             {
-                pageCount++;
-            }
+                var pageCount = Math.DivRem(songsCount, PageSize, out var remainder);
+            
+                if (remainder > 0)
+                {
+                    pageCount++;
+                }
 
-            if (pageNumber < pageCount)
+                if (pageNumber < pageCount)
+                {
+                    pageNumber++;
+                }
+
+                break;
+            }
+            case Backward:
             {
-                pageNumber++;
+                if (pageNumber > MinimalPageNumber) pageNumber--;
+                break;
             }
-        }
-
-        if (navigation == Backward)
-        {
-            if (pageNumber > MinimalPageNumber) pageNumber--;
         }
 
         return pageNumber;
     }
 
-    private static CatalogDto CreateCatalogDto(int pageNumber, int songsCount, List<Tuple<string, int>> catalogPage)
+    private static CatalogDto CreateCatalogDto(int pageNumber, int songsCount, List<Tuple<string, int>>? catalogPage)
     {
         return new CatalogDto
         {

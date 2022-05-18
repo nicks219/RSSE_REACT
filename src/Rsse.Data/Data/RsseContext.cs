@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-using System.Resources;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RandomSongSearchEngine.Data.Repository;
 
 namespace RandomSongSearchEngine.Data;
@@ -78,25 +76,30 @@ public sealed class RsseContext : DbContext
     /// <param name="modelBuilder"></param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //base.OnModelCreating(modelBuilder);
+        // base.OnModelCreating(modelBuilder);
+        
         modelBuilder.Entity<TextEntity>()
             .HasKey(k => k.TextId);
+        
         //CONSTRAINT UNIQUE NONCLUSTERED
         modelBuilder.Entity<TextEntity>()
             .HasAlternateKey(k => k.Title);
 
         modelBuilder.Entity<GenreEntity>()
             .HasKey(k => k.GenreId);
+        
         //CONSTRAINT UNIQUE NONCLUSTERED
         modelBuilder.Entity<GenreEntity>()
             .HasAlternateKey(k => k.Genre);
 
         modelBuilder.Entity<GenreTextEntity>()
             .HasKey(k => new {GenreID = k.GenreId, TextID = k.TextId});
+        
         modelBuilder.Entity<GenreTextEntity>()
             .HasOne(g => g.GenreInGenreText)
             .WithMany(m => m!.GenreTextInGenre)
             .HasForeignKey(k => k.GenreId);
+        
         modelBuilder.Entity<GenreTextEntity>()
             .HasOne(t => t.TextInGenreText)
             .WithMany(m => m!.GenreTextInText)

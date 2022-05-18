@@ -8,11 +8,7 @@ namespace RandomSongSearchEngine.Infrastructure.Cache;
 
 public class CacheRepository : ICacheRepository
 {
-    // Необходимо обеспечить работу приложения под нагрузкой
-    // ConcurrentDicitionary - правильно ли я его использую?
-    // TODO: в FindModel используй методы данного класса для CreateCaches
-    // TODO: замени исключения на логгирование
-    // TODO: в случае ошибок в этом репозитории надо пересоздавать кэш под блокировкой, будет актуализированный по подам кэш, а не кидать эксепшны
+    // TODO: в случае ошибок в этом репозитории надо пересоздавать кэш под блокировкой, а не кидать эксепшны
     // TODO: docker restart: always
     private readonly IServiceScopeFactory _factory;
     private readonly  ConcurrentDictionary<int, List<int>> _undefinedCache;
@@ -25,7 +21,7 @@ public class CacheRepository : ICacheRepository
         _undefinedCache = new ConcurrentDictionary<int, List<int>>();
         _definedCache = new ConcurrentDictionary<int, List<int>>();
         
-        InitializeCaches();
+        Initialize();
     }
     
     public ConcurrentDictionary<int, List<int>> GetUndefinedCache()
@@ -132,14 +128,17 @@ public class CacheRepository : ICacheRepository
         }
     }
     
-    private void InitializeCaches()
+    private void Initialize()
     {
         using var scope = _factory.CreateScope();
+        
         using var repo = scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        
         var processor = scope.ServiceProvider.GetRequiredService<ITextProcessor>();
+        
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<CacheRepository>>();
 
-        // TODO: стоит ли создавать индекс под блокировкой?
+        // TODO: блокировка?
         lock (_obj)
         {
             if (!_undefinedCache.IsEmpty)
@@ -153,7 +152,7 @@ public class CacheRepository : ICacheRepository
 
                 foreach (var text in texts)
                 {
-                    // undefined hash
+                    // undefined hash line
                     processor.Setup(ConsonantChain.Undefined);
 
                     var song = processor.ConvertStringToText(text);
@@ -164,10 +163,10 @@ public class CacheRepository : ICacheRepository
 
                     if (!_undefinedCache.TryAdd(song.Number, undefinedHash))
                     {
-                        throw new MethodAccessException("[FindModel Create Caches: undefined failed]");
+                        throw new MethodAccessException("[Cache Repository Init: undefined failed]");
                     }
 
-                    // defined hash
+                    // defined hash line
                     processor.Setup(ConsonantChain.Defined);
 
                     song = processor.ConvertStringToText(text);
@@ -178,7 +177,7 @@ public class CacheRepository : ICacheRepository
 
                     if (!_definedCache.TryAdd(song.Number, definedHash))
                     {
-                        throw new MethodAccessException("[FindModel Create Caches: defined failed]");
+                        throw new MethodAccessException("[Cache Repository Init: defined failed]");
                     }
                 }
 
@@ -186,7 +185,7 @@ public class CacheRepository : ICacheRepository
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "[FindModel: OnGet Error]");
+                logger.LogError(ex, "[Cache Repository Init: OnGet Error]");
             }
         }
     }

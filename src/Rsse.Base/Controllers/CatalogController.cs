@@ -6,8 +6,6 @@ using RandomSongSearchEngine.Service.Models;
 
 namespace RandomSongSearchEngine.Controllers;
 
-// [Authorize]
-// [Route("api/[controller]")]
 [Route("api/catalog")]
 [ApiController]
 public class CatalogController : ControllerBase
@@ -59,7 +57,6 @@ public class CatalogController : ControllerBase
         {
             using var scope = _serviceScopeFactory.CreateScope();
             
-            // TODO: delete cache
             var cache = scope.ServiceProvider.GetRequiredService<ICacheRepository>();
             cache.Delete(id);
             

@@ -11,12 +11,12 @@ public class FileLogger : ILogger
 
     private readonly string _categoryName;
 
-    private static readonly object Lock = new object();
+    private static readonly object Lock = new();
 
-    public FileLogger(string path, string categoryName)
+    public FileLogger(string path, string? categoryName)
     {
         _filePath = path;
-        this._categoryName = categoryName ?? "";
+        _categoryName = categoryName ?? "";
     }
 
     public IDisposable BeginScope<TState>(TState state)
@@ -41,24 +41,30 @@ public class FileLogger : ILogger
     /// <param name="exception"></param>
     /// <param name="formatter"></param>
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-        Func<TState, Exception, string> formatter)
+        Func<TState, Exception, string>? formatter)
     {
-        if (formatter != null)
+        if (formatter == null)
         {
-            StringBuilder log = new StringBuilder();
-            log.Append(DateTime.Now + "   [" + logLevel.ToString().ToUpperInvariant() + "] [" + _categoryName + "]  ");
-            log.Append(formatter(state, exception!) + Environment.NewLine);
-            if (exception != null)
-            {
-                log.Append(exception.GetType() + "    " + exception.Message + Environment.NewLine);
-                log.Append(exception.StackTrace + Environment.NewLine);
-            }
+            return;
+        }
+        
+        var log = new StringBuilder();
+            
+        log.Append(DateTime.Now + "   [" + logLevel.ToString().ToUpperInvariant() + "] [" + _categoryName + "]  ");
+            
+        log.Append(formatter(state, exception!) + Environment.NewLine);
+            
+        if (exception != null)
+        {
+            log.Append(exception.GetType() + "    " + exception.Message + Environment.NewLine);
+            log.Append(exception.StackTrace + Environment.NewLine);
+        }
 
-            string fullLog = log.ToString();
-            lock (Lock)
-            {
-                File.AppendAllText(_filePath, fullLog);
-            }
+        var fullLog = log.ToString();
+            
+        lock (Lock)
+        {
+            File.AppendAllText(_filePath, fullLog);
         }
     }
 }

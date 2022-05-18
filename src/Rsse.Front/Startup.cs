@@ -10,10 +10,12 @@ public class Startup
 {
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddMemoryCache(); // ??? хз нужно ли
+        services.AddMemoryCache(); // ?
         
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        
         services.AddReact();
+        
         services.AddJsEngineSwitcher(options => options.DefaultEngineName = ChakraCoreJsEngine.EngineName).AddChakraCore();
         
         services.AddSpaStaticFiles(configuration =>
@@ -32,6 +34,7 @@ public class Startup
         // app.UseReact(config => { }); // еще такое есть, но тут не нужно
         
         app.UseSpaStaticFiles();
+        
         // app.UseRouting();
         
         app.UseSpa(spa =>
@@ -62,18 +65,26 @@ public class Startup
             //Process cmd = Process.Start("CMD.exe", strCmdText);
             //cmd.WaitForExit();
         }
-        if (!Directory.Exists("./ClientApp/build"))
+
+        if (Directory.Exists("./ClientApp/build"))
         {
-            // yarn add --dev @types/react
-            string strCmdText = "/C cd ./ClientApp && npm run build";
-            //using {Process}
-            Process cmd = Process.Start("CMD.exe", strCmdText);
-            cmd.WaitForExit();
-            //ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
-            //String command = @"/k java -jar myJava.jar";
-            //cmdsi.Arguments = command;
-            //Process cmd = Process.Start(cmdsi);
-            //cmd.WaitForExit();
+            return;
         }
+        
+        // yarn add --dev @types/react
+            
+        const string strCmdText = "/C cd ./ClientApp && npm run build";
+            
+        //using {Process}
+            
+        var cmd = Process.Start("CMD.exe", strCmdText);
+            
+        cmd.WaitForExit();
+            
+        //ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
+        //String command = @"/k java -jar myJava.jar";
+        //cmdsi.Arguments = command;
+        //Process cmd = Process.Start(cmdsi);
+        //cmd.WaitForExit();
     }
 }

@@ -45,11 +45,9 @@ public class CreateController : ControllerBase
             var model = new CreateModel(scope);
             var result =  await model.CreateSongAsync(dto);
             
-            // TODO: create cache line
             if (string.IsNullOrEmpty(result.ErrorMessageResponse))
             {
                 var cache = scope.ServiceProvider.GetRequiredService<ICacheRepository>();
-                // это порядок дампа, для хэша название в финале
                 cache.Create(result.Id, string.Concat(result.Id, " '", dto.Title!, "' '", dto.Text!, "'"));
             }
 

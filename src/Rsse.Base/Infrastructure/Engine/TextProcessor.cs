@@ -11,7 +11,7 @@ public enum ConsonantChain
 }
 public sealed class TextProcessor : ITextProcessor
 {
-    // ищем только по русским буквам //
+    // только буквы русской локализации
     private const string UndefinedChainConsonant = "цкнгшщзхфвпрлджчсмтб"; // + "яыоайуеиюэъьё"
     private const string DefinedChainConsonant = "цкнгшщзхфвпрлджчсмтб" + "яыоайуеиюэ";// + "ёъь"
     
@@ -45,8 +45,7 @@ public sealed class TextProcessor : ITextProcessor
     {
         var number = int.Parse(NumberPattern.Match(sentence).Value);
 
-        // TODO: убери и не плоди стринги
-        // TODO: мне не нужно название отдельно
+        // TODO: название можно соединить с текстом
         var matches = TitlePattern.Matches(sentence);
 
         var title = CleanUpString(matches.ElementAt(0).Value);
@@ -58,7 +57,6 @@ public sealed class TextProcessor : ITextProcessor
 
     public List<string> CleanUpString(string sentence)
     {
-        // попробую стрингбилдер
         var stringBuilder = new StringBuilder(sentence.ToLower());
 
         // replaces
@@ -67,10 +65,6 @@ public sealed class TextProcessor : ITextProcessor
         stringBuilder = stringBuilder.Replace('ё', 'е');
 
         var words = stringBuilder.ToString().Split(" ");
-
-        // чередования г-к, приставки вперехлест/перехлест
-        // прекрасного - ово // собери все ошибки
-        // TODO: убрать удвоения
 
         var res = new List<string>();
 
@@ -134,7 +128,7 @@ public sealed class TextProcessor : ITextProcessor
     
     private static int GetUndefinedChainMetric(IEnumerable<int> baseHash, IEnumerable<int> searchHash)
     {
-        // нечеткий поиск без последовательности:
+        // нечеткий поиск без последовательности
         // 'я ты он она я ты он она я ты он она' будет найдено почти во всех пенях
 
         var res = baseHash.Intersect(searchHash);
@@ -144,9 +138,8 @@ public sealed class TextProcessor : ITextProcessor
 
     private static int GetDefinedChainMetric(List<int> baseHash, List<int> searchHash)
     {
-        // четкий поиск с последовательностью:
-        // похож на intersect - чет учитывает слово по разу:
-        // "облака лошадки без оглядки облака лошадки без оглядки" в 227 и 270 = 5
+        // четкий поиск с последовательностью
+        // `облака лошадки без оглядки облака лошадки без оглядки` в 227 и 270 = 5
 
         var res = 0;
 

@@ -21,7 +21,9 @@ public class FakeScope<T> where T : class
     public FakeScope()
     {
         var services = new ServiceCollection();
+        
         services.AddTransient<IDataRepository, DataRepository>();
+        
         services.AddTransient<ILogger<T>, FakeLogger<T>>();
 
         // MsSql
@@ -32,7 +34,9 @@ public class FakeScope<T> where T : class
             options.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 26))));
 
         // services.AddDbContext<RsseContext>(options => options.UseInMemoryDatabase(databaseName: "rsse"));
+        
         var serviceProvider = services.BuildServiceProvider();
+        
         ServiceScope = serviceProvider.CreateScope();
     }
 }
@@ -49,10 +53,11 @@ public class FakeLogger<TReadModel> : ILogger<TReadModel>
         throw new NotImplementedException();
     }
 
-    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception,
-        Func<TState, Exception, string> formatter)
+    public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, 
+        Exception? exception, Func<TState, Exception, string> formatter)
     {
         FakeLoggerErrors.ExceptionMessage = exception?.Message;
+        
         FakeLoggerErrors.LogErrorMessage = state?.ToString();
     }
 }

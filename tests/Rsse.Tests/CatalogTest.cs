@@ -15,42 +15,46 @@ namespace RandomSongSearchEngine.Tests;
 [TestClass]
 public class CatalogTest
 {
-    private const int PageSize = 10;
     private IServiceScope? _fakeScope;
+    
     private CatalogModel? _catalogModel;
 
     [TestInitialize]
     public void Initialize()
     {
         FakeLoggerErrors.ExceptionMessage = "";
+        
         FakeLoggerErrors.LogErrorMessage = "";
+        
         _fakeScope = new FakeScope<CatalogModel>().ServiceScope;
+        
         _catalogModel = new CatalogModel(_fakeScope);
     }
 
     [TestMethod]
     public async Task ShouldReadCatalogPageTest()
     {
+        // что должен проверять этот тест - количество песен на странице?
         var response = await _catalogModel!.ReadCatalogPageAsync(1);
-        // не знаю, что должен проверять этот тест, количество песен на странице ?
+        
         Assert.AreEqual( /*PageSize*/response.SongsCount, response.CatalogPage?.Count);
     }
 
     [TestMethod]
     public async Task ShouldNavigateTest()
     {
-        var request = new CatalogDto() {NavigationButtons = new List<int>() {1}, PageNumber = 1};
+        // что должен проверять этот тест - количество песен на странице?
+        var request = new CatalogDto {NavigationButtons = new List<int> {1}, PageNumber = 1};
         var response = await _catalogModel!.NavigateCatalogAsync(request);
-        // не знаю, что должен проверять этот тест, количество песен на странице ?
+        
         Assert.AreEqual( /*PageSize*/response.SongsCount, response.CatalogPage?.Count);
     }
 
     [TestMethod]
     public async Task IfWtfShouldLoggingErrorInsideModelTest()
     {
-        var frontRequest = new CatalogDto() {NavigationButtons = new List<int>() {1000, 2000}};
+        var frontRequest = new CatalogDto {NavigationButtons = new List<int> {1000, 2000}};
         var result = await _catalogModel!.NavigateCatalogAsync(frontRequest);
-        //Assert.ThrowsException<Exception>(async () => await result);
 
         Assert.AreEqual("[CatalogModel: OnPost Error]", result.ErrorMessage);
     }
@@ -59,6 +63,7 @@ public class CatalogTest
     public async Task IfNullShouldLoggingErrorTest()
     {
         _ = await _catalogModel!.NavigateCatalogAsync(null!);
+        
         Assert.AreEqual("[CatalogModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
     }
 
@@ -66,6 +71,7 @@ public class CatalogTest
     public async Task IfWtfShouldResponseZeroSongsTest()
     {
         var response = await _catalogModel!.DeleteSongAsync(-300, -200);
+        
         Assert.AreEqual(0, response.SongsCount);
     }
 

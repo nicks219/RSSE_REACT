@@ -17,7 +17,6 @@ public class UpdateController : ControllerBase
     {
         _serviceScopeFactory = serviceScopeFactory;
         _logger = logger;
-        // авторизация без атрибутов
         var isAuthorized = accessor.HttpContext?.User.Claims.Any();
     }
 
@@ -44,9 +43,7 @@ public class UpdateController : ControllerBase
         {
             using var scope = _serviceScopeFactory.CreateScope();
             
-            // TODO: update cache
             var cache = scope.ServiceProvider.GetRequiredService<ICacheRepository>();
-            // это порядок дампа, для хэша название в финале
             cache.Update(dto.Id, string.Concat(dto.Id, " '", dto.Title!, "' '", dto.Text!,"'"));
             
             return await new UpdateModel(scope).UpdateSongAsync(dto);

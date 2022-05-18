@@ -14,6 +14,7 @@ public record LoginDto
     public LoginDto(string email, string password)
     {
         Email = email;
+        
         Password = password;
     }
 }

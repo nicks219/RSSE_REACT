@@ -14,7 +14,8 @@ public class FileLoggerProvider : ILoggerProvider
         return new FileLogger(_path, categoryName);
     }
 
-    public void Dispose()
+    void IDisposable.Dispose()
     {
+        GC.SuppressFinalize(this);
     }
 }

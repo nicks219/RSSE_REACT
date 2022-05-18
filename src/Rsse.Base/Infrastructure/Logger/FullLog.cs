@@ -12,9 +12,13 @@ public static class FullLog
     public static void LogId(this ILogger logger, ReadModel model)
     {
         var modelId = model.GetHashCode();
-        //костыли - у модели сейчас нет контекста
-        var httpContextId = "MockContext"; // model.HttpContext.GetHashCode();
-        var threadId = System.Threading.Thread.CurrentThread.ManagedThreadId;
-        logger.LogInformation("[Model ID: {0} Thread ID: {1} HttpContextID: {2}]", modelId, threadId, httpContextId);
+        
+        // костыли - у модели сейчас нет контекста
+        // model.HttpContext.GetHashCode();
+        const string httpContextId = "MockContext";
+        
+        var threadId = Environment.CurrentManagedThreadId;
+        
+        logger.LogInformation("[Model ID: {Model} Thread ID: {Thread} HttpContextID: {Context}]", modelId, threadId, httpContextId);
     }
 }
