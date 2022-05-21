@@ -26,12 +26,7 @@
     </PackageReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <TypeScriptCompile Include="ClientApp\src\jsx\loader.tsx" />
-    </ItemGroup>
-
     <!-- 
-    разберись, какая роль Include
     <ItemGroup>
       <None Include="ClientApp\src\index.tsx" />
       <None Include="ClientApp\src\jsx\catalog.tsx" />
@@ -41,11 +36,11 @@
       <None Include="ClientApp\src\jsx\read.tsx" />
       <None Include="ClientApp\src\jsx\update.tsx" />
       <None Include="ClientApp\src\react-app-env.d.ts" />
-    </ItemGroup>-->
+    </ItemGroup> -->
 
-    <!--отключаю чтоб сейчас не перегружать создание docker образа, вообще этот скрипт ставит npm для билда фронта-->
-    <!--<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <!-- отключаю чтоб сейчас не перегружать создание docker образа, данный скрипт ставит npm для билда фронта -->
+    <!-- <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="cd $(SpaRoot)ClientApp\node_modules\ || cd $(SpaRoot)ClientApp\ &amp;&amp; npm install"/>
-    </Target>-->
+    </Target> -->
 
 </Project>

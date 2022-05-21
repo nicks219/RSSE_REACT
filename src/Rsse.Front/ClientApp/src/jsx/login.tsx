@@ -23,10 +23,10 @@ export class LoginRequired {
     static ContinueLoading() {
         let component = window.temp;
         if (component) {
-            if (component.url === "/api/update") {
+            if (component.url === Loader.updateUrl) {
                 // Loader в случае ошибки вызовет MessageOn()
                 Loader.getDataById(component, window.textId, component.url);
-            } else if (component.url === "/api/catalog"){
+            } else if (component.url === Loader.catalogUrl){
                 Loader.getDataById(component, component.state.data.pageNumber, component.url);
             }
             else {
@@ -55,25 +55,14 @@ export class LoginRequired {
 }
 
 export class Login extends React.Component<IProps, IState> {
-    url: string;
-    corsAddress: string;
 
     public state: IState = {
         style: "submitStyle"
     }
-    
-    private credos: "omit" | "same-origin" | "include";
 
     constructor(props: any) {
         super(props);
         this.submit = this.submit.bind(this);
-        this.url = "/account/login";
-
-        // [TODO]: вынеси в Loader fetch submit: get([query], credos, callback)
-        Loader.ifDevelopment(); // по идее этот метод уже должен быть вызван минимум один раз при загрузке главной
-        this.credos = Loader.credos;
-        this.corsAddress = Loader.corsAddress;
-        this.url = this.corsAddress + this.url;
         
         (document.getElementById("login")as HTMLElement).style.display = "block";
     }
@@ -87,9 +76,10 @@ export class Login extends React.Component<IProps, IState> {
         if (emailElement) email = emailElement.value;
         if (passwordElement) password = passwordElement.value;
 
-        window.fetch(this.url + "?email=" + String(email) + "&password=" + String(password),
-            {credentials: this.credos})
-            .then(response => response.ok ? this.loginOk() : this.loginErr());
+        let query = "?email=" + String(email) + "&password=" + String(password);
+        let callback = (response: Response) => response.ok ? this.loginOk() : this.loginErr();
+
+        Loader.getWithQuery(Loader.loginUrl, query, callback, null);
     }
     
     loginErr = () => {
@@ -134,13 +124,3 @@ export class Login extends React.Component<IProps, IState> {
         );
     }
 }
-
-//export default Login;
-// загрузка без обработки ошибок
-                //fetch(component.url + "?id=" + String(window.textId), { credentials: 'same-origin' })
-                //    .then(response => response.json())
-                //    .then(data => { if (component.mounted) component.setState({ data }) });
-
-//fetch(component.url, { credentials: 'same-origin' })
-                //    .then(response => response.json())
-                //    .then(data => { if (component.mounted) component.setState({ data }) });

@@ -9,12 +9,7 @@ interface IProps {
 }
 
 class CatalogView extends React.Component<IProps, IState> {
-    url: string;
     mounted: boolean;
-    logoutUrl: string;
-    corsAddress: string;
-
-    private credos: "omit" | "same-origin" | "include";
 
     public state: IState = {
     data: null
@@ -22,13 +17,7 @@ class CatalogView extends React.Component<IProps, IState> {
 
     constructor(props: any) {
         super(props);
-        this.url = "/api/catalog";
         this.mounted = true;
-        
-        // [TODO]: вынеси в Loader fetch logout: get(credos, callback)
-        this.credos = Loader.credos;
-        this.corsAddress = Loader.corsAddress;
-        this.logoutUrl = this.corsAddress + "/account/logout";
     }
 
     componentWillUnmount() {
@@ -36,7 +25,7 @@ class CatalogView extends React.Component<IProps, IState> {
     }
 
     componentDidMount() {
-        Loader.getDataById(this, 1, this.url);
+        Loader.getDataById(this, 1, Loader.catalogUrl);
     }
     
     click = (e: any) => {
@@ -47,16 +36,16 @@ class CatalogView extends React.Component<IProps, IState> {
             navigationButtons: [target]
         };
         let requestBody = JSON.stringify(item);
-        Loader.postData(this, requestBody, this.url);
+        Loader.postData(this, requestBody, Loader.catalogUrl);
     }
     
     logout = (e: any) => {
         e.preventDefault();
         document.cookie = 'rsse_auth = false';
         
-        window.fetch(this.logoutUrl,
-            {credentials: this.credos})
-            .then(response => response.ok ? console.log("Logout Ok") : console.log("Logout Err"));
+        let callback = (response: Response) => response.ok ? console.log("Logout Ok") : console.log("Logout Err");
+        
+        Loader.getWithQuery(Loader.logoutUrl, "", callback, this);
     }
 
     redirect = (e: any) => {
@@ -69,7 +58,7 @@ class CatalogView extends React.Component<IProps, IState> {
         e.preventDefault();
         let id = Number(e.target.id);
         console.log('You want to delete song with id: ' + id);
-        Loader.deleteDataById(this, id, this.url, this.state.data.pageNumber);
+        Loader.deleteDataById(this, id, Loader.catalogUrl, this.state.data.pageNumber);
     }
 
     render() {

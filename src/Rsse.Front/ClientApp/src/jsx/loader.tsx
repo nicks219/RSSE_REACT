@@ -1,24 +1,34 @@
-﻿import { LoginRequired } from "./login";//
+﻿import { LoginRequired } from "./login";
+import {Component} from "react";
 
 export class Loader {
-    // настройки для прода:
+    static createUrl:string = "/api/create";
+    static readUrl: string = "/api/read";
+    static readTitleUrl: string = "/api/read/title";
+    static updateUrl: string = "/api/update";
+    // deleteUrl = "/api/catalog" with DELETE verb
+    static catalogUrl: string = "/api/catalog";
+    static loginUrl: string = "/account/login";
+    static logoutUrl: string = "/account/logout";
+    static findUrl: string = "/api/find";
+    
+    // для прода:
     static credos: "omit" | "same-origin" | "include" = "same-origin"; 
     static corsAddress: string = ""; 
     
-    static ifDevelopment() {
-        // console.log(process.env.NODE_ENV);
+    static isDevelopment() {
         if (process.env.NODE_ENV === "development") 
         {
             this.credos = "include";
-            // куки чувствительны к Origin ('localhost' и '127.0.0.1' это разные значения), только для разработки:
+            // для разработки:
+            // куки чувствительны к Origin ('localhost' != '127.0.0.1')
             this.corsAddress = "http://localhost:5000";
         }
     }
-
-
+    
     //GET request: /api/controller
     static getData(component: any, url: any) {
-        Loader.ifDevelopment();
+        Loader.isDevelopment();
         LoginRequired.MessageOff();
 
         url = this.corsAddress + url;
@@ -33,13 +43,13 @@ export class Loader {
                 })
                 .catch((e) => LoginRequired.MessageOn(component));//
         } catch (err) {
-            console.log("Loader try-catch: 1");
+            console.log("Loader: get exception");
         }
     }
 
     // GET request: /api/controller?id=
     static getDataById(component: any, requestId: any, url: any) {
-        Loader.ifDevelopment();
+        Loader.isDevelopment();
         LoginRequired.MessageOff();
         
         url = this.corsAddress + url;
@@ -52,16 +62,16 @@ export class Loader {
                 .then(data => { if (component.mounted) component.setState({ data }) })
                 .catch((e) => LoginRequired.MessageOn(component));
         } catch (err) {
-            console.log("Loader try-catch: 2");
+            console.log("Loader: getById exception");
         }
     }
 
     // POST request: /api/controller
     static postData(component: any, requestBody: any, url: any) {
-        // ПРОБЛЕМА: при пустых areChecked чекбоксах внешний вид компонента <Сheckboxes> не менялся (после "ошибки" POST)
+        // [obsolte] из 1го цикла: при пустых areChecked чекбоксах внешний вид компонента <Сheckboxes> не менялся (после "ошибки" POST)
         // при этом все данные были  правильные и рендеринг/обновление проходили успешно (в компоненте <UpdateView>)
-        // РЕШЕНИЕ: уникальный key <Checkbox key={"checkbox " + i + this.state.time} ...>
-        Loader.ifDevelopment();
+        // решение: уникальный key <Checkbox key={"checkbox " + i + this.state.time} ...>
+        Loader.isDevelopment();
         let time = String(Date.now());
         LoginRequired.MessageOff();
         
@@ -78,13 +88,13 @@ export class Loader {
                 .then(data => component.setState({ data, time }))
                 .catch((e) => LoginRequired.MessageOn(component));
         } catch (err) {
-            console.log("Loader try-catch: 3");
+            console.log("Loader: post exception");
         }
     }
 
     // DELETE request: /api/controller?id=
     static deleteDataById(component: any, requestId: any, url: any, pageNumber: any) {
-        Loader.ifDevelopment();
+        Loader.isDevelopment();
         LoginRequired.MessageOff();
         
         url = this.corsAddress + url;
@@ -98,7 +108,48 @@ export class Loader {
                 .then(data => { if (component.mounted) component.setState({ data }) })
                 .catch((e) => LoginRequired.MessageOn(component));
         } catch (err) {
-            console.log("Loader try-catch: 2");
+            console.log("Loader: delete exception");
+        }
+    }
+    
+    // LOGIN & LOGOUT request: /account/login?email= &password= or /account/logout
+    static getWithQuery(url: string, query: string, callback: any, component: Component | null)
+    {
+        Loader.isDevelopment();
+        
+        url = this.corsAddress + url;
+        
+        try{
+            window.fetch(url + query,
+                {credentials: this.credos})
+                .then(callback);
+            if (component !== null)
+            {
+                LoginRequired.MessageOn(component);
+            }
+        } catch (err) {
+            console.log("Loader: login/logout exception");
+        }
+    }
+
+    // CREATE: /api/find?text= or /api/read/title?id=
+    static getWithPromise(url: string, query: string, callback: any): Promise<any> | undefined
+    {
+        Loader.isDevelopment();
+
+        url = this.corsAddress + url;
+
+        let promise: Promise<any>;
+        
+        try{
+            promise = window.fetch(url + query,
+                {credentials: this.credos})
+                .then(response => response.ok ? response.json() : Promise.reject(response))
+                .then(callback);
+
+            return promise;
+        } catch (err) {
+            console.log("Loader: promise exception");
         }
     }
 }

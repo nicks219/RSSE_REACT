@@ -1,6 +1,7 @@
 ﻿import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Loader } from "./loader";
+import { hideMenu } from "./hideMenu";
 
 interface IState {
     data: any;
@@ -13,7 +14,6 @@ interface IProps {
 }
 
 export class HomeView extends React.Component<IState> {
-    url: string;
     formId: any;
     mounted: boolean;
 
@@ -25,7 +25,6 @@ export class HomeView extends React.Component<IState> {
 
     constructor(props: any) {
         super(props);
-        this.url = '/api/read';
         this.formId = null;
         this.mounted = true;
 
@@ -33,9 +32,8 @@ export class HomeView extends React.Component<IState> {
     }
 
     componentDidMount() {
-        // [Obsolete] this.formId = ReactDOM.findDOMNode(this.refs.mainForm);
         this.formId = this.mainForm.current;
-        Loader.getData(this, this.url);
+        Loader.getData(this, Loader.readUrl);
     }
 
     componentDidUpdate() {
@@ -64,7 +62,7 @@ export class HomeView extends React.Component<IState> {
         return (
             <div>
                 
-                <form ref={this.mainForm}//[Obsolete] ref="mainForm"
+                <form ref={this.mainForm}
                     id="dizzy">
                     {checkboxes}
                 </form>
@@ -97,16 +95,9 @@ class Message extends React.Component<IProps> {
         super(props);
         this.hideMenu = this.hideMenu.bind(this);
     }
-
-    hideMenu(e: any) {
-        if (this.props.formId.style.display !== "none") {
-            this.props.formId.style.display = "none";
-            // внешняя зависимость
-            (document.getElementById("login")as HTMLElement).style.display = "none";
-            return;
-        }
-        
-        this.props.formId.style.display = "block";
+    
+    hideMenu() {
+        this.props.formId.style.display = hideMenu(this.props.formId.style.display);
     }
 
     render() {
@@ -133,12 +124,10 @@ class Message extends React.Component<IProps> {
 }
 
 class SubmitButton extends React.Component<IProps> {
-    url: string;
 
     constructor(props: any) {
         super(props);
         this.submit = this.submit.bind(this);
-        this.url = '/api/read';
     }
 
     submit(e: any) {
@@ -151,9 +140,9 @@ class SubmitButton extends React.Component<IProps> {
             CheckedCheckboxesJS: checkboxesArray
         };
         let requestBody = JSON.stringify(item);
-        Loader.postData(this.props.listener, requestBody, this.url);
+        Loader.postData(this.props.listener, requestBody, Loader.readUrl);
         // внешняя зависимость
-        (document.getElementById("header") as HTMLElement).style.backgroundColor = "slategrey";//#4cff00
+        (document.getElementById("header") as HTMLElement).style.backgroundColor = "slategrey"; // #4cff00
     }
 
     componentWillUnmount() {

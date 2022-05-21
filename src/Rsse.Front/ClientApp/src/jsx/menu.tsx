@@ -47,7 +47,7 @@ export default class Menu extends React.Component<IProps, IState> {
 
     select(e: any) {
         let target = Number(e.currentTarget.getAttribute('id').slice(5));
-        // если меняем не выбранное
+        // отмена update невыьранного материала
         if (target === 1 && window.textId === 0) return;
 
         this.visibilityFlag.forEach((value, index) => this.visibilityFlag[index] = false);
@@ -61,9 +61,9 @@ export default class Menu extends React.Component<IProps, IState> {
     }
 
     componentDidUpdate() {
-        if (this.state.id) this.setState({ id: null });
+        if (this.state.id) this.setState({id: null});
         if (!this.visibilityFlag[0]) {
-            // костыль, убирает кнопку "Поиск"
+            // костыль: убирает кнопку "Поиск"
             ReactDOM.render(
                 <div>
                 </div>,
@@ -73,7 +73,7 @@ export default class Menu extends React.Component<IProps, IState> {
     }
 
     render() {
-        // костыль - переключаемся из catalog на changeText
+        // костыль: переключаемся из catalog на changeText
         if (this.state.id) {
             this.visibilityFlag = [false, true, false, false];
             window.textId = this.state.id;
@@ -91,9 +91,6 @@ export default class Menu extends React.Component<IProps, IState> {
                 {this.menu[i]}</button>);
         }
 
-        // +TODO: не отображать кнопку пока не загрузилось
-        // +TODO: менять цвет кнопки при выполнении POST запроса
-        // +TODO: зачем view={this.visibilityFlag[0]}
         // TODO: список жанров точно один на всю сессию (кол-во песен в них будет отличаться) - зачем его грузить каждый раз?
         // TODO: экран некрасиво мигает при переключении пунктов меню
 
@@ -105,25 +102,25 @@ export default class Menu extends React.Component<IProps, IState> {
                 {/*первый пункт меню*/}
                 {this.visibilityFlag[0] &&
                     <div id="renderContainer1">
-                        <HomeView data />
+                        <HomeView data={null}/>
                     </div>
                 }
                 {/*второй пункт меню*/}
                 {this.visibilityFlag[1] &&
                     <div id="renderContainer">
-                        <UpdateView listener formId id jsonStorage />
+                        <UpdateView listener={null} formId={null} id={null} jsonStorage={null}/>
                     </div>
                 }
                 {/*третий пункт меню*/}
                 {this.visibilityFlag[2] &&
                     <div id="renderContainer">
-                        <CreateView data time />
+                        <CreateView data={null} time={null}/>
                     </div>
                 }
                 {/*четвертый пункт меню*/}
                 {this.visibilityFlag[3] &&
                     <div id="renderContainer">
-                        <CatalogView listener={this} />
+                        <CatalogView listener={this}/>
                     </div>
                 }
             </div>

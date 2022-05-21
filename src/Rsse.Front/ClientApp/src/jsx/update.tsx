@@ -1,5 +1,6 @@
 ﻿import * as React from 'react';
 import {Loader} from "./loader";
+import { hideMenu } from "./hideMenu";
 
 interface IState {
     data: any;
@@ -14,7 +15,6 @@ interface IProps {
 }
 
 class UpdateView extends React.Component<IProps, IState> {
-    url: string;
     formId: any;
     mounted: boolean;
 
@@ -27,7 +27,6 @@ class UpdateView extends React.Component<IProps, IState> {
 
     constructor(props: any) {
         super(props);
-        this.url = '/api/update';
         this.formId = null;
         this.mounted = true;
 
@@ -36,7 +35,7 @@ class UpdateView extends React.Component<IProps, IState> {
 
     componentDidMount() {
         this.formId = this.mainForm.current;
-        Loader.getDataById(this, window.textId, this.url);
+        Loader.getDataById(this, window.textId, Loader.updateUrl);
     }
 
     componentWillUnmount() {
@@ -94,9 +93,9 @@ class Message extends React.Component<IProps> {
         this.getCookie();
     }
 
-    // name: .AspNetCore.Cookies
+    // куки сервиса: .AspNetCore.Cookies
     getCookie = () => {
-        // выставляются в компоненте Login
+        // куки выставляются в компоненте Login
         const name = "rsse_auth";
         let matches = document.cookie.match(new RegExp(
             "(?:^|; )" + name.replace(/([.$?*|{}()\[\]\\\/+^])/g, '\\$1') + "=([^;]*)"
@@ -105,17 +104,12 @@ class Message extends React.Component<IProps> {
         // return matches ? decodeURIComponent(matches[1]) : undefined;
         if (matches == null || decodeURIComponent(matches[1]) === 'false')
         {
-            this.hideMenu('something_stuff');
+            this.hideMenu();
         }
     }
     
-    // hideMenu() сидит в каждом компоненте !
-    hideMenu(e: any) {
-        if (this.props.formId.style.display !== "none") {
-            this.props.formId.style.display = "none";
-            return;
-        }
-        this.props.formId.style.display = "block";
+    hideMenu() {
+        this.props.formId.style.display = hideMenu(this.props.formId.style.display);
     }
 
     inputText = (e: any) => {
@@ -145,12 +139,10 @@ class Message extends React.Component<IProps> {
 }
 
 class SubmitButton extends React.Component<IProps> {
-    url: string;
 
     constructor(props: any) {
         super(props);
         this.submit = this.submit.bind(this);
-        this.url = '/api/update';
     }
 
     submit(e: any) {
@@ -163,10 +155,9 @@ class SubmitButton extends React.Component<IProps> {
             TextJS: formMessage,
             TitleJS: this.props.jsonStorage.titleCS,
             SavedTextId: window.textId
-            // InitialCheckboxes: this.props.jsonStorage.initialCheckboxes.map(a => Number(a))
         };
         let requestBody = JSON.stringify(item);
-        Loader.postData(this.props.listener, requestBody, this.url);
+        Loader.postData(this.props.listener, requestBody, Loader.updateUrl);
     }
 
     componentWillUnmount() {

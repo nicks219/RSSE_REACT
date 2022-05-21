@@ -48,8 +48,8 @@ public class Startup
             else
             {
                 // скрипт из package.json (npm run build) построил билд, но не смог запустить kestrel, свалился
-                //if (Directory.Exists("")) ;
-                //spa.UseReactDevelopmentServer(npmScript: "build");
+                // if (Directory.Exists("")) ;
+                // spa.UseReactDevelopmentServer(npmScript: "build");
             }
         });
     }
@@ -61,9 +61,9 @@ public class Startup
             // ноду надо ставить до старта - во время не получится, студия не скомпилирует typescript
             // перенесу в скрипт BuildEvents
             // yarn add --dev @types/react
-            //string strCmdText = "/C cd ./ClientApp && npm install";
-            //Process cmd = Process.Start("CMD.exe", strCmdText);
-            //cmd.WaitForExit();
+            // string strCmdText = "/C cd ./ClientApp && npm install";
+            // Process cmd = Process.Start("CMD.exe", strCmdText);
+            // cmd.WaitForExit();
         }
 
         if (Directory.Exists("./ClientApp/build"))
@@ -75,16 +75,16 @@ public class Startup
             
         const string strCmdText = "/C cd ./ClientApp && npm run build";
             
-        //using {Process}
+        // using {Process}
             
         var cmd = Process.Start("CMD.exe", strCmdText);
             
         cmd.WaitForExit();
             
-        //ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
-        //String command = @"/k java -jar myJava.jar";
-        //cmdsi.Arguments = command;
-        //Process cmd = Process.Start(cmdsi);
-        //cmd.WaitForExit();
+        // ProcessStartInfo cmdsi = new ProcessStartInfo("cmd.exe");
+        // String command = @"/k java -jar myJava.jar";
+        // cmdsi.Arguments = command;
+        // Process cmd = Process.Start(cmdsi);
+        // cmd.WaitForExit();
     }
 }

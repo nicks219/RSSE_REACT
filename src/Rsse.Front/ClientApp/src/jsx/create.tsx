@@ -14,20 +14,19 @@ interface IProps {
 }
 
 class CreateView extends React.Component<IState> {
-    url: string;
     formId: any;
     mounted: boolean;
 
     public state: IState = {
         data: null,
-        time: null // получи реальное время иначе key отвалятся
+        // используй реальное время, более корректно для key
+        time: null
     }
 
     mainForm: React.RefObject<HTMLFormElement>;
 
     constructor(props: any) {
         super(props);
-        this.url = "/api/create";
         this.formId = null;
         this.mounted = true;
 
@@ -36,7 +35,7 @@ class CreateView extends React.Component<IState> {
 
     componentDidMount() {
         this.formId = this.mainForm.current;
-        Loader.getData(this, this.url);
+        Loader.getData(this, Loader.createUrl);
     }
 
     componentWillUnmount() {
@@ -57,7 +56,7 @@ class CreateView extends React.Component<IState> {
             }
         }
 
-        var jsonStorage = this.state.data;
+        let jsonStorage = this.state.data;
         if (jsonStorage) {
             if (!jsonStorage.textCS) jsonStorage.textCS = "";
             if (!jsonStorage.titleCS) jsonStorage.titleCS = "";
@@ -130,45 +129,27 @@ class Message extends React.Component<IProps> {
 }
 
 class SubmitButton extends React.Component<IProps> {
-    url: string;
-    //
-    corsAddress: string;
-    findUrl: string;
-    readUrl: string;
     requestBody: any;
     storage: string[] = [];
-    //
     state: any;
     btn: any;
-
-    private credos: "omit" | "same-origin" | "include";
     
     constructor(props: any) {
         super(props);
         this.submit = this.submit.bind(this);
-        this.url = "/api/create";
         this.state = 0;
-
-        // [TODO]: вынеси в Loader: finder и checkScanResult([query], credos, callback) (await на promise)
-        this.credos = Loader.credos;
-        this.corsAddress = Loader.corsAddress;
-        
-        this.findUrl = this.corsAddress + "/api/find";
-        this.readUrl = this.corsAddress + "/api/read/title";
     }
 
     cancel = (e: any) => {
         e.preventDefault();
         this.btn.style.display = "none";
         
-        // TODO: костыль чтоб получить [Already Exists] - нужна существующая песня, поправь
         this.requestBody = JSON.stringify({
             "CheckedCheckboxesJS":[1],
-            "TextJS":"Stub",
-            "TitleJS":"Nirvana - In Bloom" // 
+            "TextJS":"",
+            "TitleJS":""
             });
-        // "Nirvana - In Bloom";
-        Loader.postData(this.props.listener, this.requestBody, this.url);
+        Loader.postData(this.props.listener, this.requestBody, Loader.createUrl);
     }
     
     componentDidMount() {
@@ -185,7 +166,7 @@ class SubmitButton extends React.Component<IProps> {
         {
             // подтверждение
             this.state = 0;
-            Loader.postData(this.props.listener, this.requestBody, this.url);
+            Loader.postData(this.props.listener, this.requestBody, Loader.createUrl);
             return;
         }
 
@@ -201,42 +182,42 @@ class SubmitButton extends React.Component<IProps> {
         this.requestBody = JSON.stringify(item);
         
         this.storage = [];
-        let promise = this.finder(formMessage, formTitle);
+        let promise = this.findSongMatches(formMessage, formTitle);
         await promise;
         
         if (this.storage.length > 0)
         {
-            // переключение в "подтверждение или отбой сохранения"
+            // переключение в "подтверждение или отмена"
             this.btn.style.display = "block";
             this.state = 1;
             return;
         }
 
         // совпадения не обнаружены
-        Loader.postData(this.props.listener, this.requestBody, this.url);
+        Loader.postData(this.props.listener, this.requestBody, Loader.createUrl);
     }
     
-    finder = async (formMessage: string | File | null, formTitle: string | File | null) => {
+    findSongMatches = async (formMessage: string | File | null, formTitle: string | File | null) => {
         let promise;
 
         if (typeof formMessage === "string") {
             formMessage = formMessage.replace(/\r\n|\r|\n/g, " ");
         }
         
+        let callback = (data: any) => this.getFoundNames(data);
+        let query = "?text=" + formMessage + " " + formTitle;
+        
         try {
-            
-            promise = window.fetch(this.findUrl + "?text=" + formMessage + " " + formTitle
-                , {credentials: this.credos})
-                .then(response => response.ok ? response.json() : Promise.reject(response))
-                .then(data => this.checkScanResult(data));
+            promise = Loader.getWithPromise(Loader.findUrl, query, callback);
         } catch (err) {
             console.log("Find when create: try-catch err");
         }
 
-        await promise;
+        if (promise !== undefined) {
+            await promise;}
     }
     
-    checkScanResult = async (res: any) => {
+    getFoundNames = async (res: any) => {
         let result = [];
         let response = res['res'];
         if (response === undefined) {
@@ -257,7 +238,7 @@ class SubmitButton extends React.Component<IProps> {
         }
 
         for (let ind = 0; ind < result.length; ind++) {
-            // лучше reject
+            // лучше сделать reject
             if (this.storage.length >= 10) {
                 continue;
             }
@@ -266,17 +247,20 @@ class SubmitButton extends React.Component<IProps> {
             
             //  получаем имена возможных совпадений
             let promise;
+            
+            let callback = (data: any) => this.getTitle(data);
+            
+            let query = "?id=" + i;
+            
             try {
-                
-                promise = window.fetch(this.readUrl + "?id=" + i,
-                    {credentials: this.credos})
-                    .then(response => response.ok ? response.json() : Promise.reject(response))
-                    .then(data => this.getTitle(data));
+                promise = Loader.getWithPromise(Loader.readTitleUrl, query, callback);
             } catch (err) {
                 console.log("Find when create: try-catch err");
             }
 
-            await promise;
+            if (promise !== undefined) {
+                await promise;
+            }
         }
     }
     
@@ -294,7 +278,7 @@ class SubmitButton extends React.Component<IProps> {
     }
 
     componentWillUnmount() {
-        //отменяй подписки и асинхронную загрузку
+        // отменяй подписки и асинхронную загрузку
     }
 
     render() {
@@ -312,23 +296,3 @@ class SubmitButton extends React.Component<IProps> {
 }
 
 export default CreateView;
-
-/*
-class CheckboxBts extends React.Component<IProps> {
-
-    render() {
-        let checked = this.props.jsonStorage.isGenreCheckedCS[this.props.id] === "checked";
-        let getGenreName = (i: number) => {
-            return this.props.jsonStorage.genresNamesCS[i];
-        };
-        return (
-            // нужен site.css
-            <label className="checkbox-btn">
-                <input name="chkButton" value={this.props.id} type="checkbox" id={this.props.id}
-                       defaultChecked = { checked } />
-                <span style={{ lineHeight: 30 + 'px' }}>{getGenreName(this.props.id)}</span>
-            </label>
-        );
-    }
-}
-*/
