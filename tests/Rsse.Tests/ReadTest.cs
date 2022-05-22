@@ -10,104 +10,100 @@ using RandomSongSearchEngine.Data.DTO;
 using RandomSongSearchEngine.Service.Models;
 using RandomSongSearchEngine.Tests.Infrastructure;
 
-namespace RandomSongSearchEngine.Tests
+namespace RandomSongSearchEngine.Tests;
+
+[TestClass]
+public class ReadTest
 {
-    [TestClass]
-    public class ReadTest
+    private const int GenresCount = 44;
+
+    private ReadModel? _readModel;
+
+    [TestInitialize]
+    public void Initialize()
     {
-        private const int GenresCount = 44;
-        
-        private IServiceScope? _scope;
-        
-        private ReadModel? _readModel;
+        FakeLoggerErrors.ExceptionMessage = "";
 
-        [TestInitialize]
-        public void Initialize()
-        {
-            FakeLoggerErrors.ExceptionMessage = "";
-            
-            FakeLoggerErrors.LogErrorMessage = "";
-            
-            _scope = new TestScope<ReadModel>().ServiceScope;
-            
-            _readModel = new ReadModel(_scope);
-        }
+        FakeLoggerErrors.LogErrorMessage = "";
 
-        [TestMethod]
-        public async Task Model_ShouldReports44Genres()
-        {
-            var response = await _readModel!.ReadGenreListAsync();
-            
-            Assert.AreEqual(GenresCount, response.GenreListResponse?.Count);
-        }
+        var host = new TestHost<ReadModel>();
 
-        [TestMethod]
-        public async Task Model_ShouldReadRandomSong()
-        {
-            // интеграционные тесты следует проводить на тестовой бд в docker'е
-            var request = new SongDto { SongGenres = new List<int> { 11 } };
-            
-            var response = await _readModel!.ReadRandomSongAsync(request);
-            
-            Assert.AreEqual("test title", response.TitleResponse);
-        }
+        _readModel = new ReadModel(host.ServiceScope);
+    }
 
-        [TestMethod]
-        public async Task ModelInvalidRequest_ShouldResponseEmptyTitle()
-        {
-            var frontRequest = new SongDto { SongGenres = new List<int> { 1000 } };
-            
-            var result = await _readModel!.ReadRandomSongAsync(frontRequest);
-            
-            Assert.AreEqual("", result.TitleResponse);
-        }
+    [TestMethod]
+    public async Task Model_ShouldReports44Genres()
+    {
+        var response = await _readModel!.ReadGenreListAsync();
 
-        [TestMethod]
-        public async Task ModelNullRequest_ShouldLoggingErrorInsideModel()
-        {
-            _ = await _readModel!.ReadRandomSongAsync(null!);
-            
-            Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
-        }
+        Assert.AreEqual(GenresCount, response.GenreListResponse?.Count);
+    }
 
-        [TestMethod]
-        public async Task ModelNullRequest_ShouldResponseEmptyTitleTest()
-        {
-            var response = await _readModel!.ReadRandomSongAsync(null!);
-            
-            Assert.AreEqual("", response.TitleResponse);
-        }
+    [TestMethod]
+    public async Task Model_ShouldReadRandomSong()
+    {
+        // интеграционные тесты следует проводить на тестовой бд в docker'е
+        var request = new SongDto {SongGenres = new List<int> {11}};
 
-        [TestMethod]
-        public async Task ControllerThrowsException_ShouldLogError()
-        {
-            var mockLogger = Substitute.For<ILogger<ReadController>>();
-            var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-            fakeServiceScopeFactory.When(s => s.CreateScope()).Do(i => throw new Exception());
-            var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
+        var response = await _readModel!.ReadRandomSongAsync(request);
 
-            _ = await readController.GetRandomSongAsync(null!);
+        Assert.AreEqual("test title", response.TitleResponse);
+    }
 
-            mockLogger.Received().LogError(Arg.Any<Exception>(), "[ReadController: OnPost Error]");
-        }
+    [TestMethod]
+    public async Task ModelInvalidRequest_ShouldResponseEmptyTitle()
+    {
+        var frontRequest = new SongDto {SongGenres = new List<int> {1000}};
 
-        [TestMethod]
-        public async Task ControllerNullRequest_ShouldResponseEmptyTitle()
-        {
-            var mockLogger = Substitute.For<ILogger<ReadController>>();
-            var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-            fakeServiceScopeFactory.CreateScope().Returns(_scope);
-            var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
+        var result = await _readModel!.ReadRandomSongAsync(frontRequest);
 
-            var response = (await readController.GetRandomSongAsync(null!)).Value;
-            
-            Assert.AreEqual("", response?.TitleResponse);
-        }
+        Assert.AreEqual("", result.TitleResponse);
+    }
 
-        [TestCleanup]
-        public void TestCleanup()
-        {
-            _scope?.Dispose();
-        }
+    [TestMethod]
+    public async Task ModelNullRequest_ShouldLoggingErrorInsideModel()
+    {
+        _ = await _readModel!.ReadRandomSongAsync(null!);
+
+        Assert.AreNotEqual("[IndexModel: OnPost Error]", FakeLoggerErrors.LogErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task ModelNullRequest_ShouldResponseEmptyTitleTest()
+    {
+        var response = await _readModel!.ReadRandomSongAsync(null!);
+
+        Assert.AreEqual("", response.TitleResponse);
+    }
+
+    [TestMethod]
+    public async Task ControllerThrowsException_ShouldLogError()
+    {
+        var mockLogger = Substitute.For<ILogger<ReadController>>();
+        var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
+        fakeServiceScopeFactory.When(s => s.CreateScope()).Do(i => throw new Exception());
+
+        var readController = new ReadController(fakeServiceScopeFactory, mockLogger);
+
+        _ = await readController.GetRandomSongAsync(null!);
+
+        mockLogger.Received().LogError(Arg.Any<Exception>(), "[ReadController: OnPost Error]");
+    }
+
+    [TestMethod]
+    public async Task ControllerNullRequest_ShouldResponseEmptyTitle()
+    {
+        var logger = Substitute.For<ILogger<ReadController>>();
+        var factory = new CustomServiceScopeFactory(new TestHost<ReadModel>().ServiceProvider);
+        var readController = new ReadController(factory, logger);
+
+        var response = (await readController.GetRandomSongAsync(null!)).Value;
+
+        Assert.AreEqual("", response?.TitleResponse);
+    }
+
+    [TestCleanup]
+    public void TestCleanup()
+    {
     }
 }

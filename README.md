@@ -1,25 +1,41 @@
 # Random Song Search Engine 
-* Ветка [DOTNET-1] : рефакторинг   
-* Ветка [DOTNET-2] : добавлен нечеткий тестковый поиск  
+* [DOTNET-1] : небольшой рефакторинг   
+* [DOTNET-2] : добавлен нечеткий тестковый поиск  
   ```bash
   /api/find/{string} вернет json {res: [id, weight]}
   ```  
-  Цель: gRpc сервис и CI/CD конвейер
+* [DOTNET-3] : актуальные поисковые индексы для N > 1 реплик (в разработке)
+
+Бизнес-требования заказчика: сервис рассчитан на высокую нагрузку по чтению, 
+нагрузка по изменению данных незначительна (этим обусловлена *простая* работа с синхронизацией)
+
 # Технологии
 * ```bash
-  .NET 6 | TypeScript React | тесты | докеры
+  .NET 6 | TypeScript React | MSTest | Docker
   ```    
 * ```bash
-  MSSQL | MySQL
+  [MSSQL] | MySQL
   ```
 # Запуск
 * Сбилдите фронт: ```npm install && npm run build```  
-  Для локального запуска скопируйте папку ```Rsse.Front/ClientApp/build``` в ```Rsse.Base/ClientApp/build```
-* Поднимите компоуз с бд и приложением
-* Либо сбилдите только приложение с помощью ```Dockerfile```  
-  Фронт будет скопирован в процессе, не забудьте присоединить контейнер к ```mysql-сети``` при запуске
-* В ```appsettings.Production.json``` в качестве сервера бд указано имя сервиса из docker-compose ```mysql```  
-  Это работает только в контейнере и сделано для запуска в контейнере
-* Фронт на данный момент "пойдёт" на ```localhost:5000```  
-  Cделано для отдельного запуска фронта на ```NodeJs```  
-  Для деплоя необходмо убрать префикс ```corsAddress``` в ```loader.jsx``` и ```login.tsx```
+* Для локального разработки запустите:  
+  ```npm start``` из папки ```Rsse.Front/ClientApp/build```  
+* В каталоге есть ```docker-compose.yml``` и ```Dockerfile```
+* В папке Rsse.Data/Dump есть MySql-дамп на 389 песен
+
+# Деплой
+* Пример скрипта доставки (компоуз должен быть поднят), не забудьте указать свой registry:
+```bash
+cd /mnt/f/rsse/RSSE_REACT/src && \
+docker-compose down && \
+docker image rm nick219nick/rsse:v3 && \
+docker-compose build && \
+docker-compose up -d && \
+R_C_HASH=`docker ps | grep rsse | grep -E -o "^\S+"` && \
+docker commit -a Nick219 -m v3 ${R_C_HASH} nick219nick/rsse:v3 && \
+docker push nick219nick/rsse:v3;
+```
+
+# Описание API
+
+В development зайдите на /swagger/v1/swagger.json, также в Rsse.Base/Controller закоммитан api.v1.json

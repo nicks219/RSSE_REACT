@@ -8,27 +8,30 @@ namespace RandomSongSearchEngine.Infrastructure.Cache;
 
 public class CacheRepository : ICacheRepository
 {
-    // TODO: в случае ошибок в этом репозитории надо пересоздавать кэш под блокировкой, а не кидать эксепшны
-    // TODO: docker restart: always
+    // [TODO]: нужен ли ConcurrentDictionary при ReaderWriterLockSlim?
+    // [TODO]: можно заменить логгирование на пересоздание линии кэша
     private readonly IServiceScopeFactory _factory;
-    private readonly  ConcurrentDictionary<int, List<int>> _undefinedCache;
-    private readonly  ConcurrentDictionary<int, List<int>> _definedCache;
-    private readonly object _obj = new();
+    private readonly ConcurrentDictionary<int, List<int>> _undefinedCache;
+    private readonly ConcurrentDictionary<int, List<int>> _definedCache;
+    private readonly ReaderWriterLockSlim _lockSlim;
+    private readonly ILogger<CacheRepository> _logger;
 
-    public CacheRepository(IServiceScopeFactory factory)
+    public CacheRepository(IServiceScopeFactory factory, ILogger<CacheRepository> logger)
     {
         _factory = factory;
         _undefinedCache = new ConcurrentDictionary<int, List<int>>();
         _definedCache = new ConcurrentDictionary<int, List<int>>();
-        
+        _logger = logger;
+        _lockSlim = new ReaderWriterLockSlim();
+
         Initialize();
     }
-    
+
     public ConcurrentDictionary<int, List<int>> GetUndefinedCache()
     {
         return _undefinedCache;
     }
-    
+
     public ConcurrentDictionary<int, List<int>> GetDefinedCache()
     {
         return _definedCache;
@@ -36,157 +39,145 @@ public class CacheRepository : ICacheRepository
 
     public void Delete(int id)
     {
-        if (_undefinedCache.TryRemove(id, out _) && _definedCache.TryRemove(id, out _))
+        _lockSlim.EnterWriteLock();
+
+        var res1 = _undefinedCache.TryRemove(id, out _);
+
+        var res2 = _definedCache.TryRemove(id, out _);
+
+        if (!(res1 && res2))
         {
-            return;
+            _logger.LogError("[Cache Repository: concurrent delete error]");
         }
-        
-        throw new MethodAccessException("[ConcurrentCacheDelete: failed]");
+
+        _lockSlim.ExitWriteLock();
     }
 
     public void Create(int id, string text)
     {
+        _lockSlim.EnterReadLock();
+
         using var scope = _factory.CreateScope();
 
         var processor = scope.ServiceProvider.GetRequiredService<ITextProcessor>();
-        
-        // undefined hash
-        processor.Setup(ConsonantChain.Undefined);
-                
-        var song = processor.ConvertStringToText(text);
-                
-        song.Title.ForEach(t => song.Words.Add(t));
-                
-        var undefinedHash = processor.GetHashSetFromStrings(song.Words); // название - в конце списка
 
-        if (!_undefinedCache.TryAdd(song.Number, undefinedHash))
+        var (definedHash, undefinedHash, _) = CreateCacheLine(processor, text);
+
+        if (!_undefinedCache.TryAdd(id, undefinedHash))
         {
-            throw new MethodAccessException("[ConcurrentCacheCreate: undefined failed]");
+            _logger.LogError("[Cache Repository: concurrent create error - 1]");
         }
-                
-        // defined hash
-        processor.Setup(ConsonantChain.Defined);
-                
-        song = processor.ConvertStringToText(text);
-                
-        song.Title.ForEach(t => song.Words.Add(t));
 
-        var definedHash = processor.GetHashSetFromStrings(song.Words);
-
-        if (!_definedCache.TryAdd(song.Number, definedHash))
+        if (!_definedCache.TryAdd(id, definedHash))
         {
-            throw new MethodAccessException("[ConcurrentCacheCreate: defined failed]");
+            _logger.LogError("[Cache Repository: concurrent create error - 2]");
         }
+
+        _lockSlim.ExitReadLock();
     }
 
     public void Update(int id, string text)
     {
+        _lockSlim.EnterReadLock();
+
         using var scope = _factory.CreateScope();
 
         var processor = scope.ServiceProvider.GetRequiredService<ITextProcessor>();
-        
-        // undefined hash
-        processor.Setup(ConsonantChain.Undefined);
-                
-        var song = processor.ConvertStringToText(text);
-                
-        song.Title.ForEach(t => song.Words.Add(t));
-                
-        var undefinedHash = processor.GetHashSetFromStrings(song.Words); // название - в конце списка
 
-        if (_undefinedCache.TryGetValue(song.Number, out var oldHash))
+        var (definedHash, undefinedHash, _) = CreateCacheLine(processor, text);
+
+        if (_undefinedCache.TryGetValue(id, out var oldHash))
         {
-            if (!_undefinedCache.TryUpdate(song.Number, undefinedHash, oldHash))
+            if (!_undefinedCache.TryUpdate(id, undefinedHash, oldHash))
             {
-                throw new MethodAccessException("[ConcurrentCacheUpdate: undefined failed on stage 2]");
+                _logger.LogError("[Cache Repository: concurrent update error - 1_2]");
             }
         }
         else
         {
-            throw new MethodAccessException("[ConcurrentCacheUpdate: undefined failed on stage 1]");
+            _logger.LogError("[Cache Repository: concurrent update error - 1_1]");
         }
-                
-        // defined hash
-        processor.Setup(ConsonantChain.Defined);
-                
-        song = processor.ConvertStringToText(text);
-                
-        song.Title.ForEach(t => song.Words.Add(t));
 
-        var definedHash = processor.GetHashSetFromStrings(song.Words);
-
-        if (_definedCache.TryGetValue(song.Number, out oldHash))
+        if (_definedCache.TryGetValue(id, out oldHash))
         {
-            if (!_definedCache.TryUpdate(song.Number, definedHash, oldHash))
+            if (!_definedCache.TryUpdate(id, definedHash, oldHash))
             {
-                throw new MethodAccessException("[ConcurrentCacheUpdate: defined failed on stage 2]");
+                _logger.LogError("[Cache Repository: concurrent update error - 2_2]");
             }
         }
         else
         {
-            throw new MethodAccessException("[ConcurrentCacheUpdate: defined failed on stage 1]");
+            _logger.LogError("[Cache Repository: concurrent update error - 2_1]");
         }
+
+        _lockSlim.ExitReadLock();
     }
-    
-    private void Initialize()
+
+    public void Initialize()
     {
+        _lockSlim.EnterWriteLock();
+
         using var scope = _factory.CreateScope();
-        
+
         using var repo = scope.ServiceProvider.GetRequiredService<IDataRepository>();
-        
+
         var processor = scope.ServiceProvider.GetRequiredService<ITextProcessor>();
-        
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<CacheRepository>>();
 
-        // TODO: блокировка?
-        lock (_obj)
+        try
         {
-            if (!_undefinedCache.IsEmpty)
-            {
-                throw new Exception("[Cache Repository: serial initialization]");
-            }
-            
-            try
-            {
-                var texts = repo.ReadAllSongs();
+            _undefinedCache.Clear();
 
-                foreach (var text in texts)
+            _definedCache.Clear();
+
+            var texts = repo.ReadAllSongs();
+
+            foreach (var text in texts)
+            {
+                var (definedHash, undefinedHash, songNumber) = CreateCacheLine(processor, text);
+
+                if (!_undefinedCache.TryAdd(songNumber, undefinedHash))
                 {
-                    // undefined hash line
-                    processor.Setup(ConsonantChain.Undefined);
-
-                    var song = processor.ConvertStringToText(text);
-
-                    song.Title.ForEach(t => song.Words.Add(t));
-
-                    var undefinedHash = processor.GetHashSetFromStrings(song.Words); // название - в конце списка
-
-                    if (!_undefinedCache.TryAdd(song.Number, undefinedHash))
-                    {
-                        throw new MethodAccessException("[Cache Repository Init: undefined failed]");
-                    }
-
-                    // defined hash line
-                    processor.Setup(ConsonantChain.Defined);
-
-                    song = processor.ConvertStringToText(text);
-
-                    song.Title.ForEach(t => song.Words.Add(t));
-
-                    var definedHash = processor.GetHashSetFromStrings(song.Words);
-
-                    if (!_definedCache.TryAdd(song.Number, definedHash))
-                    {
-                        throw new MethodAccessException("[Cache Repository Init: defined failed]");
-                    }
+                    throw new MethodAccessException("[Cache Repository Init: undefined failed]");
                 }
 
-                GC.Collect();
+                if (!_definedCache.TryAdd(songNumber, definedHash))
+                {
+                    throw new MethodAccessException("[Cache Repository Init: defined failed]");
+                }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "[Cache Repository Init: OnGet Error]");
-            }
+
+            GC.Collect();
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "[Cache Repository Init: Init Failed]");
+        }
+        finally
+        {
+            _lockSlim.ExitWriteLock();
+        }
+    }
+
+    private static (List<int> Def, List<int> Undef, int Num) CreateCacheLine(ITextProcessor processor, string text)
+    {
+        // undefined hash line
+        processor.Setup(ConsonantChain.Undefined);
+
+        var song = processor.ConvertStringToText(text);
+
+        song.Title.ForEach(t => song.Words.Add(t));
+
+        var undefinedHashLine = processor.GetHashSetFromStrings(song.Words);
+
+        // defined hash line
+        processor.Setup(ConsonantChain.Defined);
+
+        song = processor.ConvertStringToText(text);
+
+        song.Title.ForEach(t => song.Words.Add(t));
+
+        var definedHashLine = processor.GetHashSetFromStrings(song.Words);
+
+        return (Def: definedHashLine, Undef: undefinedHashLine, Num: song.Number);
     }
 }

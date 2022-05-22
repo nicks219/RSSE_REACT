@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RandomSongSearchEngine.Data.DTO;
 using RandomSongSearchEngine.Infrastructure.Cache;
@@ -13,8 +12,6 @@ namespace RandomSongSearchEngine.Tests;
 public class UpdateTest
 {
     private const int GenresCount = 44;
-    
-    private IServiceScope? _scope;
     
     private UpdateModel? _updateModel;
 
@@ -31,15 +28,13 @@ public class UpdateTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        var scope = new TestScope<CacheRepository>().ServiceScope;
+        var host = new TestHost<CacheRepository>();
         
-        var find = new FindModel(scope);
+        var find = new FindModel(host.ServiceScope);
 
         _testSongId = find.FindIdByName(TestName);
         
-        _scope = new TestScope<UpdateModel>().ServiceScope;
-        
-        _updateModel = new UpdateModel(_scope);
+        _updateModel = new UpdateModel(new TestHost<UpdateModel>().ServiceScope);
     }
 
     [TestMethod]
@@ -69,6 +64,5 @@ public class UpdateTest
     [TestCleanup]
     public void TestCleanup()
     {
-        _scope?.Dispose();
     }
 }

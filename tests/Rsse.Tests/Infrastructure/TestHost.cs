@@ -12,15 +12,17 @@ using RandomSongSearchEngine.Infrastructure.Engine.Contracts;
 
 namespace RandomSongSearchEngine.Tests.Infrastructure;
 
-public class TestScope<T> where T : class
+public class TestHost<T> where T : class
 {
     public readonly IServiceScope ServiceScope;
+    
+    public readonly IServiceProvider ServiceProvider;
 
     // Connection String для MsSql: private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\SSDSQL;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
     private const string ConnectionString = @"Server=localhost;Database=rsse;Uid=1;Pwd=1;";
 
-    public TestScope(bool stubRepository = false)
+    public TestHost(bool stubRepository = false)
     {
         var services = new ServiceCollection();
 
@@ -41,16 +43,39 @@ public class TestScope<T> where T : class
 
         services.AddTransient<ITextProcessor, TextProcessor>();
 
-        services.AddSingleton<ICacheRepository, CacheRepository>();
+        services./*AddSingleton*/AddTransient<ICacheRepository, CacheRepository>();
 
         // MsSql
         // services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
 
+        // вариант для тестов
         // services.AddDbContext<RsseContext>(options => options.UseInMemoryDatabase(databaseName: "rsse"));
 
         var serviceProvider = services.BuildServiceProvider();
 
+        ServiceProvider = serviceProvider;
+
         ServiceScope = serviceProvider.CreateScope();
+    }
+    
+    public IServiceScope CreateScope()
+    {
+        return ServiceProvider.CreateScope();
+    }
+}
+
+public class CustomServiceScopeFactory : IServiceScopeFactory
+{
+    private readonly IServiceProvider _serviceProvider;
+
+    public CustomServiceScopeFactory(IServiceProvider serviceProvider)
+    {
+        _serviceProvider = serviceProvider;
+    }
+    
+    public IServiceScope CreateScope()
+    {
+        return _serviceProvider.CreateScope();
     }
 }
 

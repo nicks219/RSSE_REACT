@@ -21,11 +21,16 @@ public class LoginController : ControllerBase
     }
 
     [HttpGet("login")]
-    public async Task<ActionResult<string>> Login(string email, string password)
+    public async Task<ActionResult<string>> Login(string? email, string? password)
     {
+        if (email == null || password == null)
+        {
+            return Unauthorized("Authorize please");
+        }
+
         var loginModel = new LoginDto(email, password);
         var response = await Login(loginModel);
-        return response == "[Ok]" ? "[LoginController: Login Ok]" : (ActionResult<string>) BadRequest(response);
+        return response == "[Ok]" ? "[LoginController: Login Ok]" : Unauthorized(response);
     }
 
     [HttpGet("logout")]

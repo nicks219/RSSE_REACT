@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RandomSongSearchEngine.Data.DTO;
 using RandomSongSearchEngine.Service.Models;
@@ -13,8 +12,6 @@ public class CreateTest
 {
     private const int GenresCount = 44;
     
-    private IServiceScope? _scope;
-    
     private CreateModel? _createModel;
 
     [TestInitialize]
@@ -24,9 +21,9 @@ public class CreateTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        _scope = new TestScope<CreateModel>().ServiceScope;
+        var host = new TestHost<CreateModel>();
         
-        _createModel = new CreateModel(_scope);
+        _createModel = new CreateModel(host.ServiceScope);
     }
 
     [TestMethod]
@@ -48,7 +45,7 @@ public class CreateTest
         };
         var response = await _createModel!.CreateSongAsync(song);
         
-        var expected = await new UpdateModel(new TestScope<UpdateModel>().ServiceScope)
+        var expected = await new UpdateModel(new TestHost<UpdateModel>().ServiceScope)
             .ReadOriginalSongAsync(response.Id);
         
         Assert.AreEqual(expected.Title, response.Title);
@@ -57,6 +54,5 @@ public class CreateTest
     [TestCleanup]
     public void TestCleanup()
     {
-        _scope?.Dispose();
     }
 }

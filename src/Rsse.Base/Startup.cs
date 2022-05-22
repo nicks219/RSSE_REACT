@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
+using System.Runtime;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Data.Repository;
 using RandomSongSearchEngine.Data.Repository.Contracts;
+using RandomSongSearchEngine.Infrastructure;
 using RandomSongSearchEngine.Infrastructure.Cache;
 using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
 using RandomSongSearchEngine.Infrastructure.Engine;
@@ -12,6 +14,7 @@ using RandomSongSearchEngine.Infrastructure.Logger;
 
 namespace RandomSongSearchEngine;
 
+// RSSE: v3
 // фронт после билда копируем руками из FrontRepository/ClientApp/build в Rsse.Base/ClientApp/build
 
 public class Startup
@@ -29,6 +32,8 @@ public class Startup
 
     public void ConfigureServices(IServiceCollection services)
     {
+        services.AddHostedService<CacheActivatorService>();
+        
         // if (_env.IsDevelopment())
         {
             services.AddCors();
@@ -131,5 +136,9 @@ public class Startup
         logger.LogInformation(
             "Connection string here: {ConnectionString}", 
             _configuration.GetConnectionString("DefaultConnection"));
+        
+        logger.LogInformation("Server GC: {IsServer}", GCSettings.IsServerGC);
+        
+        logger.LogInformation("CPU: {Cpus}", Environment.ProcessorCount);
     }
 }

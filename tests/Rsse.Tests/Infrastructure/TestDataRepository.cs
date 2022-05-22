@@ -12,14 +12,18 @@ namespace RandomSongSearchEngine.Tests.Infrastructure;
 public class TestDataRepository : IDataRepository
 {
     private int _id;
+    
     private Dictionary<int, Tuple<string, string>> _dictionary = new();
 
-    private const string Song = "1,'Розенбаум - Вечерняя застольная'," +
+    private const string FirstSong = "1,'Розенбаум - Вечерняя застольная'," +
                                 "'Чёрт с ними! За столом сидим, поём, пляшем…\r\nПоднимем эту чашу за детей наших\r\n'";
+    
+    public const string SecondSong = "2,'Шаинский - Облака'," +
+                                "'Облака, белогривыи лошадки, облака, что ж вы мчитесь?\r\n'";
 
     public IQueryable<string> ReadAllSongs()
     {
-        var songs = new List<string> {Song}.AsQueryable();
+        var songs = new List<string> {FirstSong}.AsQueryable();
 
         return songs;
     }
@@ -55,6 +59,7 @@ public class TestDataRepository : IDataRepository
     public void Dispose()
     {
         _dictionary = null!;
+        GC.SuppressFinalize(this);
     }
 
     public ValueTask DisposeAsync()

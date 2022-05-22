@@ -20,8 +20,6 @@ public class CatalogTest
 {
     private const int SonsPerPage = 10;
     
-    private IServiceScope? _scope;
-    
     private CatalogModel? _catalogModel;
 
     private int _songsCount;
@@ -33,11 +31,11 @@ public class CatalogTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        _scope = new TestScope<CatalogModel>().ServiceScope;
+        var host = new TestHost<CatalogModel>();
         
-        _catalogModel = new CatalogModel(_scope);
+        _catalogModel = new CatalogModel(host.ServiceScope);
         
-        var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        var repo = host.ServiceProvider.GetRequiredService<IDataRepository>();
         
         _songsCount = repo.ReadAllSongs().Count();
     }
@@ -107,10 +105,9 @@ public class CatalogTest
     [TestMethod]
     public async Task ControllerDeleteInvalidRequest_ShouldResponseNull()
     {
-        var mockLogger = Substitute.For<ILogger<CatalogController>>();
-        var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-        fakeServiceScopeFactory.CreateScope().Returns(_scope);
-        var catalogController = new CatalogController(fakeServiceScopeFactory, mockLogger);
+        var logger = Substitute.For<ILogger<CatalogController>>();
+        var factory = new CustomServiceScopeFactory(new TestHost<CatalogModel>().ServiceProvider);
+        var catalogController = new CatalogController(factory, logger);
 
         var response = (await catalogController.OnDeleteSongAsync(-300, -200)).Value;
 
@@ -120,6 +117,5 @@ public class CatalogTest
     [TestCleanup]
     public void TestCleanup()
     {
-        _scope?.Dispose();
     }
 }

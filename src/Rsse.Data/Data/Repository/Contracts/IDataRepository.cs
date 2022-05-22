@@ -9,7 +9,7 @@ namespace RandomSongSearchEngine.Data.Repository.Contracts
 
         int FindIdByName(string name);
         
-        // async
+        // [TODO]: перепиши async на IQueryable<T>
         Task<int> CreateSongAsync(SongDto dt);
         IQueryable<Tuple<string, string>> ReadSong(int textId);
         Task UpdateSongAsync(IEnumerable<int> originalCheckboxes, SongDto dt);

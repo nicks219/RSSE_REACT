@@ -248,6 +248,7 @@ public class DataRepository : IDataRepository
     public async ValueTask DisposeAsync()
     {
         await _context.DisposeAsync().ConfigureAwait(false);
+        GC.SuppressFinalize(this);
     }
 
     void IDisposable.Dispose()

@@ -13,4 +13,6 @@ public interface ICacheRepository
     public void Create(int id, string text);
 
     public void Update(int id, string text);
+
+    public void Initialize();
 }

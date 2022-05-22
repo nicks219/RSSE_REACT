@@ -50,9 +50,9 @@ public class ReadController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<SongDto>> GetRandomSongAsync([FromBody] SongDto dto)
+    public async Task<ActionResult<SongDto>> GetRandomSongAsync([FromBody] SongDto? dto)
     {
-        if (dto.SongGenres?.Count == 0)
+        if (dto?.SongGenres?.Count == 0)
         {
             dto.SongGenres = Enumerable.Range(1, 44).ToList();
         }
