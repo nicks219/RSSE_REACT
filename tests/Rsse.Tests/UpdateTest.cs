@@ -3,8 +3,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RandomSongSearchEngine.Data.DTO;
+using RandomSongSearchEngine.Infrastructure.Cache;
 using RandomSongSearchEngine.Service.Models;
-using RandomSongSearchEngine.Tests.Mocks;
+using RandomSongSearchEngine.Tests.Infrastructure;
 
 namespace RandomSongSearchEngine.Tests;
 
@@ -13,9 +14,15 @@ public class UpdateTest
 {
     private const int GenresCount = 44;
     
-    private IServiceScope? _fakeScope;
+    private IServiceScope? _scope;
     
     private UpdateModel? _updateModel;
+
+    private const string TestName = "test title";
+
+    private const string TestText = "test text text";
+
+    private int _testSongId;
 
     [TestInitialize]
     public void Initialize()
@@ -24,13 +31,19 @@ public class UpdateTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        _fakeScope = new FakeScope<UpdateModel>().ServiceScope;
+        var scope = new TestScope<CacheRepository>().ServiceScope;
         
-        _updateModel = new UpdateModel(_fakeScope);
+        var find = new FindModel(scope);
+
+        _testSongId = find.FindIdByName(TestName);
+        
+        _scope = new TestScope<UpdateModel>().ServiceScope;
+        
+        _updateModel = new UpdateModel(_scope);
     }
 
     [TestMethod]
-    public async Task ShouldBe44GenresTest()
+    public async Task Model_ShouldReports44Genres()
     {
         var response = await _updateModel!.ReadOriginalSongAsync(1);
         
@@ -38,26 +51,24 @@ public class UpdateTest
     }
 
     [TestMethod]
-    public async Task ShouldUpdateTest()
+    public async Task Model_ShouldUpdate()
     {
         var song = new SongDto
         {
-            Title = "test title",
-            Text = "test text text",
-            SongGenres = new List<int> {1, 2, 3},
-            Id = 1
+            Title = TestName,
+            Text = TestText,
+            SongGenres = new List<int> {1, 2, 3, 11},
+            Id = _testSongId
         };
-        
-        // var expected = await updateModel.ReadOriginalSongAsync(1);
         
         var response = await _updateModel!.UpdateSongAsync(song);
         
-        Assert.AreEqual("test text text", response.TextResponse);
+        Assert.AreEqual(TestText, response.TextResponse);
     }
 
     [TestCleanup]
     public void TestCleanup()
     {
-        _fakeScope?.Dispose();
+        _scope?.Dispose();
     }
 }

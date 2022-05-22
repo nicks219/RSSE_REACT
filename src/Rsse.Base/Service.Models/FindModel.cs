@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using RandomSongSearchEngine.Data.Repository.Contracts;
 using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
 using RandomSongSearchEngine.Infrastructure.Engine;
 using RandomSongSearchEngine.Infrastructure.Engine.Contracts;
@@ -16,6 +17,15 @@ public class FindModel
         _scope = scope;
         _undefinedCache = scope.ServiceProvider.GetRequiredService<ICacheRepository>().GetUndefinedCache();
         _definedCache = scope.ServiceProvider.GetRequiredService<ICacheRepository>().GetDefinedCache();
+    }
+
+    public int FindIdByName(string name)
+    {
+        using var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+
+        var id = repo.FindIdByName(name);
+
+        return id;
     }
 
     public Dictionary<int, double> Find(string text)

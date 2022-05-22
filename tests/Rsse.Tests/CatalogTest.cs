@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using RandomSongSearchEngine.Controllers;
 using RandomSongSearchEngine.Data.DTO;
+using RandomSongSearchEngine.Data.Repository.Contracts;
 using RandomSongSearchEngine.Service.Models;
-using RandomSongSearchEngine.Tests.Mocks;
+using RandomSongSearchEngine.Tests.Infrastructure;
 
 namespace RandomSongSearchEngine.Tests;
 
 [TestClass]
 public class CatalogTest
 {
-    private IServiceScope? _fakeScope;
+    private const int SonsPerPage = 10;
+    
+    private IServiceScope? _scope;
     
     private CatalogModel? _catalogModel;
 
+    private int _songsCount;
+    
     [TestInitialize]
     public void Initialize()
     {
@@ -26,32 +33,41 @@ public class CatalogTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        _fakeScope = new FakeScope<CatalogModel>().ServiceScope;
+        _scope = new TestScope<CatalogModel>().ServiceScope;
         
-        _catalogModel = new CatalogModel(_fakeScope);
+        _catalogModel = new CatalogModel(_scope);
+        
+        var repo = _scope.ServiceProvider.GetRequiredService<IDataRepository>();
+        
+        _songsCount = repo.ReadAllSongs().Count();
     }
 
     [TestMethod]
-    public async Task ShouldReadCatalogPageTest()
+    public async Task Model_ShouldReadCatalogPage()
     {
-        // что должен проверять этот тест - количество песен на странице?
+        // [TODO]: поднять для тестов хост с тестовой бд
         var response = await _catalogModel!.ReadCatalogPageAsync(1);
-        
-        Assert.AreEqual( /*PageSize*/response.SongsCount, response.CatalogPage?.Count);
+
+        Assert.AreEqual( SonsPerPage, response.CatalogPage?.Count);
+        Assert.AreEqual( _songsCount, response.SongsCount);
     }
 
     [TestMethod]
-    public async Task ShouldNavigateTest()
+    public async Task Model_ShouldNavigateForward()
     {
-        // что должен проверять этот тест - количество песен на странице?
-        var request = new CatalogDto {NavigationButtons = new List<int> {1}, PageNumber = 1};
-        var response = await _catalogModel!.NavigateCatalogAsync(request);
+        const int page = 1;
+        const int forwardConst = 2;
         
-        Assert.AreEqual( /*PageSize*/response.SongsCount, response.CatalogPage?.Count);
+        var request = new CatalogDto {NavigationButtons = new List<int> {forwardConst}, PageNumber = page};
+        var response = await _catalogModel!.NavigateCatalogAsync(request);
+
+        response.PageNumber
+            .Should()
+            .Be(page + 1);
     }
 
     [TestMethod]
-    public async Task IfWtfShouldLoggingErrorInsideModelTest()
+    public async Task ModelInvalidRequest_ShouldLoggingError()
     {
         var frontRequest = new CatalogDto {NavigationButtons = new List<int> {1000, 2000}};
         var result = await _catalogModel!.NavigateCatalogAsync(frontRequest);
@@ -60,7 +76,7 @@ public class CatalogTest
     }
 
     [TestMethod]
-    public async Task IfNullShouldLoggingErrorTest()
+    public async Task ModelNullRequest_ShouldLoggingError()
     {
         _ = await _catalogModel!.NavigateCatalogAsync(null!);
         
@@ -68,7 +84,7 @@ public class CatalogTest
     }
 
     [TestMethod]
-    public async Task IfWtfShouldResponseZeroSongsTest()
+    public async Task ModelInvalidRequest_ShouldResponseZeroSongs()
     {
         var response = await _catalogModel!.DeleteSongAsync(-300, -200);
         
@@ -76,7 +92,7 @@ public class CatalogTest
     }
 
     [TestMethod]
-    public async Task MockThrowsExceptionInsideControllerTest()
+    public async Task ControllerThrowsException_ShouldLogError()
     {
         var mockLogger = Substitute.For<ILogger<CatalogController>>();
         var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
@@ -89,11 +105,11 @@ public class CatalogTest
     }
 
     [TestMethod]
-    public async Task MockShouldResponseEmptyTitleTest()
+    public async Task ControllerDeleteInvalidRequest_ShouldResponseNull()
     {
         var mockLogger = Substitute.For<ILogger<CatalogController>>();
         var fakeServiceScopeFactory = Substitute.For<IServiceScopeFactory>();
-        fakeServiceScopeFactory.CreateScope().Returns(_fakeScope);
+        fakeServiceScopeFactory.CreateScope().Returns(_scope);
         var catalogController = new CatalogController(fakeServiceScopeFactory, mockLogger);
 
         var response = (await catalogController.OnDeleteSongAsync(-300, -200)).Value;
@@ -104,6 +120,6 @@ public class CatalogTest
     [TestCleanup]
     public void TestCleanup()
     {
-        _fakeScope?.Dispose();
+        _scope?.Dispose();
     }
 }

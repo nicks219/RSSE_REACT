@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RandomSongSearchEngine.Data.DTO;
 using RandomSongSearchEngine.Service.Models;
-using RandomSongSearchEngine.Tests.Mocks;
+using RandomSongSearchEngine.Tests.Infrastructure;
 
 namespace RandomSongSearchEngine.Tests;
 
@@ -13,7 +13,7 @@ public class CreateTest
 {
     private const int GenresCount = 44;
     
-    private IServiceScope? _fakeScope;
+    private IServiceScope? _scope;
     
     private CreateModel? _createModel;
 
@@ -24,13 +24,13 @@ public class CreateTest
         
         FakeLoggerErrors.LogErrorMessage = "";
         
-        _fakeScope = new FakeScope<CreateModel>().ServiceScope;
+        _scope = new TestScope<CreateModel>().ServiceScope;
         
-        _createModel = new CreateModel(_fakeScope);
+        _createModel = new CreateModel(_scope);
     }
 
     [TestMethod]
-    public async Task ShouldBe44GenresTest()
+    public async Task Model_ShouldReports44Genres()
     {
         var response = await _createModel!.ReadGenreListAsync();
         
@@ -38,17 +38,17 @@ public class CreateTest
     }
 
     [TestMethod]
-    public async Task ShouldCreate()
+    public async Task Model_ShouldCreate()
     {
         var song = new SongDto()
         {
             Title = "test title",
             Text = "test text",
-            SongGenres = new List<int> {1, 2, 3, 4}
+            SongGenres = new List<int> {1, 2, 3, 4, 11}
         };
         var response = await _createModel!.CreateSongAsync(song);
         
-        var expected = await new UpdateModel(new FakeScope<UpdateModel>().ServiceScope)
+        var expected = await new UpdateModel(new TestScope<UpdateModel>().ServiceScope)
             .ReadOriginalSongAsync(response.Id);
         
         Assert.AreEqual(expected.Title, response.Title);
@@ -57,6 +57,6 @@ public class CreateTest
     [TestCleanup]
     public void TestCleanup()
     {
-        _fakeScope?.Dispose();
+        _scope?.Dispose();
     }
 }

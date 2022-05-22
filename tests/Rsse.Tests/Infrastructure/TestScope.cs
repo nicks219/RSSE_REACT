@@ -5,38 +5,51 @@ using Microsoft.Extensions.Logging;
 using RandomSongSearchEngine.Data;
 using RandomSongSearchEngine.Data.Repository;
 using RandomSongSearchEngine.Data.Repository.Contracts;
+using RandomSongSearchEngine.Infrastructure.Cache;
+using RandomSongSearchEngine.Infrastructure.Cache.Contracts;
+using RandomSongSearchEngine.Infrastructure.Engine;
+using RandomSongSearchEngine.Infrastructure.Engine.Contracts;
 
-namespace RandomSongSearchEngine.Tests.Mocks;
+namespace RandomSongSearchEngine.Tests.Infrastructure;
 
-public class FakeScope<T> where T : class
+public class TestScope<T> where T : class
 {
     public readonly IServiceScope ServiceScope;
 
-    // Connection String для MsSql
-    // private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\SSDSQL;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
+    // Connection String для MsSql: private readonly string _connectionString = "Data Source=DESKTOP-I5CODE\\SSDSQL;Initial Catalog=rsse;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False";
 
-    // Connection String для MySql
     private const string ConnectionString = @"Server=localhost;Database=rsse;Uid=1;Pwd=1;";
 
-    public FakeScope()
+    public TestScope(bool stubRepository = false)
     {
         var services = new ServiceCollection();
-        
-        services.AddTransient<IDataRepository, DataRepository>();
-        
+
+        if (!stubRepository)
+        {
+            services.AddTransient<IDataRepository, DataRepository>();
+
+            // MySql
+            services.AddDbContext<RsseContext>(options =>
+                options.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 26))));
+        }
+        else
+        {
+            services.AddTransient<IDataRepository, TestDataRepository>();
+        }
+
         services.AddTransient<ILogger<T>, FakeLogger<T>>();
+
+        services.AddTransient<ITextProcessor, TextProcessor>();
+
+        services.AddSingleton<ICacheRepository, CacheRepository>();
 
         // MsSql
         // services.AddDbContext<RsseContext>(options => options.UseSqlServer(_connectionString));
 
-        // MySql
-        services.AddDbContext<RsseContext>(options =>
-            options.UseMySql(ConnectionString, new MySqlServerVersion(new Version(8, 0, 26))));
-
         // services.AddDbContext<RsseContext>(options => options.UseInMemoryDatabase(databaseName: "rsse"));
-        
+
         var serviceProvider = services.BuildServiceProvider();
-        
+
         ServiceScope = serviceProvider.CreateScope();
     }
 }

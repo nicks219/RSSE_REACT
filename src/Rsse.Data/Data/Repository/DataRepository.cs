@@ -33,7 +33,15 @@ public class DataRepository : IDataRepository
         return textEntity.Title!;
     }
 
-    public IQueryable<int> SelectAllSongsInGenres(int[] checkedGenres)
+    public int FindIdByName(string name)
+    {
+        var song = _context.Text!
+            .First(s => s.Title == name);
+
+        return song.TextId;
+    }
+
+    public IQueryable<int> SelectAllSongsInGenres(IEnumerable<int> checkedGenres)
     {
         // TODO: определить какой метод лучше
         // IQueryable<int> songsCollection = database.GenreText//
@@ -99,7 +107,7 @@ public class DataRepository : IDataRepository
             .ToList();
     }
 
-    public async Task UpdateSongAsync(List<int> originalCheckboxes, SongDto song)
+    public async Task UpdateSongAsync(IEnumerable<int> originalCheckboxes, SongDto song)
     {
         var forAddition = song.SongGenres!.ToHashSet();
         
