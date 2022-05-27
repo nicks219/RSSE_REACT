@@ -34,12 +34,12 @@ public class FindTest
         
         // {"Value":{"Res":{"270":0.031746031746031744,"228":0.0273972602739726}},"Formatters":[],"ContentTypes":[],"DeclaredType":null,"StatusCode":200}
 
-        obj.Value!.Res.Keys
+        obj.Value!.Res?.Keys
             .ElementAt(0)
             .Should()
             .Be("270");
         
-        obj.Value!.Res.Keys
+        obj.Value!.Res?.Keys
             .ElementAt(1)
             .Should()
             .Be("228");
@@ -55,5 +55,5 @@ public class AnonymousResponse
 public class Value
 {
     [JsonPropertyName("Res")]
-    public Dictionary<string, double> Res { get; init; }
+    public Dictionary<string, double>? Res { get; init; }
 }
